@@ -1,0 +1,118 @@
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <title>Pursuit - Youth Group Games</title>
+    
+    <!-- iOS / PWA Meta Tags -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Pursuit">
+    <meta name="theme-color" content="#F5F5F7">
+    
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="/manifest.json">
+
+    <!-- Custom SVG Favicon (Flame/Heart) -->
+    <link rel="icon" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCI+PGRlZnM+PGxpbmVhckdyYWRpZW50IGlkPSJnIiB4MT0iMTIiIHkxPSIyIiB4Mj0iMTIiIHkyPSIyMiIgZ3JhZGllbnRVbml0cz0idXNlclNwYWNlT25Vc2UiPjxzdG9wIHN0b3AtY29sb3I9IiNGOTczMTYiLz48c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiNEQzI2MjYiLz48L2xpbmVhckdyYWRpZW50PjwvZGVmcz48cGF0aCBkPSZNMTIgMkMxMiAyIDE5IDggMTkgMTRDMTkgMTguNSAxNS41IDIyIDEyIDIyQzguNSAyMiA1IDE4LjUgNSAxNEM1IDggMTIgMiAxMiAyWiIgZmlsbD0idXJsKCNnKSIvPjxwYXRoIGQ9Ik0xMiAxOEwxMC44IDE2LjlDOC42IDE0LjkgNy41IDEzLjYgNy41IDEyQzcuNSAxMC43IDguNSA5LjcgOS44IDkuN0MxMC41IDkuNyAxMS4yIDEwIDExLjYgMTAuNUwxMiAxMC45TDEyLjQgMTAuNUMxMi44IDEwIDEzLjUgOS43IDE0LjIgOS43QzE1LjUgOS43IDE2LjUgMTAuNyAxNi41IDEyQzE2LjUgMTMuNiAxNS40IDE0LjkgMTMuMiAxNi45TDEyIDE4WiIgZmlsbD0id2hpdGUiLz48L3N2Zz4=" />
+    <link rel="apple-touch-icon" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCI+PGRlZnM+PGxpbmVhckdyYWRpZW50IGlkPSJnIiB4MT0iMTIiIHkxPSIyIiB4Mj0iMTIiIHkyPSIyMiIgZ3JhZGllbnRVbml0cz0idXNlclNwYWNlT25Vc2UiPjxzdG9wIHN0b3AtY29sb3I9IiNGOTczMTYiLz48c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiNEQzI2MjYiLz48L2xpbmVhckdyYWRpZW50PjwvZGVmcz48cmVjdCB3aWR0aD0iMjQiIGhlaWdodD0iMjQiIGZpbGw9IiMxZDFkMWYiIC8+PHBhdGggZD0iTTEyIDJDNT4gMiAxOSA4IDE5IDE0QzE5IDE4LjUgMTUuNSAyMiAxMiAyMkM4LjUgMjIgNSAxOC41IDUgMTRDNSA4IDEyIDIgMTIgMloiIGZpbGw9InVybCgjZykiLz48cGF0aCBkPSZNMTIgMThMMTAuOCAxNi45QzguNiAxNC45IDcuNSAxMy42IDcuNSAxMkM3LjUgMTAuNyA8LjUgOS43IDkuOCA5LjdDMTAuNSA5LjcgMTEuMiAxMCAxMS42IDEwLjVMMTIgMTAuOUwxMi40IDEwLjVDMTIuOCAxMCAxMy41IDkuNyAxNC4yIDkuN0MxNS41IDkuNyAxNi41IDEwLjcgMTYuNSAxMkMxNi41IDEzLjYgMTUuNCAxNC45IDEzLjIgMTYuOUwxMiAxOFoiIGZpbGw9IndoaXRlIi8+PC9zdmc+" />
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        darkMode: 'class',
+        theme: {
+          extend: {
+            fontFamily: {
+              sans: ['Inter', 'sans-serif'],
+            },
+          }
+        }
+      }
+    </script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+      body {
+        font-family: 'Inter', sans-serif;
+        /* Prevent elastic scrolling on iOS */
+        overscroll-behavior-y: none;
+      }
+      /* Custom Scrollbar for Webkit */
+      ::-webkit-scrollbar {
+        width: 6px;
+      }
+      ::-webkit-scrollbar-track {
+        background: transparent;
+      }
+      ::-webkit-scrollbar-thumb {
+        background-color: rgba(0,0,0,0.1);
+        border-radius: 10px;
+      }
+      .dark ::-webkit-scrollbar-thumb {
+        background-color: rgba(255,255,255,0.2);
+      }
+      ::-webkit-scrollbar-thumb:hover {
+        background-color: rgba(0,0,0,0.2);
+      }
+      
+      /* Utilities for 3D Card Flip */
+      .perspective-1000 {
+        perspective: 1000px;
+      }
+      .transform-style-3d {
+        transform-style: preserve-3d;
+      }
+      .backface-hidden {
+        backface-visibility: hidden;
+      }
+      .rotate-y-180 {
+        transform: rotateY(180deg);
+      }
+
+      /* Glass utilities */
+      .glass-panel {
+        background: rgba(255, 255, 255, 0.65);
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+        border: 1px solid rgba(255, 255, 255, 0.5);
+      }
+      
+      /* Dark mode glass */
+      .dark .glass-panel {
+        background: rgba(10, 10, 10, 0.7);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+      }
+    </style>
+  <script type="importmap">
+{
+  "imports": {
+    "react-dom/": "https://aistudiocdn.com/react-dom@^19.2.0/",
+    "lucide-react": "https://aistudiocdn.com/lucide-react@^0.554.0",
+    "react/": "https://aistudiocdn.com/react@^19.2.0/",
+    "react": "https://aistudiocdn.com/react@^19.2.0",
+    "@google/genai": "https://aistudiocdn.com/@google/genai@^1.30.0",
+    "react-markdown": "https://aistudiocdn.com/react-markdown@^10.1.0"
+  }
+}
+</script>
+<script>
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('/service-worker.js')
+        .then(registration => {
+          console.log('SW registered: ', registration);
+        })
+        .catch(registrationError => {
+          console.log('SW registration failed: ', registrationError);
+        });
+    });
+  }
+</script>
+</head>
+  <body class="antialiased selection:bg-indigo-500/20 selection:text-indigo-900 dark:selection:bg-indigo-500/40 dark:selection:text-white">
+    <div id="root"></div>
+  </body>
+</html>
