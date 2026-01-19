@@ -1,7 +1,7 @@
 
 import React, { useState } from 'react';
 import ReactMarkdown from 'react-markdown';
-import { X, Sparkles, Wand2, Copy, Check, Save, RotateCw, List, RefreshCw, MessageSquare } from 'lucide-react';
+import { X, Sparkles, Wand2, Copy, Check, Save, RotateCw, List, RefreshCw, MessageSquare, Bold } from 'lucide-react';
 import { Game } from '../types';
 import { improveGameText, generateGameContent } from '../services/gemini';
 import { playClick, playSuccess } from '../services/sound';
@@ -121,12 +121,13 @@ const GameAIModal: React.FC<GameAIModalProps> = ({ isOpen, onClose, game, onUpda
                     <div className="space-y-3">
                          <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">How should we change the rules?</label>
                          <div className="flex flex-wrap gap-2 mb-2">
-                            {['Make it funnier', 'Simplify for Middle Schoolers', 'Fix grammar/clarity', 'Make it concise'].map(opt => (
+                            {['Format with Bold & Lists', 'Make it funnier', 'Simplify for Middle Schoolers', 'Make it concise'].map(opt => (
                                 <button 
                                     key={opt}
                                     onClick={() => setPolishInstruction(opt)}
                                     className={`px-3 py-1.5 rounded-lg text-xs font-medium border transition-colors ${polishInstruction === opt ? 'bg-indigo-50 border-indigo-200 text-indigo-700' : 'bg-slate-50 border-slate-200 text-slate-600 hover:bg-slate-100'}`}
                                 >
+                                    {opt === 'Format with Bold & Lists' && <Bold className="w-3 h-3 inline mr-1" />}
                                     {opt}
                                 </button>
                             ))}
@@ -136,7 +137,7 @@ const GameAIModal: React.FC<GameAIModalProps> = ({ isOpen, onClose, game, onUpda
                                 type="text"
                                 value={polishInstruction}
                                 onChange={(e) => setPolishInstruction(e.target.value)}
-                                className="flex-1 p-3 bg-slate-50 border-none rounded-xl text-sm focus:ring-2 focus:ring-indigo-500/20"
+                                className="flex-1 p-3 bg-slate-50 border-none rounded-xl text-sm text-slate-800 placeholder:text-slate-400 focus:ring-2 focus:ring-indigo-500/20"
                                 placeholder="e.g. Add a twist involving water balloons..."
                              />
                              <button 
@@ -167,7 +168,7 @@ const GameAIModal: React.FC<GameAIModalProps> = ({ isOpen, onClose, game, onUpda
                                 type="text"
                                 value={generatePrompt}
                                 onChange={(e) => setGeneratePrompt(e.target.value)}
-                                className="flex-1 p-3 bg-slate-50 border-none rounded-xl text-sm focus:ring-2 focus:ring-indigo-500/20"
+                                className="flex-1 p-3 bg-slate-50 border-none rounded-xl text-sm text-slate-800 placeholder:text-slate-400 focus:ring-2 focus:ring-indigo-500/20"
                                 placeholder="e.g. List of 20 challenging words..."
                              />
                              <button 
@@ -200,7 +201,7 @@ const GameAIModal: React.FC<GameAIModalProps> = ({ isOpen, onClose, game, onUpda
                         </div>
                     </div>
                     <div className="bg-slate-50 rounded-2xl p-6 border border-slate-200 text-slate-700 text-sm leading-relaxed overflow-x-auto">
-                        <div className="prose prose-sm max-w-none prose-p:text-slate-700 prose-headings:text-slate-800 prose-strong:text-slate-900 prose-ul:list-disc prose-ul:pl-4">
+                        <div className="prose prose-sm max-w-none prose-p:text-slate-700 prose-headings:text-slate-800 prose-strong:text-slate-900 prose-strong:font-black prose-ul:list-disc prose-ul:pl-4">
                             <ReactMarkdown>{result}</ReactMarkdown>
                         </div>
                     </div>

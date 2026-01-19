@@ -1,0 +1,25 @@
+
+{
+  "short_name": "Pursuit",
+  "name": "Pursuit Youth Games",
+  "icons": [
+    {
+      "src": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA1MTIgNTEyIj48cmVjdCB3aWR0aD0iNTEyIiBoZWlnaHQ9IjUxMiIgZmlsbD0iIzFEMUQxRiIgcng9IjEwMCIgcnk9IjEwMCIvPjxkZWZzPjxsaW5lYXJHcmFkaWVudCBpZD0iZyIgeDE9IjI1NiIgeTE9IjQyIiB4Mj0iMjU2IiB5Mj0iNDcwIiBncmFkaWVudFVuaXRzPSJ1c2VyU3BhY2VPblVzZSI+PHN0b3Agc3RvcC1jb2xvcj0iI0Y5NzMxNiIvPjxzdG9wIG9mZnNldD0iMSIgc3RvcC1jb2xvcj0iI0RDMjYyNiIvPjwvbGluZWFyR3JhZGllbnQ+PC9kZWZzPjxwYXRoIGQ9Ik0yNTYgNDIuNkMyNTYgNDIuNiA0MDUuMyAxNzAuNiA0MDUuMyAyOTguNkM0MDUuMyAzOTQuNiAzMzAuNiA0NjkuMyAyNTYgNDY5LjNDMTgxLjMgNDY5LjMgMTA2LjYgMzk0LjYgMTA2LjYgMjk4LjZDMTA2LjYgMTcwLjYgMjU2IDQyLjYgMjU2IDQyLjZaIiBmaWxsPSJ1cmwoI2cpIi8+PHBhdGggZD0iTTI1NiAzODRMMjMwLjQgMzYwLjVDMTgzLjQgMzE3LjggMTYwIDI5MC4xIDE2MCAyNTZDMTYwIDIyOC4yIDE4MS4zIDIwNi45IDIwOSAyMDYuOUMyMjMuOSAyMDYuOSAyMzguOSAyMTMuMyAyNDcuNCAyMjRMMjU2IDIzMi41TDI2NC41IDIyNEMyNzMgMjEzLjMgMjg3LjkgMjA2LjkgMzAyLjkgMjA2LjlDMzMwLjYgMjA2LjkgMzUyIDIyOC4yIDM1MiAyNTZDMzUyIDI5MC4xIDMyOC41IDMxNy44IDI4MS41IDM2MC41TDI1NiAzODRaIiBmaWxsPSJ3aGl0ZSIvPjwvc3ZnPg==",
+      "type": "image/svg+xml",
+      "sizes": "512x512",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA1MTIgNTEyIj48cmVjdCB3aWR0aD0iNTEyIiBoZWlnaHQ9IjUxMiIgZmlsbD0iIzFEMUQxRiIgcng9IjEwMCIgcnk9IjEwMCIvPjxkZWZzPjxsaW5lYXJHcmFkaWVudCBpZD0iZyIgeDE9IjI1NiIgeTE9IjQyIiB4Mj0iMjU2IiB5Mj0iNDcwIiBncmFkaWVudFVuaXRzPSJ1c2VyU3BhY2VPblVzZSI+PHN0b3Agc3RvcC1jb2xvcj0iI0Y5NzMxNiIvPjxzdG9wIG9mZnNldD0iMSIgc3RvcC1jb2xvcj0iI0RDMjYyNiIvPjwvbGluZWFyR3JhZGllbnQ+PC9kZWZzPjxwYXRoIGQ9Ik0yNTYgNDIuNkMyNTYgNDIuNiA0MDUuMyAxNzAuNiA0MDUuMyAyOTguNkM0MDUuMyAzOTQuNiAzMzAuNiA0NjkuMyAyNTYgNDY5LjNDMTgxLjMgNDY5LjMgMTA2LjYgMzk0LjYgMTA2LjYgMjk4LjZDMTA2LjYgMTcwLjYgMjU2IDQyLjYgMjU2IDQyLjZaIiBmaWxsPSJ1cmwoI2cpIi8+PHBhdGggZD0iTTI1NiAzODRMMjMwLjQgMzYwLjVDMTgzLjQgMzE3LjggMTYwIDI5MC4xIDE2MCAyNTZDMTYwIDIyOC4yIDE4MS4zIDIwNi45IDIwOSAyMDYuOUMyMjMuOSAyMDYuOSAyMzguOSAyMTMuMyAyNDcuNCAyMjRMMjU2IDIzMi41TDI2NC41IDIyNEMyNzMgMjEzLjMgMjg3LjkgMjA2LjkgMzAyLjkgMjA2LjlDMzMwLjYgMjA2LjkgMzUyIDIyOC4yIDM1MiAyNTZDMzUyIDI5MC4xIDMyOC41IDMxNy44IDI4MS41IDM2MC41TDI1NiAzODRaIiBmaWxsPSJ3aGl0ZSIvPjwvc3ZnPg==",
+      "type": "image/svg+xml",
+      "sizes": "192x192",
+      "purpose": "any maskable"
+    }
+  ],
+  "start_url": "/",
+  "background_color": "#F5F5F7",
+  "display": "standalone",
+  "scope": "/",
+  "theme_color": "#F5F5F7",
+  "orientation": "portrait-primary"
+}

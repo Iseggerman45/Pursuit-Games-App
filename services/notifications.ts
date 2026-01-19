@@ -21,7 +21,8 @@ export const sendNotification = (title: string, body?: string) => {
         new Notification(title, {
             body: body,
             icon: 'https://cdn-icons-png.flaticon.com/512/2913/2913520.png', // Generic Flame Icon
-            badge: 'https://cdn-icons-png.flaticon.com/512/2913/2913520.png'
+            badge: 'https://cdn-icons-png.flaticon.com/512/2913/2913520.png',
+            tag: 'pursuit-timer' // Group notifications so we don't spam
         });
     } catch (e) {
         console.error("Notification failed", e);

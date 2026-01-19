@@ -8,45 +8,42 @@ import { TagIcon } from './TagIcon';
 interface AddGameModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onGenerate: (prompt: string, category: string, targetGroup: TargetGroup, manualTags: string[]) => void;
+  onGenerate: (prompt: string, category: string, targetGroup: TargetGroup | 'Both', manualTags: string[]) => void;
   isLoading: boolean;
   categories: string[];
   allTags: string[];
   user: UserProfile | null;
 }
 
-const PLAYER_COUNTS = ['1-5', '5-10', '10-15', '15+'];
-
 const AddGameModal: React.FC<AddGameModalProps> = ({ isOpen, onClose, onGenerate, isLoading, categories, allTags, user }) => {
   const [description, setDescription] = useState('');
-  const [playerCount, setPlayerCount] = useState('15+');
+  const [minPlayers, setMinPlayers] = useState('2');
   const [hours, setHours] = useState('0');
   const [minutes, setMinutes] = useState('15');
-  const [selectedCategory, setSelectedCategory] = useState(categories[0] || 'General');
-  const [targetGroup, setTargetGroup] = useState<TargetGroup>('Both');
+  const [targetGroup, setTargetGroup] = useState<TargetGroup | 'Both'>('Both');
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
 
   useEffect(() => {
     if (isOpen) {
-        setPlayerCount('15+');
+        setMinPlayers('2');
         setHours('0');
         setMinutes('15');
         setDescription('');
         setTargetGroup('Both');
         setSelectedTags([]);
-        if (categories.length > 0) setSelectedCategory(categories[0]);
     }
-  }, [isOpen, categories]);
+  }, [isOpen]);
 
   if (!isOpen) return null;
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    let prompt = `Players: ${playerCount}. Duration: ${hours} hours and ${minutes} minutes. Target Audience: ${targetGroup}.`;
+    let prompt = `Minimum Players: ${minPlayers}. Duration: ${hours} hours and ${minutes} minutes. Target Audience: ${targetGroup}.`;
     if (description.trim()) {
       prompt += ` Description/Theme: ${description}`;
     }
-    onGenerate(prompt, selectedCategory, targetGroup, selectedTags);
+    // Default to 'General' category as it's no longer a primary selector
+    onGenerate(prompt, 'General', targetGroup, selectedTags);
   };
 
   const toggleTag = (tag: string) => {
@@ -99,7 +96,7 @@ const AddGameModal: React.FC<AddGameModalProps> = ({ isOpen, onClose, onGenerate
                         School Level
                     </label>
                     <div className="flex bg-white/50 p-1 rounded-2xl border border-white/60 overflow-x-auto">
-                        {(['Middle School', 'High School', 'College', 'Both'] as TargetGroup[]).map((group) => (
+                        {(['Middle School', 'High School', 'College', 'Both'] as (TargetGroup | 'Both')[]).map((group) => (
                             <button
                                 key={group}
                                 type="button"
@@ -115,28 +112,6 @@ const AddGameModal: React.FC<AddGameModalProps> = ({ isOpen, onClose, onGenerate
                                 {group}
                             </button>
                         ))}
-                    </div>
-                </div>
-
-                {/* Category Selection */}
-                <div className="col-span-2">
-                    <label className="text-sm font-semibold text-slate-800 mb-2.5 flex items-center gap-2">
-                        <Layers className="w-4 h-4 text-orange-600" />
-                        Category
-                    </label>
-                    <div className="relative">
-                        <select
-                            value={selectedCategory}
-                            onChange={(e) => setSelectedCategory(e.target.value)}
-                            className="w-full appearance-none p-3.5 bg-white border-none rounded-2xl focus:ring-2 focus:ring-orange-500/20 text-slate-700 font-medium text-sm shadow-sm hover:bg-slate-50 transition-colors"
-                        >
-                            {categories.map((cat) => (
-                                <option key={cat} value={cat}>{cat}</option>
-                            ))}
-                        </select>
-                        <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400">
-                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path></svg>
-                        </div>
                     </div>
                 </div>
             </div>
@@ -171,30 +146,20 @@ const AddGameModal: React.FC<AddGameModalProps> = ({ isOpen, onClose, onGenerate
                 </div>
             </div>
 
-            {/* Player Count */}
+            {/* Minimum Players */}
             <div>
                 <label className="text-sm font-semibold text-slate-800 mb-2.5 flex items-center gap-2">
                     <Users className="w-4 h-4 text-orange-600" />
-                    Group Size
+                    Minimum Players Needed
                 </label>
-                <div className="grid grid-cols-4 gap-2">
-                    {PLAYER_COUNTS.map((count) => (
-                        <button
-                            key={count}
-                            type="button"
-                            onClick={() => { playClick(); setPlayerCount(count); }}
-                            className={`
-                                py-2.5 px-1 text-xs font-semibold rounded-xl transition-all duration-200
-                                ${playerCount === count 
-                                    ? 'bg-[#1D1D1F] text-white shadow-lg shadow-black/10 transform scale-105' 
-                                    : 'bg-white border border-slate-200/60 text-slate-600 hover:bg-slate-50'
-                                }
-                            `}
-                        >
-                            {count}
-                        </button>
-                    ))}
-                </div>
+                <input
+                    type="number"
+                    min="1"
+                    value={minPlayers}
+                    onChange={(e) => setMinPlayers(e.target.value)}
+                    placeholder="e.g. 4"
+                    className="w-full p-3.5 bg-white border-none rounded-2xl text-slate-700 font-medium shadow-sm focus:outline-none focus:ring-2 focus:ring-orange-500/20"
+                />
             </div>
 
             {/* Duration */}

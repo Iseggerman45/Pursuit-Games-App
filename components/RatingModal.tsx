@@ -40,11 +40,13 @@ const RatingModal: React.FC<RatingModalProps> = ({ isOpen, onClose, onSave, game
   };
 
   const average = calculateAverage();
-  const roundedAverage = Math.round(average);
+  // Display purposes only - we send full precision to parent
+  const roundedAverage = Math.round(average); 
 
   const handleSave = () => {
     if (votes.length > 0) {
-        onSave(game.id, roundedAverage);
+        // Send exact average (e.g. 4.3333) so long-term average is more precise
+        onSave(game.id, average);
     }
     onClose();
   };
@@ -139,7 +141,7 @@ const RatingModal: React.FC<RatingModalProps> = ({ isOpen, onClose, onSave, game
                 className="w-full py-4 bg-[#1D1D1F] text-white rounded-2xl font-bold text-lg shadow-lg shadow-black/5 hover:bg-black transition-all active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
             >
                 <ThumbsUp className="w-5 h-5" />
-                {votes.length === 0 ? 'No Votes Yet' : `Save Rating (${roundedAverage} Stars)`}
+                {votes.length === 0 ? 'No Votes Yet' : `Save Rating (${average.toFixed(1)})`}
             </button>
         </div>
 

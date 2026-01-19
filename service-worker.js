@@ -1,5 +1,5 @@
 
-const CACHE_NAME = 'pursuit-v1';
+const CACHE_NAME = 'pursuit-v8-fix'; // Major version bump to force refresh
 const urlsToCache = [
   '/',
   '/index.html',
@@ -7,6 +7,7 @@ const urlsToCache = [
 ];
 
 self.addEventListener('install', (event) => {
+  self.skipWaiting(); // Forces this new worker to become active immediately
   event.waitUntil(
     caches.open(CACHE_NAME)
       .then((cache) => {
@@ -17,13 +18,25 @@ self.addEventListener('install', (event) => {
 
 self.addEventListener('fetch', (event) => {
   event.respondWith(
-    caches.match(event.request)
+    fetch(event.request)
       .then((response) => {
-        // Cache hit - return response
-        if (response) {
+        // If we got a valid response, verify it and clone it to cache
+        if (!response || response.status !== 200 || response.type !== 'basic') {
           return response;
         }
-        return fetch(event.request);
+        
+        // Don't cache API calls or external resources usually, but for PWA assets:
+        const responseToCache = response.clone();
+        caches.open(CACHE_NAME)
+          .then((cache) => {
+            cache.put(event.request, responseToCache);
+          });
+
+        return response;
+      })
+      .catch(() => {
+        // Network failed, try to serve from cache
+        return caches.match(event.request);
       })
   );
 });
@@ -41,4 +54,5 @@ self.addEventListener('activate', (event) => {
       );
     })
   );
+  return self.clients.claim(); // Take control of all clients immediately
 });

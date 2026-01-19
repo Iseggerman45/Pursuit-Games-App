@@ -1,8 +1,6 @@
 
-
-
 import React, { useState } from 'react';
-import { X, Trophy, Swords, Crown, History, User } from 'lucide-react';
+import { X, Trophy, Swords, Crown, History, User, PlusCircle } from 'lucide-react';
 import { GameResult, UserProfile, Rivalry } from '../types';
 import { playClick } from '../services/sound';
 
@@ -12,9 +10,10 @@ interface LeaderboardModalProps {
   results: GameResult[];
   user: UserProfile | null;
   rivalries: Rivalry[];
+  onManageRivalries?: () => void;
 }
 
-const LeaderboardModal: React.FC<LeaderboardModalProps> = ({ isOpen, onClose, results, user, rivalries }) => {
+const LeaderboardModal: React.FC<LeaderboardModalProps> = ({ isOpen, onClose, results, user, rivalries, onManageRivalries }) => {
   const [activeTab, setActiveTab] = useState<'rivalries' | 'champions' | 'history'>('rivalries');
 
   if (!isOpen) return null;
@@ -82,7 +81,7 @@ const LeaderboardModal: React.FC<LeaderboardModalProps> = ({ isOpen, onClose, re
                 <div className="space-y-6">
                     {rivalries.length === 0 ? (
                         <div className="text-center py-10 text-slate-400 italic text-sm">
-                            No rivalries set up. Add them in Settings!
+                            No rivalries set up.
                         </div>
                     ) : (
                         rivalries.map((rivalry) => {
@@ -114,6 +113,16 @@ const LeaderboardModal: React.FC<LeaderboardModalProps> = ({ isOpen, onClose, re
                                 </div>
                             );
                         })
+                    )}
+
+                    {onManageRivalries && (
+                        <button 
+                            onClick={onManageRivalries}
+                            className="w-full py-3 bg-slate-50 hover:bg-slate-100 border border-slate-200 border-dashed rounded-xl text-slate-500 font-bold text-xs flex items-center justify-center gap-2 transition-all"
+                        >
+                            <PlusCircle className="w-4 h-4" />
+                            Manage / Add Rivalries
+                        </button>
                     )}
                 </div>
             )}

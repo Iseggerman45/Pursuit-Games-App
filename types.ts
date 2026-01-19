@@ -1,12 +1,25 @@
-
-
-export type TargetGroup = 'Middle School' | 'High School' | 'College' | 'Both';
+export type TargetGroup = 'Middle School' | 'High School' | 'College';
 
 export interface UserProfile {
   id: string;
   name: string;
-  color: string; // hex code or tailwind class for avatar background
-  emoji?: string; // New optional field for profile emoji
+  color: string;
+  emoji?: string;
+}
+
+export interface Player {
+  id: string;
+  name: string;
+  age: string;
+  gender: 'Male' | 'Female' | 'Other';
+}
+
+export interface Folder {
+  id: string;
+  name: string;
+  color?: string;
+  createdAt: number;
+  lastUpdated?: number;
 }
 
 export interface Game {
@@ -15,21 +28,39 @@ export interface Game {
   rules: string;
   materials: string;
   duration: string;
-  rating: number; // 0 to 5
+  minPlayers: string;
+  rating: number;
+  ratingCount?: number;
   tags: string[];
   category: string;
-  targetGroup: TargetGroup;
-  lastUpdated?: number; // Timestamp for sync merging
-  createdBy?: string; // Name of the user who created it
-  creatorId?: string; // ID of the user (for potential future ownership logic)
-  isDeleted?: boolean; // Soft delete flag for sync
+  targetGroups: TargetGroup[];
+  lastUpdated?: number;
+  createdBy?: string;
+  creatorId?: string;
+  isDeleted?: boolean;
+  folderId?: string;
+  diagramUrl?: string;
+  diagramData?: string; // JSON string of DiagramObject[]
+  hasDiagram?: boolean; // Flag to indicate if a separate asset exists in cloud
+}
+
+export interface DiagramObject {
+    id: string;
+    type: 'player' | 'cone' | 'ball' | 'zone' | 'label';
+    x: number;
+    y: number;
+    rotation: number;
+    scale: number;
+    color: string;
+    label?: string;
+    fill?: boolean;
 }
 
 export interface GameResult {
   id: string;
   gameId: string;
   gameTitle: string;
-  winner: string; // "Boys", "Girls", "Students", "Leaders", or "PlayerName"
+  winner: string;
   type: 'Team' | 'Individual';
   timestamp: number;
 }
@@ -37,9 +68,9 @@ export interface GameResult {
 export interface ActiveTimer {
   id: string;
   label: string;
-  endTime: number; // Unix timestamp when it ends
-  duration: number; // Original duration in minutes
-  status: 'running' | 'ended';
+  endTime: number;
+  duration: number;
+  status: 'running' | 'alerting' | 'ended';
   startedBy: string;
 }
 
@@ -76,6 +107,7 @@ export interface ExportData {
   version: number;
   timestamp: number;
   games: Game[];
+  folders?: Folder[];
   categories: string[];
   tags?: string[];
   results?: GameResult[];
@@ -83,4 +115,15 @@ export interface ExportData {
   activeTimer?: ActiveTimer | null;
   rivalries?: Rivalry[];
   messages?: GroupMessage[];
+  players?: Player[];
+  syncId?: string;
+}
+
+export interface FirebaseConfig {
+  apiKey: string;
+  authDomain: string;
+  projectId: string;
+  storageBucket: string;
+  messagingSenderId: string;
+  appId: string;
 }
