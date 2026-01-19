@@ -1,179 +1,158 @@
 
-import React, { useState, useEffect } from 'react';
-import { X, Trophy, Users, User, Check, Crown, Search } from 'lucide-react';
-import { Game, GameResult, UserProfile, Rivalry } from '../types';
+import React, { useState, useEffect, useMemo } from 'react';
+import { X, Trophy, Users, User, Check, Crown, Search, Users2, ShieldCheck } from 'lucide-react';
+import { Game, GameResult, UserProfile, Rivalry, Player } from '../types';
 import { playClick } from '../services/sound';
 
 interface WinnerModalProps {
   isOpen: boolean;
   onClose: () => void;
   game: Game | null;
+  players: Player[];
   onSave: (result: GameResult) => void;
   user: UserProfile | null;
-  recentPlayers: string[];
   rivalries: Rivalry[];
 }
 
-const WinnerModal: React.FC<WinnerModalProps> = ({ isOpen, onClose, game, onSave, user, recentPlayers, rivalries }) => {
-  const [winnerName, setWinnerName] = useState('');
-  const [activeRivalry, setActiveRivalry] = useState<Rivalry | null>(null);
+const WinnerModal: React.FC<WinnerModalProps> = ({ isOpen, onClose, game, players, onSave, user, rivalries }) => {
+  const [selectedPlayerIds, setSelectedPlayerIds] = useState<string[]>([]);
+  const [searchTerm, setSearchTerm] = useState('');
+
+  const isTeamGame = useMemo(() => {
+    if (!game) return false;
+    const lowerTags = game.tags.map(t => t.toLowerCase());
+    return lowerTags.some(t => t.includes('team') || t.includes('vs') || t.includes('boys vs girls') || t.includes('students vs leaders'));
+  }, [game]);
 
   useEffect(() => {
-    if (isOpen && game) {
-        setWinnerName('');
-        setActiveRivalry(null); // Default to individual
-
-        // Smart detect from tags
-        const lowerTags = game.tags.map(t => t.toLowerCase());
-        const matched = rivalries.find(r => 
-            lowerTags.includes(`${r.team1.toLowerCase()} vs ${r.team2.toLowerCase()}`) ||
-            lowerTags.includes(`${r.team1.toLowerCase()} vs. ${r.team2.toLowerCase()}`)
-        );
-        if (matched) {
-            setActiveRivalry(matched);
-        } else if (lowerTags.includes('boys vs girls')) {
-            // Fallback for default BvG if not matched by ID (should be caught above if default exists)
-             const bvg = rivalries.find(r => r.team1 === 'Boys' && r.team2 === 'Girls');
-             if (bvg) setActiveRivalry(bvg);
-        }
+    if (isOpen) {
+        setSelectedPlayerIds([]);
+        setSearchTerm('');
     }
-  }, [isOpen, game, rivalries]);
+  }, [isOpen]);
 
   if (!isOpen || !game) return null;
 
-  const handleSave = (winner: string, type: 'Team' | 'Individual') => {
+  const handleTogglePlayer = (id: string) => {
+      playClick();
+      if (isTeamGame) {
+          setSelectedPlayerIds(prev => prev.includes(id) ? prev.filter(p => p !== id) : [...prev, id]);
+      } else {
+          // Individual is single select
+          setSelectedPlayerIds(prev => prev.includes(id) ? [] : [id]);
+      }
+  };
+
+  const handleSave = () => {
+      if (selectedPlayerIds.length === 0) return;
+
+      const winningPlayerNames = players
+          .filter(p => selectedPlayerIds.includes(p.id))
+          .map(p => p.name)
+          .join(', ');
+
       onSave({
           id: crypto.randomUUID(),
           gameId: game.id,
           gameTitle: game.title,
-          winner: winner,
-          type: type,
+          winner: winningPlayerNames, // We store comma separated names for backward compatibility and display
+          type: isTeamGame ? 'Team' : 'Individual',
           timestamp: Date.now()
       });
   };
 
+  const filteredPlayers = players.filter(p => 
+      p.name.toLowerCase().includes(searchTerm.toLowerCase())
+  ).sort((a,b) => a.name.localeCompare(b.name));
+
   return (
     <div className="fixed inset-0 z-[70] flex items-center justify-center p-4">
-      <div 
-        className="absolute inset-0 bg-black/30 backdrop-blur-md animate-in fade-in duration-300"
-        onClick={onClose}
-      />
+      <div className="absolute inset-0 bg-black/40 backdrop-blur-md animate-in fade-in duration-300" onClick={onClose} />
       
-      <div className="relative bg-white/90 dark:bg-neutral-900/90 backdrop-blur-2xl rounded-[2.5rem] shadow-2xl w-full max-w-md overflow-hidden animate-in zoom-in-95 slide-in-from-bottom-5 duration-300 border border-white/50 dark:border-white/10 ring-1 ring-black/5 flex flex-col">
+      <div className="relative bg-white/95 dark:bg-[#1D1D1F]/95 backdrop-blur-2xl rounded-[2.5rem] shadow-2xl w-full max-w-lg overflow-hidden animate-in zoom-in-95 slide-in-from-bottom-5 duration-300 border border-white/50 dark:border-white/10 ring-1 ring-black/5 flex flex-col max-h-[85vh]">
         
         {/* Header */}
-        <div className="p-6 border-b border-black/5 dark:border-white/10 bg-white/50 dark:bg-white/5 flex justify-between items-center">
-            <div>
-                <h2 className="text-xl font-bold text-[#1D1D1F] dark:text-white flex items-center gap-2">
-                    <Trophy className="w-5 h-5 text-orange-500" />
-                    Who Won?
-                </h2>
-                <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5 max-w-[250px] truncate">{game.title}</p>
+        <div className="p-6 border-b border-black/5 dark:border-white/10 bg-slate-50 dark:bg-white/5 flex justify-between items-center">
+            <div className="flex items-center gap-4">
+                <div className={`p-3 rounded-2xl shadow-lg ${isTeamGame ? 'bg-indigo-600 text-white' : 'bg-yellow-500 text-white'}`}>
+                    {isTeamGame ? <Users2 className="w-6 h-6" /> : <Trophy className="w-6 h-6" />}
+                </div>
+                <div>
+                    <h2 className="text-xl font-black text-[#1D1D1F] dark:text-white uppercase tracking-tighter italic leading-none">
+                        {isTeamGame ? 'Team Victory' : 'MVP Pick'}
+                    </h2>
+                    <p className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest mt-1 truncate max-w-[200px]">{game.title}</p>
+                </div>
             </div>
             <button onClick={onClose} className="p-2 bg-black/5 dark:bg-white/10 rounded-full hover:bg-black/10 dark:hover:bg-white/20 transition-colors">
                 <X className="w-5 h-5 text-slate-600 dark:text-slate-400" />
             </button>
         </div>
 
-        {/* Content */}
-        <div className="p-8">
-            {activeRivalry ? (
-                <div className="grid grid-cols-2 gap-4">
-                    <button 
-                        onClick={() => handleSave(activeRivalry.team1, 'Team')}
-                        className="aspect-square rounded-2xl bg-indigo-100 hover:bg-indigo-200 border-2 border-indigo-200 flex flex-col items-center justify-center gap-2 transition-all hover:scale-105 active:scale-95"
-                    >
-                        <span className="text-3xl font-bold text-indigo-700">{activeRivalry.team1.charAt(0)}</span>
-                        <span className="font-bold text-indigo-700 text-lg">{activeRivalry.team1}</span>
-                    </button>
-                    <button 
-                        onClick={() => handleSave(activeRivalry.team2, 'Team')}
-                        className="aspect-square rounded-2xl bg-rose-100 hover:bg-rose-200 border-2 border-rose-200 flex flex-col items-center justify-center gap-2 transition-all hover:scale-105 active:scale-95"
-                    >
-                         <span className="text-3xl font-bold text-rose-700">{activeRivalry.team2.charAt(0)}</span>
-                        <span className="font-bold text-rose-700 text-lg">{activeRivalry.team2}</span>
-                    </button>
+        <div className="p-4 bg-white dark:bg-black/20 border-b border-black/5 dark:border-white/10">
+            <div className="relative">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                <input 
+                    type="text" 
+                    placeholder="Search roster..."
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    className="w-full pl-10 pr-4 py-3 bg-slate-100 dark:bg-white/5 border-none rounded-2xl text-sm font-bold focus:ring-2 focus:ring-indigo-500/20 dark:text-white"
+                />
+            </div>
+        </div>
+
+        <div className="flex-1 overflow-y-auto p-6 scrollbar-thin scrollbar-thumb-slate-200 dark:scrollbar-thumb-white/10">
+            {players.length === 0 ? (
+                <div className="text-center py-12 flex flex-col items-center">
+                    <Users className="w-12 h-12 text-slate-200 dark:text-white/10 mb-4" />
+                    <p className="text-slate-400 dark:text-slate-500 text-sm font-medium">Your roster is empty.</p>
+                    <p className="text-slate-400 dark:text-slate-500 text-xs mt-1">Add students in the "Players" section first!</p>
                 </div>
             ) : (
-                <div className="flex flex-col gap-4">
-                    <div className="text-center mb-2">
-                        <div className="w-16 h-16 bg-yellow-100 dark:bg-yellow-500/20 rounded-full flex items-center justify-center mx-auto mb-3 text-3xl">
-                            🏆
-                        </div>
-                        <h3 className="font-bold text-slate-700 dark:text-white">Individual Winner</h3>
-                        <p className="text-xs text-slate-400 dark:text-slate-500">Enter the name of the champion</p>
-                    </div>
-
-                    <form 
-                        onSubmit={(e) => {
-                            e.preventDefault();
-                            if(winnerName.trim()) handleSave(winnerName.trim(), 'Individual');
-                        }}
-                    >
-                        <input
-                            type="text"
-                            value={winnerName}
-                            onChange={(e) => setWinnerName(e.target.value)}
-                            placeholder="e.g. Josh"
-                            className="w-full p-4 bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-2xl text-lg font-bold text-center text-slate-800 dark:text-white placeholder:text-slate-300 dark:placeholder:text-white/20 focus:outline-none focus:ring-2 focus:ring-orange-500/20"
-                            autoFocus
-                        />
-                        <button
-                            type="submit"
-                            disabled={!winnerName.trim()}
-                            className="w-full mt-4 py-3 bg-[#1D1D1F] dark:bg-white text-white dark:text-black rounded-xl font-bold shadow-lg shadow-black/5 disabled:opacity-50 disabled:cursor-not-allowed hover:bg-black dark:hover:bg-slate-200 transition-all active:scale-95"
-                        >
-                            Log Win
-                        </button>
-                    </form>
-
-                    {/* Quick Select Buttons (Recent) */}
-                    {(user || recentPlayers.length > 0) && (
-                        <div className="flex flex-wrap gap-2 justify-center mt-2">
-                            {user && (
-                                <button
-                                    type="button"
-                                    onClick={() => handleSave(user.name, 'Individual')}
-                                    className="px-3 py-1.5 bg-orange-50 dark:bg-orange-500/20 hover:bg-orange-100 border border-orange-200 dark:border-orange-500/30 text-orange-700 dark:text-orange-300 rounded-full text-xs font-bold transition-all"
-                                >
-                                    It was me ({user.name})!
-                                </button>
-                            )}
-                            {recentPlayers.map(player => (
-                                <button
-                                    key={player}
-                                    type="button"
-                                    onClick={() => handleSave(player, 'Individual')}
-                                    className="px-3 py-1.5 bg-slate-100 dark:bg-white/10 hover:bg-slate-200 dark:hover:bg-white/20 border border-slate-200 dark:border-white/5 text-slate-600 dark:text-slate-300 rounded-full text-xs font-semibold transition-all"
-                                >
-                                    {player}
-                                </button>
-                            ))}
-                        </div>
-                    )}
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                    {filteredPlayers.map(player => {
+                        const isSelected = selectedPlayerIds.includes(player.id);
+                        return (
+                            <button
+                                key={player.id}
+                                onClick={() => handleTogglePlayer(player.id)}
+                                className={`
+                                    relative p-4 rounded-3xl border transition-all flex flex-col items-center gap-2 group
+                                    ${isSelected 
+                                        ? 'bg-indigo-50 border-indigo-600 dark:bg-indigo-500/20 dark:border-indigo-400 shadow-lg' 
+                                        : 'bg-white dark:bg-white/5 border-black/5 dark:border-white/5 hover:border-slate-300 dark:hover:border-white/20'
+                                    }
+                                `}
+                            >
+                                <div className={`w-12 h-12 rounded-full flex items-center justify-center text-lg font-black shadow-sm transition-transform group-hover:scale-110 ${isSelected ? 'bg-indigo-600 text-white' : 'bg-slate-100 dark:bg-white/10 text-slate-600 dark:text-slate-300'}`}>
+                                    {player.name.charAt(0).toUpperCase()}
+                                </div>
+                                <span className={`text-xs font-bold truncate w-full text-center ${isSelected ? 'text-indigo-700 dark:text-indigo-300' : 'text-slate-700 dark:text-slate-300'}`}>
+                                    {player.name}
+                                </span>
+                                {isSelected && (
+                                    <div className="absolute top-2 right-2 p-1 bg-indigo-600 text-white rounded-full shadow-lg">
+                                        <Check className="w-2.5 h-2.5" />
+                                    </div>
+                                )}
+                            </button>
+                        );
+                    })}
                 </div>
             )}
         </div>
 
-        {/* Footer to switch modes manually */}
-        <div className="bg-slate-50 dark:bg-white/5 p-3 border-t border-slate-200 dark:border-white/10 overflow-x-auto scrollbar-hide">
-            <div className="flex justify-center gap-2">
-                <button 
-                    onClick={() => { playClick(); setActiveRivalry(null); }} 
-                    className={`px-3 py-1 rounded-lg text-[10px] font-bold uppercase tracking-wider transition-all whitespace-nowrap ${activeRivalry === null ? 'bg-white dark:bg-white/10 shadow-sm text-orange-600 ring-1 ring-orange-200 dark:ring-orange-500/30' : 'text-slate-400 hover:text-slate-600 dark:hover:text-slate-200'}`}
-                >
-                    Individual
-                </button>
-                {rivalries.map(r => (
-                    <button 
-                        key={r.id}
-                        onClick={() => { playClick(); setActiveRivalry(r); }} 
-                        className={`px-3 py-1 rounded-lg text-[10px] font-bold uppercase tracking-wider transition-all whitespace-nowrap ${activeRivalry?.id === r.id ? 'bg-white dark:bg-white/10 shadow-sm text-orange-600 ring-1 ring-orange-200 dark:ring-orange-500/30' : 'text-slate-400 hover:text-slate-600 dark:hover:text-slate-200'}`}
-                    >
-                        {r.team1} vs {r.team2}
-                    </button>
-                ))}
-            </div>
+        {/* Footer */}
+        <div className="p-6 border-t border-black/5 dark:border-white/10 bg-slate-50 dark:bg-black/20">
+            <button
+                onClick={handleSave}
+                disabled={selectedPlayerIds.length === 0}
+                className="w-full py-4 bg-[#1D1D1F] dark:bg-white text-white dark:text-black rounded-2xl font-black text-lg shadow-xl shadow-black/10 transition-all hover:scale-[1.02] active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-3 uppercase tracking-tighter"
+            >
+                <ShieldCheck className="w-6 h-6" />
+                Log {selectedPlayerIds.length > 1 ? `${selectedPlayerIds.length} Winners` : 'Winner'}
+            </button>
         </div>
 
       </div>

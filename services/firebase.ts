@@ -1,7 +1,7 @@
 
 import * as firebaseAppModule from 'firebase/app';
 import { getFirestore, doc, onSnapshot, setDoc, getDoc, deleteDoc, enableIndexedDbPersistence } from 'firebase/firestore';
-import { FirebaseConfig, ExportData, GroupMessage, GameResult, Game } from '../types';
+import { FirebaseConfig, ExportData, GroupMessage, GameResult, Game, Player } from '../types';
 
 const firebaseApp = firebaseAppModule as any;
 
@@ -9,31 +9,60 @@ let db: any = null;
 let unsubMain: any = null;
 let unsubMsgs: any = null;
 let unsubRes: any = null;
+let unsubPlayers: any = null;
 let persistenceAttempted = false;
 
+/**
+ * Deeply cleans objects to ensure they are serializable and free of circular references.
+ * Essential for preventing "Converting circular structure to JSON" crashes when
+ * internal library objects (Firebase/React) leak into state.
+ */
 export const cleanData = (data: any): any => {
     const seen = new WeakSet();
+    
     const sanitize = (obj: any, depth: number = 0): any => {
-        if (depth > 15) return null;
+        if (depth > 12) return null; // Prevent runaway recursion
         if (obj === null || typeof obj !== 'object') return obj;
-        if (seen.has(obj)) return "[Circular]";
-        if (obj.$$typeof || obj._owner || obj.nodeType || obj.window === obj) return null;
         
+        // Handle circular references
+        if (seen.has(obj)) return "[Circular]";
+        
+        // Strip common non-serializable objects
+        if (
+            obj.$$typeof || // React elements
+            obj._owner || // React internals
+            obj.nodeType || // DOM elements
+            obj.window === obj || // Window object
+            obj.constructor?.name?.startsWith('Q$') || // Firebase internals
+            obj.constructor?.name === 'Sa' // Firebase internals
+        ) {
+            return null;
+        }
+
         seen.add(obj);
 
         if (Array.isArray(obj)) {
-            return obj.map(v => sanitize(v, depth + 1));
+            return obj.map(v => sanitize(v, depth + 1)).filter(v => v !== undefined);
         }
+
+        // Handle Date objects
+        if (obj instanceof Date) return obj.getTime();
 
         const newObj: any = {};
         for (const key in obj) {
             if (Object.prototype.hasOwnProperty.call(obj, key)) {
-                if (key.startsWith('_') && key !== '_id') continue; 
-                newObj[key] = sanitize(obj[key], depth + 1);
+                // Skip internal-only keys
+                if (key.startsWith('_') && key !== '_id') continue;
+                
+                const val = sanitize(obj[key], depth + 1);
+                if (val !== undefined) {
+                    newObj[key] = val;
+                }
             }
         }
         return newObj;
     };
+    
     return sanitize(data);
 };
 
@@ -59,12 +88,14 @@ export const subscribeToLibrary = (
     libraryId: string, 
     onData: (data: Partial<ExportData>) => void,
     onMessages: (msgs: GroupMessage[]) => void,
-    onResults: (results: GameResult[]) => void
+    onResults: (results: GameResult[]) => void,
+    onPlayers: (players: Player[]) => void
 ) => {
     if (!db) return;
     if (unsubMain) unsubMain();
     if (unsubMsgs) unsubMsgs();
     if (unsubRes) unsubRes();
+    if (unsubPlayers) unsubPlayers();
 
     const pathId = libraryId.trim().toLowerCase();
 
@@ -91,16 +122,20 @@ export const subscribeToLibrary = (
         }
     });
 
+    unsubPlayers = onSnapshot(doc(db, 'pursuit_players', pathId), (snap: any) => {
+        if (snap.exists() && !snap.metadata.hasPendingWrites) {
+            onPlayers(snap.data().players || []);
+        }
+    });
+
     return () => {
         if (unsubMain) unsubMain();
         if (unsubMsgs) unsubMsgs();
         if (unsubRes) unsubRes();
+        if (unsubPlayers) unsubPlayers();
     };
 };
 
-/**
- * Saves large diagram assets separately to avoid 1MB document limits.
- */
 export const saveGameDiagram = async (libraryId: string, gameId: string, diagramUrl: string): Promise<void> => {
     if (!db) return;
     const pathId = libraryId.trim().toLowerCase();
@@ -117,9 +152,6 @@ export const saveGameDiagram = async (libraryId: string, gameId: string, diagram
     }
 };
 
-/**
- * Fetches diagram asset on demand.
- */
 export const fetchGameDiagram = async (libraryId: string, gameId: string): Promise<string | null> => {
     if (!db) return null;
     const pathId = libraryId.trim().toLowerCase();
@@ -135,9 +167,6 @@ export const fetchGameDiagram = async (libraryId: string, gameId: string): Promi
     return null;
 };
 
-/**
- * Deletes associated diagram assets.
- */
 export const deleteGameAssets = async (libraryId: string, gameId: string): Promise<void> => {
     if (!db) return;
     const pathId = libraryId.trim().toLowerCase();
@@ -155,8 +184,6 @@ export const saveToFirebase = async (data: ExportData, config?: FirebaseConfig, 
     
     const pathId = libraryId.trim().toLowerCase();
 
-    // STRIP DIAGRAMS from main document to save space
-    // We update the 'hasDiagram' flag so the UI knows there is an asset to fetch
     const gamesWithoutDiagrams = (data.games || []).map(game => {
         const { diagramUrl, ...rest } = game;
         return {
@@ -184,6 +211,10 @@ export const saveToFirebase = async (data: ExportData, config?: FirebaseConfig, 
             }),
             setDoc(doc(db, 'pursuit_results', pathId), { 
                 results: sanitizedData.results || [],
+                timestamp: Date.now() 
+            }),
+            setDoc(doc(db, 'pursuit_players', pathId), { 
+                players: sanitizedData.players || [],
                 timestamp: Date.now() 
             })
         ]);

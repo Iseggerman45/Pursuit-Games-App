@@ -1,7 +1,7 @@
 
 import React, { useState } from 'react';
-import { X, Upload, CloudLightning, Trash2, Loader2 } from 'lucide-react';
-import { ExportData, Game, GameResult, FirebaseConfig, GroupMessage } from '../types';
+import { X, Upload, CloudLightning, Trash2, Loader2, RefreshCw, AlertTriangle } from 'lucide-react';
+import { ExportData, Game, GameResult, FirebaseConfig, GroupMessage, Player } from '../types';
 import { cleanData } from '../services/firebase';
 
 interface SyncModalProps {
@@ -10,6 +10,7 @@ interface SyncModalProps {
   games: Game[];
   messages?: GroupMessage[];
   results?: GameResult[];
+  players?: Player[];
   categories: string[];
   tags: string[];
   recentPlayers: string[];
@@ -28,12 +29,12 @@ interface SyncModalProps {
   error?: string | null;
   logs?: string[];
   onPruneDiagram?: (gameId: string) => void;
-  appVersion?: string; // Added missing prop
+  appVersion?: string;
 }
 
 const SyncModal: React.FC<SyncModalProps> = ({ 
-    isOpen, onClose, games, messages = [], results = [], categories, tags, recentPlayers, syncId, 
-    firebaseConfig, onImport, onJoinLiveSync, onConnectFirebase, onDownloadCloud, onUpload, isLoading, logs = [], onPruneDiagram, appVersion
+    isOpen, onClose, games, messages = [], results = [], players = [], categories, tags, recentPlayers, syncId, 
+    firebaseConfig, onImport, onJoinLiveSync, onConnectFirebase, onDownloadCloud, onUpload, onHardReset, isLoading, logs = [], onPruneDiagram, appVersion
 }) => {
   const [newLibraryId, setNewLibraryId] = useState(syncId || 'main_library');
   const [showBreakdown, setShowBreakdown] = useState(false);
@@ -43,6 +44,7 @@ const SyncModal: React.FC<SyncModalProps> = ({
   const gamesSize = getSizeKB(games);
   const msgsSize = getSizeKB(messages);
   const resSize = getSizeKB(results);
+  const playersSize = getSizeKB(players);
 
   if (!isOpen) return null;
 
@@ -65,10 +67,10 @@ const SyncModal: React.FC<SyncModalProps> = ({
              <div className="bg-slate-50 dark:bg-white/5 rounded-2xl p-4 border border-slate-100 dark:border-white/5">
                  <div className="flex justify-between items-end mb-2">
                     <span className="text-[10px] font-black uppercase text-slate-400 tracking-widest">Library X-Ray</span>
-                    <span className="text-xs font-bold dark:text-white">{gamesSize} KB / 1 MB</span>
+                    <span className="text-xs font-bold dark:text-white">{gamesSize + msgsSize + resSize + playersSize} KB / 1 MB</span>
                  </div>
                  <div className="w-full h-2 bg-slate-200 dark:bg-white/10 rounded-full overflow-hidden">
-                     <div style={{ width: `${Math.min(100, (gamesSize/1000)*100)}%` }} className={`h-full ${gamesSize > 800 ? 'bg-red-500' : 'bg-emerald-500'}`} />
+                     <div style={{ width: `${Math.min(100, ((gamesSize + msgsSize + resSize + playersSize)/1000)*100)}%` }} className={`h-full ${gamesSize > 800 ? 'bg-red-500' : 'bg-emerald-500'}`} />
                  </div>
                  <div className="grid grid-cols-2 gap-4 mt-4">
                      <div className="text-left">
@@ -78,6 +80,10 @@ const SyncModal: React.FC<SyncModalProps> = ({
                      <div className="text-left">
                         <span className="text-[9px] font-bold text-slate-400 uppercase block">Chat Doc</span>
                         <span className="text-sm font-black dark:text-white">{msgsSize} KB</span>
+                     </div>
+                     <div className="text-left">
+                        <span className="text-[9px] font-bold text-slate-400 uppercase block">Players Doc</span>
+                        <span className="text-sm font-black dark:text-white">{playersSize} KB</span>
                      </div>
                  </div>
              </div>
@@ -113,6 +119,18 @@ const SyncModal: React.FC<SyncModalProps> = ({
             <button onClick={onUpload} disabled={isLoading} className="w-full py-4 bg-[#1D1D1F] dark:bg-white text-white dark:text-black rounded-2xl font-bold flex items-center justify-center gap-2 shadow-xl disabled:opacity-50">
                 {isLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Upload className="w-4 h-4" />} Consolidate Library
             </button>
+
+            {onHardReset && (
+                <div className="pt-2 border-t border-black/5 dark:border-white/10">
+                    <button 
+                        onClick={onHardReset}
+                        className="w-full py-3 bg-red-50 dark:bg-red-900/10 text-red-600 dark:text-red-400 rounded-xl text-[10px] font-black uppercase tracking-widest flex items-center justify-center gap-2 border border-red-100 dark:border-red-900/20"
+                    >
+                        <RefreshCw className="w-3 h-3" /> Hard Refresh & Reset Cache
+                    </button>
+                    <p className="text-[9px] text-slate-400 text-center mt-2 italic px-4 leading-tight">Use this if your roster or rankings look different on phone vs computer.</p>
+                </div>
+            )}
 
             {logs.length > 0 && (
               <div className="bg-slate-900 rounded-xl p-3 max-h-[100px] overflow-y-auto">

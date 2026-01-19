@@ -1,5 +1,5 @@
 
-const CACHE_NAME = 'pursuit-v8-fix'; // Major version bump to force refresh
+const CACHE_NAME = 'pursuit-v10-roster-fix'; // v10 for isolated roster logic
 const urlsToCache = [
   '/',
   '/index.html',
@@ -7,7 +7,7 @@ const urlsToCache = [
 ];
 
 self.addEventListener('install', (event) => {
-  self.skipWaiting(); // Forces this new worker to become active immediately
+  self.skipWaiting(); 
   event.waitUntil(
     caches.open(CACHE_NAME)
       .then((cache) => {
@@ -20,12 +20,10 @@ self.addEventListener('fetch', (event) => {
   event.respondWith(
     fetch(event.request)
       .then((response) => {
-        // If we got a valid response, verify it and clone it to cache
         if (!response || response.status !== 200 || response.type !== 'basic') {
           return response;
         }
         
-        // Don't cache API calls or external resources usually, but for PWA assets:
         const responseToCache = response.clone();
         caches.open(CACHE_NAME)
           .then((cache) => {
@@ -35,7 +33,6 @@ self.addEventListener('fetch', (event) => {
         return response;
       })
       .catch(() => {
-        // Network failed, try to serve from cache
         return caches.match(event.request);
       })
   );
@@ -54,5 +51,5 @@ self.addEventListener('activate', (event) => {
       );
     })
   );
-  return self.clients.claim(); // Take control of all clients immediately
+  return self.clients.claim(); 
 });
