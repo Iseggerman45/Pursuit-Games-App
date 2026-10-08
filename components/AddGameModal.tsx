@@ -1,38 +1,61 @@
-
-import React, { useState, useEffect } from 'react';
-import { X, Sparkles, Loader2, Users, Clock, FileText, Wand2, Layers, GraduationCap, UserCircle, Tag } from 'lucide-react';
+import React, { useEffect, useState } from 'react';
+import { X, Users, Clock, FileText, BookOpen, Sword, FlagTriangleRight, GraduationCap, UserCircle, Tag, Save, Box } from 'lucide-react';
 import { TargetGroup, UserProfile } from '../types';
 import { playClick } from '../services/sound';
 import { TagIcon } from './TagIcon';
 
+export interface ManualGameInput {
+  title: string;
+  setup: string;
+  gameplay: string;
+  howToWin: string;
+  hasWinner: boolean;
+  materials: string;
+  duration: string;
+  minPlayers: string;
+  targetGroup: TargetGroup | 'Both';
+  manualTags: string[];
+}
+
 interface AddGameModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onGenerate: (prompt: string, category: string, targetGroup: TargetGroup | 'Both', manualTags: string[]) => Promise<void> | void;
+  onCreate: (game: ManualGameInput) => Promise<void> | void;
   isLoading: boolean;
   categories: string[];
   allTags: string[];
   user: UserProfile | null;
 }
 
-const AddGameModal: React.FC<AddGameModalProps> = ({ isOpen, onClose, onGenerate, isLoading, categories, allTags, user }) => {
-  const [description, setDescription] = useState('');
-  const [minPlayers, setMinPlayers] = useState('2');
-  const [hours, setHours] = useState('0');
-  const [minutes, setMinutes] = useState('15');
+const fieldClass = 'w-full p-3.5 bg-white border border-slate-200 rounded-2xl text-slate-700 placeholder:text-slate-400 shadow-sm focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-300';
+const sectionLabelClass = 'text-sm font-semibold text-slate-800 mb-2.5 flex items-center gap-2';
+
+const AddGameModal: React.FC<AddGameModalProps> = ({ isOpen, onClose, onCreate, isLoading, allTags, user }) => {
+  const [title, setTitle] = useState('');
+  const [setup, setSetup] = useState('');
+  const [gameplay, setGameplay] = useState('');
+  const [howToWin, setHowToWin] = useState('');
+  const [hasWinner, setHasWinner] = useState(true);
+  const [materials, setMaterials] = useState('');
+  const [minPlayers, setMinPlayers] = useState('2+');
+  const [duration, setDuration] = useState('15 minutes');
   const [targetGroup, setTargetGroup] = useState<TargetGroup | 'Both'>('Both');
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
-  const [generationError, setGenerationError] = useState<string | null>(null);
+  const [formError, setFormError] = useState<string | null>(null);
 
   useEffect(() => {
     if (isOpen) {
-        setMinPlayers('2');
-        setHours('0');
-        setMinutes('15');
-        setDescription('');
-        setTargetGroup('Both');
-        setSelectedTags([]);
-        setGenerationError(null);
+      setTitle('');
+      setSetup('');
+      setGameplay('');
+      setHowToWin('');
+      setHasWinner(true);
+      setMaterials('');
+      setMinPlayers('2+');
+      setDuration('15 minutes');
+      setTargetGroup('Both');
+      setSelectedTags([]);
+      setFormError(null);
     }
   }, [isOpen]);
 
@@ -40,223 +63,117 @@ const AddGameModal: React.FC<AddGameModalProps> = ({ isOpen, onClose, onGenerate
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    let prompt = `Minimum Players: ${minPlayers}. Duration: ${hours} hours and ${minutes} minutes. Target Audience: ${targetGroup}.`;
-    if (description.trim()) {
-      prompt += ` Description/Theme: ${description}`;
+    if (!title.trim() || !setup.trim() || !gameplay.trim() || !howToWin.trim()) {
+      setFormError('Please fill in the game name and all three instruction sections before saving.');
+      return;
     }
-    // Default to 'General' category as it's no longer a primary selector
-    setGenerationError(null);
+    setFormError(null);
     try {
-      await onGenerate(prompt, 'General', targetGroup, selectedTags);
+      await onCreate({
+        title: title.trim(),
+        setup: setup.trim(),
+        gameplay: gameplay.trim(),
+        howToWin: howToWin.trim(),
+        hasWinner,
+        materials: materials.trim() || 'None required',
+        duration: duration.trim() || 'Not specified',
+        minPlayers: minPlayers.trim() || '2+',
+        targetGroup,
+        manualTags: selectedTags,
+      });
     } catch (error) {
-      console.error('Game generation failed:', error);
-      setGenerationError(error instanceof Error ? error.message : 'Something went wrong while generating the game. Please try again.');
+      setFormError(error instanceof Error ? error.message : 'Could not save this game. Please try again.');
     }
   };
 
   const toggleTag = (tag: string) => {
-      playClick();
-      setSelectedTags(prev => prev.includes(tag) ? prev.filter(t => t !== tag) : [...prev, tag]);
+    playClick();
+    setSelectedTags(prev => prev.includes(tag) ? prev.filter(t => t !== tag) : [...prev, tag]);
   };
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-      {/* Backdrop */}
-      <div 
-        className="absolute inset-0 bg-black/20 backdrop-blur-sm animate-in fade-in duration-300"
-        onClick={onClose}
-      />
-      
-      {/* Modal Card */}
-      <div className="relative bg-white/80 backdrop-blur-2xl rounded-[2.5rem] shadow-2xl w-full max-w-lg overflow-hidden animate-in zoom-in-95 slide-in-from-bottom-5 duration-300 flex flex-col max-h-[90vh] border border-white/50 ring-1 ring-black/5">
-        
-        {/* Header */}
-        <div className="p-6 border-b border-black/5 flex justify-between items-center bg-white/40">
+      <div className="absolute inset-0 bg-black/30 backdrop-blur-sm" onClick={isLoading ? undefined : onClose} />
+      <div className="relative bg-white/95 backdrop-blur-2xl rounded-[2rem] shadow-2xl w-full max-w-3xl overflow-hidden flex flex-col max-h-[92vh] border border-white/60">
+        <div className="p-6 border-b border-black/5 flex justify-between items-center bg-white/70">
           <div>
-            <h2 className="text-xl font-bold text-[#1D1D1F] flex items-center gap-2">
-                <Wand2 className="w-5 h-5 text-orange-600" />
-                Create Game
-            </h2>
+            <h2 className="text-xl font-bold text-[#1D1D1F] flex items-center gap-2"><BookOpen className="w-5 h-5 text-orange-600" /> Add Game Manually</h2>
             <div className="flex items-center gap-1.5 mt-1">
-                <div className={`w-4 h-4 rounded-full flex items-center justify-center text-[8px] text-white font-bold ${user?.color || 'bg-slate-400'}`}>
-                    {user?.emoji ? user.emoji : (user?.name ? user.name.charAt(0).toUpperCase() : <UserCircle className="w-3 h-3" />)}
-                </div>
-                <p className="text-xs text-slate-500">Posting as <span className="font-semibold">{user?.name || 'Guest'}</span></p>
+              <div className={`w-4 h-4 rounded-full flex items-center justify-center text-[8px] text-white font-bold ${user?.color || 'bg-slate-400'}`}>
+                {user?.emoji || (user?.name ? user.name.charAt(0).toUpperCase() : <UserCircle className="w-3 h-3" />)}
+              </div>
+              <p className="text-xs text-slate-500">Posting as <span className="font-semibold">{user?.name || 'Guest'}</span></p>
             </div>
           </div>
-          <button 
-            onClick={onClose} 
-            disabled={isLoading} 
-            className="p-2 bg-black/5 hover:bg-black/10 rounded-full transition-colors text-slate-600"
-          >
-            <X className="w-5 h-5" />
-          </button>
+          <button onClick={onClose} disabled={isLoading} className="p-2 bg-black/5 hover:bg-black/10 rounded-full text-slate-600 disabled:opacity-50"><X className="w-5 h-5" /></button>
         </div>
 
-        <div className="overflow-y-auto p-6 scrollbar-thin scrollbar-thumb-slate-200">
-            <form id="game-form" onSubmit={handleSubmit} className="space-y-6">
-            {generationError && (
-              <div role="alert" className="rounded-2xl border border-red-200 bg-red-50 p-4 text-sm text-red-700">
-                <p className="font-bold">Couldn’t generate the game</p>
-                <p className="mt-1 break-words">{generationError}</p>
-                <p className="mt-2 text-xs">If this keeps happening, the app’s AI key may need to be configured in its hosting settings.</p>
+        <div className="overflow-y-auto p-6">
+          <form id="manual-game-form" onSubmit={handleSubmit} className="space-y-6">
+            {formError && <div role="alert" className="rounded-xl border border-red-200 bg-red-50 p-3 text-sm text-red-700">{formError}</div>}
+            <div>
+              <label className={sectionLabelClass}><FileText className="w-4 h-4 text-orange-600" /> Game Name *</label>
+              <input value={title} onChange={e => setTitle(e.target.value)} className={fieldClass} placeholder="e.g. Sharks and Minnows" disabled={isLoading} />
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label className={sectionLabelClass}><GraduationCap className="w-4 h-4 text-orange-600" /> School Level</label>
+                <div className="flex flex-wrap gap-1 bg-slate-100 p-1 rounded-2xl">
+                  {(['Middle School', 'High School', 'College', 'Both'] as (TargetGroup | 'Both')[]).map(group => (
+                    <button key={group} type="button" onClick={() => { playClick(); setTargetGroup(group); }} className={`flex-1 py-2 px-2 text-xs font-semibold rounded-xl ${targetGroup === group ? 'bg-white text-orange-600 shadow-sm' : 'text-slate-500'}`}>{group}</button>
+                  ))}
+                </div>
               </div>
-            )}
-            
-            <div className="grid grid-cols-2 gap-4">
-                {/* Target Group */}
-                <div className="col-span-2">
-                    <label className="text-sm font-semibold text-slate-800 mb-2.5 flex items-center gap-2">
-                        <GraduationCap className="w-4 h-4 text-orange-600" />
-                        School Level
-                    </label>
-                    <div className="flex bg-white/50 p-1 rounded-2xl border border-white/60 overflow-x-auto">
-                        {(['Middle School', 'High School', 'College', 'Both'] as (TargetGroup | 'Both')[]).map((group) => (
-                            <button
-                                key={group}
-                                type="button"
-                                onClick={() => { playClick(); setTargetGroup(group); }}
-                                className={`
-                                    flex-1 py-2 px-2 text-[10px] sm:text-xs font-semibold rounded-xl transition-all duration-200 whitespace-nowrap
-                                    ${targetGroup === group 
-                                        ? 'bg-white text-orange-600 shadow-sm ring-1 ring-black/5' 
-                                        : 'text-slate-500 hover:text-slate-700'
-                                    }
-                                `}
-                            >
-                                {group}
-                            </button>
-                        ))}
-                    </div>
-                </div>
+              <div>
+                <label className={sectionLabelClass}><Users className="w-4 h-4 text-orange-600" /> Minimum Players</label>
+                <input value={minPlayers} onChange={e => setMinPlayers(e.target.value)} className={fieldClass} placeholder="e.g. 8" disabled={isLoading} />
+              </div>
+              <div>
+                <label className={sectionLabelClass}><Clock className="w-4 h-4 text-orange-600" /> Duration</label>
+                <input value={duration} onChange={e => setDuration(e.target.value)} className={fieldClass} placeholder="e.g. 10–15 minutes" disabled={isLoading} />
+              </div>
+              <div>
+                <label className={sectionLabelClass}><Box className="w-4 h-4 text-orange-600" /> Materials / Supplies</label>
+                <input value={materials} onChange={e => setMaterials(e.target.value)} className={fieldClass} placeholder="e.g. 4 cones, 2 balls" disabled={isLoading} />
+              </div>
             </div>
 
-            {/* Tag Selection */}
-            <div className="col-span-2">
-                <label className="text-sm font-semibold text-slate-800 mb-2.5 flex items-center gap-2">
-                    <Tag className="w-4 h-4 text-orange-600" />
-                    Tags <span className="text-slate-400 font-normal ml-auto text-xs">(Select all that apply)</span>
-                </label>
-                <div className="flex flex-wrap gap-2">
-                    {allTags.map((tag) => {
-                        const isSelected = selectedTags.includes(tag);
-                        return (
-                            <button
-                                key={tag}
-                                type="button"
-                                onClick={() => toggleTag(tag)}
-                                className={`
-                                    px-3 py-1.5 rounded-xl text-xs font-semibold border transition-all flex items-center gap-1.5
-                                    ${isSelected 
-                                        ? 'bg-orange-500 border-orange-500 text-white' 
-                                        : 'bg-white border-slate-200 text-slate-600 hover:border-orange-300'
-                                    }
-                                `}
-                            >
-                                <TagIcon tag={tag} className={`w-3 h-3 ${isSelected ? 'opacity-100' : 'opacity-60'}`} />
-                                {tag}
-                            </button>
-                        );
-                    })}
-                </div>
-            </div>
-
-            {/* Minimum Players */}
             <div>
-                <label className="text-sm font-semibold text-slate-800 mb-2.5 flex items-center gap-2">
-                    <Users className="w-4 h-4 text-orange-600" />
-                    Minimum Players Needed
-                </label>
-                <input
-                    type="number"
-                    min="1"
-                    value={minPlayers}
-                    onChange={(e) => setMinPlayers(e.target.value)}
-                    placeholder="e.g. 4"
-                    className="w-full p-3.5 bg-white border-none rounded-2xl text-slate-700 font-medium shadow-sm focus:outline-none focus:ring-2 focus:ring-orange-500/20"
-                />
+              <label className={sectionLabelClass}><Tag className="w-4 h-4 text-orange-600" /> Tags</label>
+              <div className="flex flex-wrap gap-2">
+                {allTags.map(tag => {
+                  const active = selectedTags.includes(tag);
+                  return <button key={tag} type="button" onClick={() => toggleTag(tag)} className={`px-3 py-1.5 rounded-xl text-xs font-semibold border flex items-center gap-1.5 ${active ? 'bg-orange-500 border-orange-500 text-white' : 'bg-white border-slate-200 text-slate-600 hover:border-orange-300'}`}><TagIcon tag={tag} className={`w-3 h-3 ${active ? 'opacity-100' : 'opacity-60'}`} />{tag}</button>;
+                })}
+              </div>
             </div>
 
-            {/* Duration */}
-            <div>
-                <label className="text-sm font-semibold text-slate-800 mb-2.5 flex items-center gap-2">
-                    <Clock className="w-4 h-4 text-orange-600" />
-                    Duration
-                </label>
-                <div className="flex gap-3">
-                    <div className="flex-1 bg-white/50 rounded-2xl border border-white/60 p-1 relative group focus-within:ring-2 focus-within:ring-orange-500/20">
-                         <span className="absolute top-2 left-3 text-[10px] text-slate-400 font-bold uppercase tracking-wider">Hours</span>
-                        <select 
-                            value={hours}
-                            onChange={(e) => setHours(e.target.value)}
-                            className="w-full pt-6 pb-2 px-3 bg-transparent border-none rounded-xl text-slate-700 font-bold text-sm appearance-none cursor-pointer focus:outline-none"
-                        >
-                            {[0, 1, 2, 3, 4].map(h => (
-                                <option key={h} value={h}>{h}</option>
-                            ))}
-                        </select>
-                    </div>
-                    <div className="flex-1 bg-white/50 rounded-2xl border border-white/60 p-1 relative group focus-within:ring-2 focus-within:ring-orange-500/20">
-                         <span className="absolute top-2 left-3 text-[10px] text-slate-400 font-bold uppercase tracking-wider">Minutes</span>
-                        <select 
-                            value={minutes}
-                            onChange={(e) => setMinutes(e.target.value)}
-                            className="w-full pt-6 pb-2 px-3 bg-transparent border-none rounded-xl text-slate-700 font-bold text-sm appearance-none cursor-pointer focus:outline-none"
-                        >
-                            {[0, 5, 10, 15, 20, 30, 45, 50].map(m => (
-                                <option key={m} value={m}>{m}</option>
-                            ))}
-                        </select>
-                    </div>
+            <div className="rounded-2xl border border-slate-200 p-4 space-y-2">
+              <p className="text-xs text-slate-500">Paste rules from ChatGPT directly into these three editable sections. No AI generation or API key is needed to add a game.</p>
+              <div>
+                <label className="text-xs font-bold text-blue-600 uppercase tracking-wider flex items-center gap-2 mb-2"><BookOpen className="w-3.5 h-3.5" /> 1. Setup *</label>
+                <textarea value={setup} onChange={e => setSetup(e.target.value)} className={`${fieldClass} min-h-28 resize-y`} placeholder="Where to play, what to prepare, how to split teams, and starting positions..." disabled={isLoading} />
+              </div>
+              <div>
+                <label className="text-xs font-bold text-emerald-600 uppercase tracking-wider flex items-center gap-2 mb-2"><Sword className="w-3.5 h-3.5" /> 2. Gameplay / How to Play *</label>
+                <textarea value={gameplay} onChange={e => setGameplay(e.target.value)} className={`${fieldClass} min-h-40 resize-y`} placeholder="Write the rules in order, including what players do and what leaders should watch for..." disabled={isLoading} />
+              </div>
+              <div>
+                <label className="text-xs font-bold text-orange-600 uppercase tracking-wider flex items-center gap-2 mb-2"><FlagTriangleRight className="w-3.5 h-3.5" /> 3. How to Win / Just for Fun *</label>
+                <div className="flex gap-2 mb-2">
+                  <button type="button" onClick={() => setHasWinner(true)} className={`rounded-full px-3 py-1.5 text-xs font-semibold border ${hasWinner ? 'bg-orange-500 border-orange-500 text-white' : 'border-slate-200 text-slate-500'}`}>Has a winner</button>
+                  <button type="button" onClick={() => setHasWinner(false)} className={`rounded-full px-3 py-1.5 text-xs font-semibold border ${!hasWinner ? 'bg-emerald-600 border-emerald-600 text-white' : 'border-slate-200 text-slate-500'}`}>Just for fun — no winner</button>
                 </div>
+                <textarea value={howToWin} onChange={e => setHowToWin(e.target.value)} className={`${fieldClass} min-h-24 resize-y`} placeholder={hasWinner ? 'Explain the win condition and how ties are handled...' : 'Explain when to end the activity and how to wrap it up without a winner...'} disabled={isLoading} />
+              </div>
             </div>
-
-            {/* Description */}
-            <div>
-                <label className="text-sm font-semibold text-slate-800 mb-2.5 flex items-center gap-2">
-                     <FileText className="w-4 h-4 text-orange-600" />
-                     Game idea or name <span className="text-slate-400 font-normal ml-auto text-xs">(Optional)</span>
-                </label>
-                <textarea
-                    value={description}
-                    onChange={(e) => setDescription(e.target.value)}
-                    placeholder="e.g. Sharks and Minnows, a silly icebreaker, or a new game involving pool noodles..."
-                    className="w-full h-24 p-4 border-none rounded-2xl resize-none text-slate-700 placeholder:text-slate-400 bg-white shadow-inner focus:ring-2 focus:ring-orange-500/20 text-sm leading-relaxed"
-                    disabled={isLoading}
-                />
-            </div>
-
-            </form>
+          </form>
         </div>
 
-        {/* Footer */}
-        <div className="p-6 border-t border-black/5 bg-white/30 flex justify-end gap-3">
-            <button
-              type="button"
-              onClick={onClose}
-              disabled={isLoading}
-              className="px-6 py-3 text-sm font-semibold text-slate-500 hover:text-slate-700 hover:bg-black/5 rounded-full transition-colors"
-            >
-              Cancel
-            </button>
-            <button
-              type="submit"
-              form="game-form"
-              disabled={isLoading}
-              className="px-8 py-3 bg-[#1D1D1F] hover:bg-black text-white text-sm font-semibold rounded-full shadow-lg shadow-black/10 transition-all hover:scale-105 active:scale-95 flex items-center gap-2 disabled:opacity-70 disabled:cursor-not-allowed disabled:transform-none"
-            >
-              {isLoading ? (
-                <>
-                  <Loader2 className="w-4 h-4 animate-spin" />
-                  Generating...
-                </>
-              ) : (
-                <>
-                  <Sparkles className="w-4 h-4 text-orange-300" />
-                  Generate
-                </>
-              )}
-            </button>
+        <div className="p-5 border-t border-black/5 bg-white/70 flex justify-end gap-3">
+          <button type="button" onClick={onClose} disabled={isLoading} className="px-5 py-3 text-sm font-semibold text-slate-500 hover:bg-black/5 rounded-full">Cancel</button>
+          <button type="submit" form="manual-game-form" disabled={isLoading} className="px-7 py-3 bg-[#1D1D1F] hover:bg-black text-white text-sm font-semibold rounded-full shadow-lg flex items-center gap-2 disabled:opacity-60"><Save className="w-4 h-4 text-orange-300" /> Save Game</button>
         </div>
       </div>
     </div>
