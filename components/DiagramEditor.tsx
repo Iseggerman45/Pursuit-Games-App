@@ -3,7 +3,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { Sparkles, Loader2, Image as ImageIcon, Trash2, Camera, Wand2, Info, Undo2, Type as TypeIcon, X, Maximize2, Minimize2, CloudDownload } from 'lucide-react';
 import { playClick, playPop, playSuccess } from '../services/sound';
 import { generateGameDiagram } from '../services/gemini';
-import { fetchGameDiagram } from '../services/firebase';
+import { fetchGameDiagram, saveGameDiagram } from '../services/firebase';
 import { DiagramObject } from '../types';
 
 interface DiagramEditorProps {
@@ -54,7 +54,10 @@ const DiagramEditor: React.FC<DiagramEditorProps> = ({
     libraryId,
     hasCloudAsset
 }) => {
-    const [imageUrl, setImageUrl] = useState<string | null>(initialImageUrl || null);
+    const isCrabTagDemo = (gameTitle || '').trim().toLowerCase() === 'crab tag';
+    const demoImageUrl = isCrabTagDemo ? '/crab-tag-test.svg' : null;
+    const [imageUrl, setImageUrl] = useState<string | null>(initialImageUrl || demoImageUrl || null);
+    const demoUploadAttempted = useRef(false);
     const [annotations, setAnnotations] = useState<DiagramObject[]>(() => {
         try { return initialAnnotations ? JSON.parse(initialAnnotations) : []; } catch (e) { return []; }
     });
@@ -70,7 +73,7 @@ const DiagramEditor: React.FC<DiagramEditorProps> = ({
     const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 });
     const containerRef = useRef<HTMLDivElement>(null);
 
-    // Asset lazy-load: If we don't have the image but cloud says it exists, fetch it
+    // One-time test asset: Crab Tag uses the new graphic and also stores a copy in Firestore\n    // so we can measure the real database footprint before building a full media system.\n    useEffect(() => {\n        if (!isCrabTagDemo || initialImageUrl || hasCloudAsset || !gameId || !libraryId || demoUploadAttempted.current) return;\n        demoUploadAttempted.current = true;\n\n        const uploadDemoGraphic = async () => {\n            try {\n                const response = await fetch('/crab-tag-test.svg');\n                const blob = await response.blob();\n                const reader = new FileReader();\n                reader.onloadend = async () => {\n                    const dataUrl = typeof reader.result === 'string' ? reader.result : '';\n                    if (!dataUrl) return;\n                    await saveGameDiagram(libraryId, gameId, dataUrl);\n                    setImageUrl(dataUrl);\n                    onSave(dataUrl, JSON.stringify(annotations));\n                };\n                reader.readAsDataURL(blob);\n            } catch (e) {\n                console.error('Crab Tag demo graphic upload failed:', e);\n            }\n        };\n\n        uploadDemoGraphic();\n    }, [isCrabTagDemo, initialImageUrl, hasCloudAsset, gameId, libraryId]);\n\n    // Asset lazy-load: If we don't have the image but cloud says it exists, fetch it
     useEffect(() => {
         if (!imageUrl && hasCloudAsset && gameId && libraryId) {
             const fetchAsset = async () => {
