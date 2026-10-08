@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
-import { Plus, Trophy, Search, Settings, Cloud, UserCircle, Filter, X, Moon, Sun, FolderPlus, Loader2, Info, Users } from 'lucide-react';
-import { Game, UserProfile, GameResult, GroupMessage, FirebaseConfig, Folder, TargetGroup, ExportData, Player } from './types';
+import { Plus, Trophy, Search, Settings, Cloud, UserCircle, Filter, X, Moon, Sun, FolderPlus, Loader2, Info, Users, CalendarDays } from 'lucide-react';
+import { Game, UserProfile, GameResult, GroupMessage, FirebaseConfig, Folder, TargetGroup, ExportData, Player, GameCalendarEvent } from './types';
 import { generateGame } from './services/gemini';
 import { playClick, playPop, playSuccess, playDelete, playWhoosh } from './services/sound';
 import { initFirebase, saveToFirebase, subscribeToLibrary, saveGameDiagram, deleteGameAssets, cleanData } from './services/firebase';
@@ -22,14 +22,16 @@ import MessagingModal from './components/MessagingModal';
 import LeaderboardModal from './components/LeaderboardModal';
 import MoveToFolderModal from './components/MoveToFolderModal';
 import PlayersModal from './components/PlayersModal';
+import GameCalendar from './components/GameCalendar';
 
-const APP_VERSION = "4.2.0";
+const APP_VERSION = "4.3.0";
 
 const APP_UPDATES = [
   "Game instructions are now stored as separate Setup, Gameplay, and How to Win fields.",
   "Existing games are automatically upgraded when they load from Firebase.",
   "Game editing now keeps the new structured data and legacy rules synchronized.",
-  "Improved Firebase game syncing and data normalization."
+  "Improved Firebase game syncing and data normalization.",
+  "New Game Calendar lets you schedule games and view your plan by month or week."
 ];
 const GLOBAL_ID = "pursuit_global";
 
@@ -109,11 +111,13 @@ const App: React.FC = () => {
   });
   
   const [messages, setMessages] = useState<GroupMessage[]>(() => JSON.parse(localStorage.getItem('pursuit_messages') || '[]'));
+  const [calendarEvents, setCalendarEvents] = useState<GameCalendarEvent[]>(() => JSON.parse(localStorage.getItem('pursuit_calendar_events') || '[]'));
   
   const [isInitializing, setIsInitializing] = useState(true);
   const [showApp, setShowApp] = useState(false);
   const [activeFolderId, setActiveFolderId] = useState<string | null>(null);
   const [isGlobalView, setIsGlobalView] = useState(false);
+  const [showCalendar, setShowCalendar] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
   
@@ -154,6 +158,7 @@ const App: React.FC = () => {
   useEffect(() => { localStorage.setItem('pursuit_players', safeStringify(players)); }, [players]);
   useEffect(() => { localStorage.setItem('pursuit_user_profile', safeStringify(user)); }, [user]);
   useEffect(() => { localStorage.setItem('pursuit_results', safeStringify(results)); }, [results]);
+  useEffect(() => { localStorage.setItem('pursuit_calendar_events', safeStringify(calendarEvents)); }, [calendarEvents]);
   useEffect(() => { localStorage.setItem('pursuit_library_id', libraryId); }, [libraryId]);
   useEffect(() => { localStorage.setItem('pursuit_theme', isDarkMode ? 'dark' : 'light'); }, [isDarkMode]);
 
@@ -168,7 +173,7 @@ const App: React.FC = () => {
   }, [isDarkMode]);
 
   // --- SYNC ENGINE ---
-  const triggerBroadcast = useCallback(async (overrideGames?: Game[], overrideFolders?: Folder[], overrideMessages?: GroupMessage[], overrideResults?: GameResult[], overridePlayers?: Player[]) => {
+  const triggerBroadcast = useCallback(async (overrideGames?: Game[], overrideFolders?: Folder[], overrideMessages?: GroupMessage[], overrideResults?: GameResult[], overridePlayers?: Player[], overrideCalendarEvents?: GameCalendarEvent[]) => {
     if (!libraryId) return { success: false, error: 'No library ID' };
     setIsBroadcasting(true);
     try {
@@ -179,6 +184,7 @@ const App: React.FC = () => {
             messages: overrideMessages || messages,
             results: overrideResults || results,
             players: overridePlayers || players,
+            calendarEvents: overrideCalendarEvents || calendarEvents,
             tags, categories: []
         }, AUTO_FIREBASE_CONFIG, libraryId);
         return { success: true };
@@ -187,7 +193,7 @@ const App: React.FC = () => {
     } finally { 
         setIsBroadcasting(false); 
     }
-  }, [games, folders, messages, results, players, libraryId, tags]);
+  }, [games, folders, messages, results, players, calendarEvents, libraryId, tags]);
 
   useEffect(() => {
     if (AUTO_FIREBASE_CONFIG && libraryId) {
@@ -222,6 +228,7 @@ const App: React.FC = () => {
                     setFolders(cloudFolders);
                 }
                 if (data.tags) setTags(data.tags);
+                if (Array.isArray(data.calendarEvents)) setCalendarEvents(data.calendarEvents);
             }
         };
 
@@ -246,6 +253,18 @@ const App: React.FC = () => {
   }, [libraryId]);
 
   // --- HANDLERS ---
+  const handleAddCalendarEvent = (event: GameCalendarEvent) => {
+      const newEvents = [...calendarEvents, event];
+      setCalendarEvents(newEvents);
+      triggerBroadcast(undefined, undefined, undefined, undefined, undefined, newEvents);
+  };
+
+  const handleDeleteCalendarEvent = (id: string) => {
+      const newEvents = calendarEvents.filter(event => event.id !== id);
+      setCalendarEvents(newEvents);
+      triggerBroadcast(undefined, undefined, undefined, undefined, undefined, newEvents);
+  };
+
   const handleAddPlayer = (name: string, age: string, gender: 'Male' | 'Female' | 'Other') => {
       const newPlayer: Player = { id: crypto.randomUUID(), name, age, gender };
       const newPlayers = [newPlayer, ...players];
@@ -382,7 +401,7 @@ const App: React.FC = () => {
           <nav className="sticky top-0 z-40 bg-white/65 dark:bg-slate-950/65 backdrop-blur-2xl border-b border-white/70 dark:border-white/10 shadow-sm p-4 sm:px-8">
               <div className="max-w-7xl mx-auto flex items-center justify-between gap-4">
                   <div className="flex items-center gap-4">
-                      <div className="flex items-center gap-3 cursor-pointer" onClick={() => { setActiveFolderId(null); setIsGlobalView(false); }}>
+                      <div className="flex items-center gap-3 cursor-pointer" onClick={() => { setActiveFolderId(null); setIsGlobalView(false); setShowCalendar(false); }}>
                           <div className="relative p-2.5 bg-gradient-to-br from-orange-500 via-orange-600 to-red-600 rounded-xl shadow-lg shadow-orange-500/25 rotate-3 overflow-visible">
                               <div className="absolute -inset-1.5 rounded-2xl bg-orange-500/20 blur-md animate-pulse pointer-events-none" />
                               <svg className="relative w-5 h-5 drop-shadow-sm" viewBox="0 0 512 512">
@@ -411,6 +430,9 @@ const App: React.FC = () => {
                       <button onClick={() => setIsSyncModalOpen(true)} className="p-2.5 bg-slate-50 dark:bg-white/5 text-slate-500 dark:text-slate-400 rounded-2xl relative">
                           {isBroadcasting ? <Loader2 className="w-5 h-5 animate-spin" /> : <Cloud className="w-5 h-5" />}
                       </button>
+                      <button onClick={() => setShowCalendar(true)} className={`p-2.5 rounded-2xl relative border ${showCalendar ? 'bg-orange-500 text-white border-orange-500 shadow-md shadow-orange-500/20' : 'bg-orange-50/80 dark:bg-orange-500/10 text-orange-600 dark:text-orange-400 border-orange-100/80 dark:border-orange-400/10'}`} title="Game Calendar">
+                          <CalendarDays className="w-5 h-5" />
+                      </button>
                       <button onClick={() => setIsPlayersModalOpen(true)} className="p-2.5 bg-sky-50/80 dark:bg-sky-500/10 text-sky-600 dark:text-sky-400 rounded-2xl relative border border-sky-100/80 dark:border-sky-400/10">
                           <Users className="w-5 h-5" />
                       </button>
@@ -427,7 +449,9 @@ const App: React.FC = () => {
               <div className="color-orb cyan w-[26rem] h-[26rem] bottom-[-8rem] left-[30%]" />
               <div className="color-orb orange w-[24rem] h-[24rem] top-[55%] left-[5%]" />
               <div className="color-orb red w-[20rem] h-[20rem] bottom-[5%] right-[12%]" />
-              <div className="relative z-10 max-w-7xl mx-auto w-full">
+              {showCalendar ? (
+                  <GameCalendar games={games} events={calendarEvents} onAddEvent={handleAddCalendarEvent} onDeleteEvent={handleDeleteCalendarEvent} onOpenGame={(game) => { setShowCalendar(false); setSelectedGame(game); }} />
+              ) : <div className="relative z-10 max-w-7xl mx-auto w-full">
               <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-12">
                    <div>
                       <h2 className="text-4xl sm:text-5xl font-black gradient-text tracking-tight flex items-baseline gap-4">
