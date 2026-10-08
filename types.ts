@@ -64,6 +64,25 @@ export interface DiagramObject {
     fill?: boolean;
 }
 
+export interface SupplyItem {
+  id: string;
+  name: string;
+  quantity: number;
+  unit?: string;
+  type: 'Reusable' | 'Consumable';
+  notes?: string;
+  updatedAt: number;
+}
+
+export interface ShoppingItem {
+  id: string;
+  name: string;
+  quantity: number;
+  unit?: string;
+  purchased: boolean;
+  createdAt: number;
+}
+
 export interface CalendarSchedule {
   dayOfWeek: number; // 0 = Sunday, 6 = Saturday
   targetGroup: 'Middle School' | 'High School';
@@ -146,6 +165,8 @@ export interface ExportData {
   players?: Player[];
   calendarEvents?: GameCalendarEvent[];
   calendarSettings?: CalendarSettings;
+  supplies?: SupplyItem[];
+  shoppingList?: ShoppingItem[];
   syncId?: string;
 }
 
