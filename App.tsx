@@ -610,8 +610,8 @@ const App: React.FC = () => {
                   } finally { setIsLoading(false); }
               }} isLoading={isLoading} allTags={tags} user={user} />
           
-          <CreateFolderModal isOpen={isFolderModalOpen} onClose={() => setIsFolderModalOpen(false)} onCreate={(name) => { 
-              const newFolders = [...folders, { id: crypto.randomUUID(), name, createdAt: Date.now() }];
+          <CreateFolderModal isOpen={isFolderModalOpen} onClose={() => setIsFolderModalOpen(false)} onCreate={(name, icon) => { 
+              const newFolders = [...folders, { id: crypto.randomUUID(), name, icon, createdAt: Date.now() }];
               setFolders(newFolders); 
               playPop(); 
               triggerBroadcast(undefined, newFolders); 
