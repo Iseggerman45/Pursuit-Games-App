@@ -92,8 +92,10 @@ const AddGameModal: React.FC<AddGameModalProps> = ({ isOpen, onClose, onCreate, 
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!title.trim() || !setup.trim() || !gameplay.trim() || !howToWin.trim()) {
-      setFormError('Please fill in the game name and all three instruction sections before saving.');
+    if (!title.trim() || !setup.trim() || !gameplay.trim() || (hasWinner && !howToWin.trim())) {
+      setFormError(hasWinner
+        ? 'Please fill in the game name, setup, gameplay, and how to win before saving.'
+        : 'Please fill in the game name, setup, and gameplay before saving.');
       return;
     }
     setFormError(null);
@@ -102,7 +104,7 @@ const AddGameModal: React.FC<AddGameModalProps> = ({ isOpen, onClose, onCreate, 
         title: title.trim(),
         setup: setup.trim(),
         gameplay: gameplay.trim(),
-        howToWin: howToWin.trim(),
+        howToWin: hasWinner ? howToWin.trim() : '',
         hasWinner,
         materials: materials.trim() || 'None required',
         duration: duration.trim() || 'Not specified',
@@ -190,13 +192,17 @@ const AddGameModal: React.FC<AddGameModalProps> = ({ isOpen, onClose, onCreate, 
                 <textarea value={gameplay} onChange={e => setGameplay(e.target.value)} ref={gameplayRef} className={`${fieldClass} min-h-40 resize-y`} placeholder="Write the rules in order, including what players do and what leaders should watch for..." disabled={isLoading} />
               </div>
               <div>
-                <label className="text-xs font-bold text-orange-600 uppercase tracking-wider flex items-center gap-2 mb-2"><FlagTriangleRight className="w-3.5 h-3.5" /> 3. How to Win / Just for Fun *</label>
+                <label className="text-xs font-bold text-orange-600 uppercase tracking-wider flex items-center gap-2 mb-2"><FlagTriangleRight className="w-3.5 h-3.5" /> {hasWinner ? "3. How to Win *" : "3. Just for Fun"}</label>
                 <div className="flex gap-2 mb-2">
                   <button type="button" onClick={() => setHasWinner(true)} className={`rounded-full px-3 py-1.5 text-xs font-semibold border ${hasWinner ? 'bg-orange-500 border-orange-500 text-white' : 'border-slate-200 text-slate-500'}`}>Has a winner</button>
                   <button type="button" onClick={() => setHasWinner(false)} className={`rounded-full px-3 py-1.5 text-xs font-semibold border ${!hasWinner ? 'bg-emerald-600 border-emerald-600 text-white' : 'border-slate-200 text-slate-500'}`}>Just for fun — no winner</button>
                 </div>
-                <RuleFormattingToolbar onInsert={(prefix) => insertRulePrefix(setHowToWin, howToWin, howToWinRef, prefix)} />
-                <textarea value={howToWin} onChange={e => setHowToWin(e.target.value)} ref={howToWinRef} className={`${fieldClass} min-h-24 resize-y`} placeholder={hasWinner ? 'Explain the win condition and how ties are handled...' : 'Explain when to end the activity and how to wrap it up without a winner...'} disabled={isLoading} />
+                {hasWinner && (
+                  <>
+                    <RuleFormattingToolbar onInsert={(prefix) => insertRulePrefix(setHowToWin, howToWin, howToWinRef, prefix)} />
+                    <textarea value={howToWin} onChange={e => setHowToWin(e.target.value)} ref={howToWinRef} className={`${fieldClass} min-h-24 resize-y`} placeholder="Explain the win condition and how ties are handled..." disabled={isLoading} />
+                  </>
+                )}
               </div>
             </div>
           </form>
