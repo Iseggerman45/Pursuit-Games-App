@@ -31,6 +31,19 @@ const GameDetailsView: React.FC<GameDetailsViewProps> = ({
   const [isEditing, setIsEditing] = useState(false);
   const [editedGame, setEditedGame] = useState<Game | null>(null);
   const [customDuration, setCustomDuration] = useState(15);
+
+  const appendRulePrefix = (setter: React.Dispatch<React.SetStateAction<string>>, currentValue: string, prefix: string) => {
+      setter(currentValue ? `${currentValue.replace(/\s*$/, '')}\n${prefix}` : prefix);
+  };
+
+  const RuleFormattingToolbar = ({ onInsert }: { onInsert: (prefix: string) => void }) => (
+      <div className="flex flex-wrap items-center gap-1.5 mb-2" aria-label="Rule formatting">
+          <span className="text-[11px] text-slate-500 dark:text-slate-400 mr-1">Add formatting:</span>
+          <button type="button" onClick={() => onInsert('- ')} className="px-2.5 py-1 rounded-lg border border-slate-200 dark:border-white/10 bg-white dark:bg-neutral-800 hover:bg-slate-50 dark:hover:bg-neutral-700 text-xs font-semibold">• Bullet</button>
+          <button type="button" onClick={() => onInsert('1. ')} className="px-2.5 py-1 rounded-lg border border-slate-200 dark:border-white/10 bg-white dark:bg-neutral-800 hover:bg-slate-50 dark:hover:bg-neutral-700 text-xs font-semibold">1. Number</button>
+          <button type="button" onClick={() => onInsert('  - ')} className="px-2.5 py-1 rounded-lg border border-slate-200 dark:border-white/10 bg-white dark:bg-neutral-800 hover:bg-slate-50 dark:hover:bg-neutral-700 text-xs font-semibold">↳ Sub-point</button>
+      </div>
+  );
   
   // Sectioned Rule States
   const [editSetup, setEditSetup] = useState('');
@@ -151,6 +164,7 @@ const GameDetailsView: React.FC<GameDetailsViewProps> = ({
                                         <label className="text-xs font-bold text-blue-600 dark:text-blue-400 uppercase tracking-wider flex items-center gap-2">
                                             <BookOpen className="w-3.5 h-3.5" /> 1. Setup
                                         </label>
+                                        <RuleFormattingToolbar onInsert={(prefix) => appendRulePrefix(setEditSetup, editSetup, prefix)} />
                                         <textarea 
                                             value={editSetup} 
                                             onChange={(e) => setEditSetup(e.target.value)} 
@@ -163,6 +177,7 @@ const GameDetailsView: React.FC<GameDetailsViewProps> = ({
                                         <label className="text-xs font-bold text-emerald-600 dark:text-emerald-400 uppercase tracking-wider flex items-center gap-2">
                                             <Sword className="w-3.5 h-3.5" /> 2. Gameplay
                                         </label>
+                                        <RuleFormattingToolbar onInsert={(prefix) => appendRulePrefix(setEditGameplay, editGameplay, prefix)} />
                                         <textarea 
                                             value={editGameplay} 
                                             onChange={(e) => setEditGameplay(e.target.value)} 
@@ -175,6 +190,7 @@ const GameDetailsView: React.FC<GameDetailsViewProps> = ({
                                         <label className="text-xs font-bold text-orange-600 dark:text-orange-400 uppercase tracking-wider flex items-center gap-2">
                                             <FlagTriangleRight className="w-3.5 h-3.5" /> 3. How to Win / Wrap-Up
                                         </label>
+                                        <RuleFormattingToolbar onInsert={(prefix) => appendRulePrefix(setEditWin, editWin, prefix)} />
                                         <textarea 
                                             value={editWin} 
                                             onChange={(e) => setEditWin(e.target.value)} 
