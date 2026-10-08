@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
-import { Plus, Trophy, Search, Settings, Cloud, UserCircle, Filter, X, Moon, Sun, FolderPlus, Loader2, Info, Users, CalendarDays, BookOpen, ArrowLeft, Package } from 'lucide-react';
+import { Plus, Trophy, Search, Settings, Cloud, UserCircle, Filter, X, Moon, Sun, FolderPlus, Loader2, Info, Users, CalendarDays, BookOpen, ArrowLeft } from 'lucide-react';
 import { Game, UserProfile, GameResult, GroupMessage, FirebaseConfig, Folder, TargetGroup, ExportData, Player, GameCalendarEvent, CalendarSettings } from './types';
 import { generateGame } from './services/gemini';
 import { playClick, playPop, playSuccess, playDelete, playWhoosh } from './services/sound';
@@ -32,7 +32,6 @@ const APP_UPDATES = [
   "Game editing now keeps the new structured data and legacy rules synchronized.",
   "Improved Firebase game syncing and data normalization.",
   "New Game Calendar lets you schedule games and view your plan by month or week.",
-  "New Supplies tracks your inventory and builds a smart shopping list from game materials."
 ];
 const GLOBAL_ID = "pursuit_global";
 
