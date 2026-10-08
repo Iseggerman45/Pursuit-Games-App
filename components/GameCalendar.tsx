@@ -118,6 +118,8 @@ const GameCalendar: React.FC<GameCalendarProps> = ({ games, settings, onSaveSett
     return Array.from({ length: 42 }, (_, index) => addDays(start, index));
   }, [anchorDate]);
 
+  const visibleMonthDays = useMemo(() => monthDays.filter(date => scheduledDaySet.has(keyToUtcDate(date).getUTCDay())), [monthDays, scheduledDaySet]);
+
   const weekDays = useMemo(() => {
     const start = startOfWeek(anchorDate);
     return Array.from({ length: 7 }, (_, index) => addDays(start, index))
@@ -270,8 +272,8 @@ const GameCalendar: React.FC<GameCalendarProps> = ({ games, settings, onSaveSett
                   <div key={day} className="px-3 py-3 text-[11px] font-black uppercase tracking-wider text-slate-400">{day}</div>
                 ))}
               </div>
-              <div className={`grid grid-cols-${Math.max(1, scheduledDaySet.size)}`}>
-                {monthDays.map((date, index) => {
+              <div className="grid" style={{ gridTemplateColumns: `repeat(${Math.max(1, scheduledDaySet.size)}, minmax(0, 1fr))` }}>
+                {visibleMonthDays.map((date, index) => {
                   const { month: currentMonth } = partsFromKey(anchorDate);
                   const isCurrentMonth = partsFromKey(date).month === currentMonth;
                   const isToday = date === todayKey();
@@ -308,7 +310,7 @@ const GameCalendar: React.FC<GameCalendarProps> = ({ games, settings, onSaveSett
           </div>
         ) : (
           <div className="overflow-x-auto">
-            <div className={`min-w-[${Math.max(1, scheduledDaySet.size) * 140}px] grid grid-cols-${Math.max(1, scheduledDaySet.size)}`}>
+            <div className="grid min-w-[760px]" style={{ gridTemplateColumns: `repeat(${Math.max(1, scheduledDaySet.size)}, minmax(0, 1fr))` }}>
               {weekDays.map(date => {
                 const dayEvents = eventsForDate(date);
                 const isToday = date === todayKey();
