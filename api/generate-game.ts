@@ -53,7 +53,7 @@ export default async function handler(req: any, res: any) {
         'Do not claim an invented variation is a traditional version of a game.',
         `User request: ${prompt}`,
         `Optional tags selected by the user: ${manualTags.join(', ') || 'none'}.`,
-      ].join('\\n\\n'),
+      ].join('\n\n'),
       config: {
         responseMimeType: 'application/json',
         responseSchema: gameSchema,
@@ -71,7 +71,7 @@ export default async function handler(req: any, res: any) {
 
     game.tags = Array.from(new Set([...(Array.isArray(game.tags) ? game.tags : []), ...manualTags]));
     game.category = game.category || 'General';
-    game.rules = `## Setup\\n${game.setup}\\n\\n## Gameplay\\n${game.gameplay}\\n\\n## How to Win\\n${game.howToWin}`;
+    game.rules = `## Setup\n${game.setup}\n\n## Gameplay\n${game.gameplay}\n\n## How to Win\n${game.howToWin}`;
     return res.status(200).json({ game });
   } catch (error: any) {
     console.error('Gemini game generation request failed:', error?.message || error);
