@@ -485,7 +485,7 @@ const App: React.FC = () => {
                               <h2 className="mt-5 text-4xl sm:text-6xl font-black tracking-tight gradient-text">What are we doing today?</h2>
                               <p className="mt-3 text-base sm:text-lg text-slate-500 dark:text-slate-400">Choose where you want to go.</p>
                           </div>
-                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 sm:gap-8 max-w-3xl mx-auto">
+                          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8 max-w-6xl mx-auto">
                               <button
                                 onClick={() => { playClick(); setShowLauncher(false); setShowCalendar(false); setIsGlobalView(false); setActiveFolderId(null); }}
                                 className="group relative min-h-[18rem] sm:min-h-[22rem] rounded-[2.5rem] glass-card border border-white/80 dark:border-white/10 overflow-hidden text-left shadow-xl hover:-translate-y-2 hover:shadow-2xl transition-all duration-300"
@@ -527,6 +527,14 @@ const App: React.FC = () => {
                                       </div>
                                   </div>
                               </button>
+                              <button onClick={() => { playClick(); setShowLauncher(false); setShowCalendar(false); setShowSupplies(true); }} className="group relative min-h-[18rem] sm:min-h-[22rem] rounded-[2.5rem] glass-card border border-white/80 dark:border-white/10 overflow-hidden text-left shadow-xl hover:-translate-y-2 hover:shadow-2xl transition-all duration-300">
+                                  <div className="absolute -top-24 -right-24 w-56 h-56 rounded-full bg-indigo-500/20 blur-3xl" />
+                                  <div className="relative h-full p-7 sm:p-9 flex flex-col justify-between">
+                                      <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-indigo-500 to-violet-600 text-white flex items-center justify-center shadow-lg shadow-indigo-500/25"><Package className="w-8 h-8" /></div>
+                                      <div><h3 className="text-2xl sm:text-3xl font-black text-slate-900 dark:text-white">Supplies</h3><p className="mt-2 text-sm sm:text-base text-slate-500 dark:text-slate-400">Track what you have and what you need for your games.</p></div>
+                                  </div>
+                              </button>
+
                           </div>
                       </div>
                   </div>
