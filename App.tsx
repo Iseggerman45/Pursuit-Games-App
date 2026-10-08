@@ -640,7 +640,7 @@ const App: React.FC = () => {
                       const newGames = [game, ...games];
                       setGames(newGames);
                       setIsModalOpen(false);
-                      setSelectedGame(game);
+                      setSelectedGame(null);
                       playSuccess();
                       triggerBroadcast(newGames);
                   } finally {
