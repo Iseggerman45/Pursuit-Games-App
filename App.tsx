@@ -456,7 +456,8 @@ const App: React.FC = () => {
                       <button onClick={() => { setShowCalendar(true); setShowLauncher(false); setActiveFolderId(null); }} className={`px-2.5 sm:px-3 py-2.5 rounded-2xl relative border flex items-center gap-2 ${showCalendar ? 'bg-orange-500 text-white border-orange-500 shadow-md shadow-orange-500/20' : 'bg-orange-50/80 dark:bg-orange-500/10 text-orange-600 dark:text-orange-400 border-orange-100/80 dark:border-orange-400/10'}`} title="Game Calendar">
                           <CalendarDays className="w-5 h-5" />
                           <span className="hidden sm:inline text-xs font-bold">Calendar</span>
-                      </button>
+ 
+                      <button onClick={() => { setShowSupplies(true); setShowCalendar(false); setShowLauncher(false); setActiveFolderId(null); }} className={`px-2.5 sm:px-3 py-2.5 rounded-2xl relative border flex items-center gap-2 ${showSupplies ? 'bg-indigo-500 text-white border-indigo-500 shadow-md' : 'bg-indigo-50/80 dark:bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 border-indigo-100/80 dark:border-indigo-400/10'}`} title="Supplies"><Package className="w-5 h-5" /><span className="hidden sm:inline text-xs font-bold">Supplies</span></button>                     </button>
                       <button onClick={() => setIsPlayersModalOpen(true)} className="p-2.5 bg-sky-50/80 dark:bg-sky-500/10 text-sky-600 dark:text-sky-400 rounded-2xl relative border border-sky-100/80 dark:border-sky-400/10">
                           <Users className="w-5 h-5" />
                       </button>
