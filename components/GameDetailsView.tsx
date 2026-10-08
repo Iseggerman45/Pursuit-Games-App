@@ -173,13 +173,13 @@ const GameDetailsView: React.FC<GameDetailsViewProps> = ({
 
                                     <div className="space-y-2">
                                         <label className="text-xs font-bold text-orange-600 dark:text-orange-400 uppercase tracking-wider flex items-center gap-2">
-                                            <FlagTriangleRight className="w-3.5 h-3.5" /> 3. How to Win
+                                            <FlagTriangleRight className="w-3.5 h-3.5" /> 3. How to Win / Wrap-Up
                                         </label>
                                         <textarea 
                                             value={editWin} 
                                             onChange={(e) => setEditWin(e.target.value)} 
                                             className="w-full h-24 bg-white dark:bg-neutral-800 border border-slate-200 dark:border-white/10 rounded-2xl p-4 text-sm focus:ring-2 focus:ring-orange-500/20 resize-none text-slate-800 dark:text-white" 
-                                            placeholder="When does the game end and who wins?" 
+                                            placeholder="When does it end? If there is no winner, explain how to wrap it up." 
                                         />
                                     </div>
                                 </div>
@@ -201,7 +201,7 @@ const GameDetailsView: React.FC<GameDetailsViewProps> = ({
                                     </div>
                                     {viewWin && (
                                         <div className="bg-orange-50/50 dark:bg-orange-500/5 rounded-2xl border border-orange-100 dark:border-orange-500/20 p-5">
-                                            <span className="font-bold text-orange-600 dark:text-orange-400 text-[10px] uppercase tracking-widest mb-3 block">3. How to Win</span>
+                                            <span className="font-bold text-orange-600 dark:text-orange-400 text-[10px] uppercase tracking-widest mb-3 block">{game.hasWinner === false ? '3. Just for Fun — No Winner' : '3. How to Win'}</span>
                                             <div className="text-sm prose prose-sm max-w-none dark:prose-invert">
                                                 <ReactMarkdown components={markdownComponents}>{viewWin}</ReactMarkdown>
                                             </div>
