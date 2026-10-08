@@ -1,5 +1,5 @@
 
-const CACHE_NAME = 'pursuit-v14-cursor-formatting'; // Refresh cached assets for manual game entry
+const CACHE_NAME = 'pursuit-v15-save-button'; // Refresh cached assets for manual game entry
 const urlsToCache = [
   '/',
   '/index.html',
