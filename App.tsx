@@ -539,7 +539,7 @@ const App: React.FC = () => {
                       <>
                           {folders.map(folder => (
                               <FolderCard key={folder.id} folder={folder} gameCount={games.filter(g => g && g.folderId === folder.id).length} onClick={() => setActiveFolderId(folder.id)} onDropGame={(gid) => { 
-                                  const newGames = games.map(g => g.id === gid ? {...g, folderId: folder.id, lastUpdated: Date.now()} : g);
+                                  const newGames = games.map(g => g.id === gid ? {...g, folderId: folder.id, folderIcon: folder.icon || 'folder', lastUpdated: Date.now()} : g);
                                   setGames(newGames); 
                                   playPop(); 
                                   triggerBroadcast(newGames); 
@@ -602,7 +602,7 @@ const App: React.FC = () => {
                   setIsLoading(true);
                   try {
                       const res = await generateGame(p, manualTags);
-                      const game: Game = { ...res, id: crypto.randomUUID(), rating: 0, ratingCount: 0, targetGroups: group === 'Both' ? ['Middle School', 'High School'] : [group as any], folderId: activeFolderId || undefined, lastUpdated: Date.now(), createdBy: user?.name || 'Guest', creatorId: user?.id };
+                      const game: Game = { ...res, id: crypto.randomUUID(), rating: 0, ratingCount: 0, targetGroups: group === 'Both' ? ['Middle School', 'High School'] : [group as any], folderId: activeFolderId || undefined, folderIcon: activeFolderId ? (folders.find(f => f.id === activeFolderId)?.icon || 'folder') : undefined, lastUpdated: Date.now(), createdBy: user?.name || 'Guest', creatorId: user?.id };
                       const newGames = [game, ...games];
                       setGames(newGames);
                       setIsModalOpen(false); setSelectedGame(game); playSuccess();
@@ -633,7 +633,7 @@ const App: React.FC = () => {
 
           <ProfileModal isOpen={isProfileModalOpen} onClose={() => setIsProfileModalOpen(false)} onSave={setUser} initialUser={user} />
           <SettingsModal isOpen={isSettingsModalOpen} onClose={() => setIsSettingsModalOpen(false)} categories={[]} onCreateCategory={()=>{}} onDeleteCategory={()=>{}} tags={tags} onCreateTag={(t) => setTags(prev => [...prev, t])} onDeleteTag={(t) => setTags(prev => prev.filter(x => x !== t))} rivalries={[]} onCreateRivalry={()=>{}} onDeleteRivalry={()=>{}} appVersion={APP_VERSION} gameCount={games.length} folderCount={folders.length} />
-          <MoveToFolderModal isOpen={!!movingGame} game={movingGame} folders={folders} onClose={() => setMovingGame(null)} onMove={(gid, fid) => { const newGames = games.map(g => g.id === gid ? {...g, folderId: fid || undefined, lastUpdated: Date.now()} : g); setGames(newGames); setMovingGame(null); playPop(); triggerBroadcast(newGames); }} />
+          <MoveToFolderModal isOpen={!!movingGame} game={movingGame} folders={folders} onClose={() => setMovingGame(null)} onMove={(gid, fid) => { const newGames = games.map(g => g.id === gid ? {...g, folderId: fid || undefined, folderIcon: fid ? (folders.find(f => f.id === fid)?.icon || 'folder') : undefined, lastUpdated: Date.now()} : g); setGames(newGames); setMovingGame(null); playPop(); triggerBroadcast(newGames); }} />
           <GameAIModal isOpen={!!aiGame} game={aiGame} onClose={() => setAiGame(null)} onUpdateRules={(id, rules) => { const newGames = games.map(g => g.id === id ? {...g, rules, lastUpdated: Date.now()} : g); setGames(newGames); triggerBroadcast(newGames); }} />
       </div>
     </>
