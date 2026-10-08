@@ -1,8 +1,10 @@
 
 import React, { useState } from 'react';
-import { Folder, FolderOpen, Trash2, Edit2, CornerRightDown } from 'lucide-react';
+import { Folder, FolderOpen, Trash2, Edit2, CornerRightDown, Users, Zap, Trophy, Gamepad2, Dumbbell, Music, Drama, Snowflake, Flame, Target, Swords, Flag, Timer, Heart, Star, Sparkles, Ghost, Car, Dices, Volleyball, Brain, Puzzle, PersonStanding, Waves, Mountain, Tent, PartyPopper, GraduationCap, Crown, CircleDot } from 'lucide-react';
 import { Folder as FolderType } from '../types';
 import { playClick, playPop } from '../services/sound';
+
+const FOLDER_ICONS: Record<string, React.ElementType> = { folder: Folder, team: Users, energy: Zap, trophy: Trophy, game: Gamepad2, fitness: Dumbbell, music: Music, drama: Drama, winter: Snowflake, fire: Flame, target: Target, battle: Swords, flag: Flag, timer: Timer, heart: Heart, star: Star, sparkle: Sparkles, ghost: Ghost, racing: Car, dice: Dices, volleyball: Volleyball, brain: Brain, puzzle: Puzzle, active: PersonStanding, water: Waves, mountain: Mountain, camp: Tent, party: PartyPopper, school: GraduationCap, crown: Crown, ball: CircleDot };
 
 interface FolderCardProps {
   folder: FolderType;
@@ -99,7 +101,7 @@ const FolderCard: React.FC<FolderCardProps> = ({ folder, gameCount, onClick, onD
             w-16 h-16 rounded-3xl flex items-center justify-center mb-3 transition-colors duration-300
             ${isDragOver ? 'bg-indigo-500 text-white shadow-lg scale-110' : 'bg-gradient-to-br from-indigo-500/10 via-violet-500/10 to-orange-500/15 dark:from-indigo-500/20 dark:via-violet-500/15 dark:to-orange-500/15 text-indigo-600 dark:text-indigo-300 ring-1 ring-indigo-500/10'}
         `}>
-             {isDragOver ? <CornerRightDown className="w-8 h-8 animate-bounce" /> : (gameCount > 0 ? <FolderOpen className="w-8 h-8" /> : <Folder className="w-8 h-8" />)}
+             {isDragOver ? <CornerRightDown className="w-8 h-8 animate-bounce" /> : (() => { const Icon = FOLDER_ICONS[folder.icon || 'folder'] || Folder; return <Icon className="w-8 h-8" />; })()}
         </div>
 
         <h3 className={`text-lg font-bold truncate w-full px-2 transition-colors ${isDragOver ? 'text-indigo-600 dark:text-indigo-300' : 'text-slate-700 dark:text-slate-200'}`}>
