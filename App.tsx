@@ -2,7 +2,6 @@
 import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { Plus, Trophy, Search, Settings, Cloud, UserCircle, Filter, X, Moon, Sun, FolderPlus, Loader2, Info, Users, CalendarDays, BookOpen, ArrowLeft } from 'lucide-react';
 import { Game, UserProfile, GameResult, GroupMessage, FirebaseConfig, Folder, TargetGroup, ExportData, Player, GameCalendarEvent, CalendarSettings } from './types';
-import { generateGame } from './services/gemini';
 import { playClick, playPop, playSuccess, playDelete, playWhoosh } from './services/sound';
 import { initFirebase, saveToFirebase, subscribeToLibrary, saveGameDiagram, deleteGameAssets, cleanData } from './services/firebase';
 import GameCard from './components/GameCard';
@@ -24,10 +23,11 @@ import MoveToFolderModal from './components/MoveToFolderModal';
 import PlayersModal from './components/PlayersModal';
 import GameCalendar from './components/GameCalendar';
 
-const APP_VERSION = "4.6.0";
+const APP_VERSION = "4.7.0";
 
 const APP_UPDATES = [
-  "Game instructions are now stored as separate Setup, Gameplay, and How to Win fields.",
+  "Add games manually by pasting into the editable Setup, Gameplay, and How to Win fields.",
+  "Adding games no longer depends on AI generation or an API key.",
   "Existing games are automatically upgraded when they load from Firebase.",
   "Game editing now keeps the new structured data and legacy rules synchronized.",
   "Improved Firebase game syncing and data normalization.",
@@ -611,19 +611,41 @@ const App: React.FC = () => {
 
           <SyncModal isOpen={isSyncModalOpen} onClose={() => setIsSyncModalOpen(false)} games={games} messages={messages} results={results} players={players} categories={[]} tags={tags} recentPlayers={[]} syncId={libraryId} firebaseConfig={AUTO_FIREBASE_CONFIG} onImport={() => {}} onStartLiveSync={() => {}} onJoinLiveSync={(id) => { setLibraryId(id); setIsSyncModalOpen(false); }} onConnectFirebase={() => {}} onDisconnectFirebase={() => {}} onDownloadCloud={() => window.location.reload()} onUpload={() => triggerBroadcast()} onHardReset={handleHardRefresh} isLoading={isLoading || isBroadcasting} appVersion={APP_VERSION} />
           
-          <AddGameModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} categories={[]} onGenerate={async (p, cat, group, manualTags) => {
+          <AddGameModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} categories={[]} onCreate={async (details) => {
                   setIsLoading(true);
                   try {
-                      const res = await generateGame(p, manualTags);
-                      const game: Game = { ...res, id: crypto.randomUUID(), rating: 0, ratingCount: 0, targetGroups: group === 'Both' ? ['Middle School', 'High School'] : [group as any], folderId: activeFolderId || undefined, folderIcon: activeFolderId ? (folders.find(f => f.id === activeFolderId)?.icon || 'folder') : undefined, lastUpdated: Date.now(), createdBy: user?.name || 'Guest', creatorId: user?.id };
+                      const combinedRules = `## Setup\n${details.setup}\n\n## Gameplay\n${details.gameplay}\n\n## How to Win\n${details.howToWin}`;
+                      const game: Game = {
+                          id: crypto.randomUUID(),
+                          title: details.title,
+                          setup: details.setup,
+                          gameplay: details.gameplay,
+                          howToWin: details.howToWin,
+                          hasWinner: details.hasWinner,
+                          rules: combinedRules,
+                          materials: details.materials,
+                          duration: details.duration,
+                          minPlayers: details.minPlayers,
+                          rating: 0,
+                          ratingCount: 0,
+                          tags: details.manualTags,
+                          category: 'General',
+                          targetGroups: details.targetGroup === 'Both' ? ['Middle School', 'High School'] : [details.targetGroup as TargetGroup],
+                          folderId: activeFolderId || undefined,
+                          folderIcon: activeFolderId ? (folders.find(f => f.id === activeFolderId)?.icon || 'folder') : undefined,
+                          lastUpdated: Date.now(),
+                          createdBy: user?.name || 'Guest',
+                          creatorId: user?.id,
+                      };
                       const newGames = [game, ...games];
                       setGames(newGames);
-                      setIsModalOpen(false); setSelectedGame(game); playSuccess();
+                      setIsModalOpen(false);
+                      setSelectedGame(game);
+                      playSuccess();
                       triggerBroadcast(newGames);
-                  } catch (error) {
-                      console.error('Unable to generate game:', error);
-                      throw error;
-                  } finally { setIsLoading(false); }
+                  } finally {
+                      setIsLoading(false);
+                  }
               }} isLoading={isLoading} allTags={tags} user={user} />
           
           <CreateFolderModal isOpen={isFolderModalOpen} onClose={() => setIsFolderModalOpen(false)} onCreate={(name, icon) => { 
