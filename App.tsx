@@ -334,9 +334,18 @@ const App: React.FC = () => {
               <div className="max-w-7xl mx-auto flex items-center justify-between gap-4">
                   <div className="flex items-center gap-4">
                       <div className="flex items-center gap-3 cursor-pointer" onClick={() => { setActiveFolderId(null); setIsGlobalView(false); }}>
-                          <div className="p-2 bg-gradient-to-br from-slate-950 via-indigo-950 to-slate-900 dark:from-white dark:to-slate-100 rounded-xl shadow-lg shadow-indigo-500/15 rotate-3">
-                              <svg className="w-5 h-5" viewBox="0 0 512 512"><defs><linearGradient id="brand-g" x1="0" y1="0" x2="1" y2="1"><stop stopColor="#38BDF8"/><stop offset=".55" stopColor="#6366F1"/><stop offset="1" stopColor="#F97316"/></linearGradient></defs>
+                          <div className="relative p-2.5 bg-gradient-to-br from-orange-500 via-orange-600 to-red-600 rounded-xl shadow-lg shadow-orange-500/25 rotate-3 overflow-visible">
+                              <div className="absolute -inset-1.5 rounded-2xl bg-orange-500/20 blur-md animate-pulse pointer-events-none" />
+                              <svg className="relative w-5 h-5 drop-shadow-sm" viewBox="0 0 512 512">
+                                  <defs>
+                                      <linearGradient id="brand-g" x1="256" y1="42" x2="256" y2="470" gradientUnits="userSpaceOnUse">
+                                          <stop stopColor="#FDBA74"/>
+                                          <stop offset=".35" stopColor="#F97316"/>
+                                          <stop offset="1" stopColor="#DC2626"/>
+                                      </linearGradient>
+                                  </defs>
                                   <path d="M256 42.6C256 42.6 405.3 170.6 405.3 298.6C405.3 394.6 330.6 469.3 256 469.3C181.3 469.3 106.6 394.6 106.6 298.6C106.6 170.6 256 42.6 256 42.6Z" fill="url(#brand-g)"/>
+                                  <path d="M256 384L230.4 360.5C183.4 317.8 160 290.1 160 256C160 228.2 181.3 206.9 209 206.9C223.9 206.9 238.9 213.3 247.4 224L256 232.5L264.5 224C273 213.3 287.9 206.9 302.9 206.9C330.6 206.9 352 228.2 352 256C352 290.1 328.5 317.8 281.5 360.5L256 384Z" fill="white" opacity=".92"/>
                               </svg>
                           </div>
                           <h1 className="text-xl font-black text-[#1D1D1F] dark:text-white tracking-tighter uppercase hidden sm:block">Pursuit</h1>
