@@ -23,7 +23,7 @@ import MoveToFolderModal from './components/MoveToFolderModal';
 import PlayersModal from './components/PlayersModal';
 import GameCalendar from './components/GameCalendar';
 
-const APP_VERSION = "4.8.6";
+const APP_VERSION = "4.8.7";
 
 const APP_UPDATES = [
   "Add games manually by pasting into the editable Setup, Gameplay, and How to Win fields.",
