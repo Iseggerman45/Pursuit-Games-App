@@ -13,6 +13,52 @@ let unsubPlayers: any = null;
 let persistenceAttempted = false;
 
 /**
+ * Converts both new structured games and older games into one reliable shape.
+ * Older games stored their manual inside "rules"; those games are upgraded in memory
+ * without deleting the original rules field, so existing libraries remain compatible.
+ */
+const extractRuleSections = (rules: string = '') => {
+    const result = { setup: '', gameplay: '', howToWin: '' };
+    const matches = rules.split(/##\s*(Setup|Gameplay|How to Win)\s*/i);
+    for (let i = 1; i < matches.length; i += 2) {
+        const key = matches[i].toLowerCase();
+        const value = (matches[i + 1] || '').trim();
+        if (key === 'setup') result.setup = value;
+        if (key === 'gameplay') result.gameplay = value;
+        if (key === 'how to win') result.howToWin = value;
+    }
+    if (!result.gameplay && rules && !/##\s*(Setup|Gameplay|How to Win)/i.test(rules)) {
+        result.gameplay = rules.trim();
+    }
+    return result;
+};
+
+export const normalizeGame = (raw: any): Game => {
+    const game = raw || {};
+    const legacy = extractRuleSections(typeof game.rules === 'string' ? game.rules : '');
+    const setup = typeof game.setup === 'string' && game.setup.trim() ? game.setup.trim() : legacy.setup;
+    const gameplay = typeof game.gameplay === 'string' && game.gameplay.trim() ? game.gameplay.trim() : legacy.gameplay;
+    const howToWin = typeof game.howToWin === 'string' && game.howToWin.trim() ? game.howToWin.trim() : legacy.howToWin;
+    const rules = typeof game.rules === 'string' && game.rules.trim()
+        ? game.rules
+        : `## Setup\n${setup}\n\n## Gameplay\n${gameplay}\n\n## How to Win\n${howToWin}`.trim();
+
+    return {
+        ...game,
+        setup,
+        gameplay,
+        howToWin,
+        rules,
+        materials: typeof game.materials === 'string' ? game.materials : '',
+        tags: Array.isArray(game.tags) ? game.tags : [],
+        targetGroups: Array.isArray(game.targetGroups) ? game.targetGroups : [],
+        rating: typeof game.rating === 'number' ? game.rating : 0,
+        ratingCount: typeof game.ratingCount === 'number' ? game.ratingCount : 0,
+    } as Game;
+};
+
+
+/**
  * Deeply cleans objects to ensure they are serializable and free of circular references.
  * Essential for preventing "Converting circular structure to JSON" crashes when
  * internal library objects (Firebase/React) leak into state.
@@ -103,7 +149,7 @@ export const subscribeToLibrary = (
         if (snap.exists() && !snap.metadata.hasPendingWrites) {
             const raw = snap.data();
             onData({
-                games: raw.games || [],
+                games: (raw.games || []).map(normalizeGame),
                 folders: raw.folders || [],
                 tags: raw.tags || []
             });
@@ -185,10 +231,16 @@ export const saveToFirebase = async (data: ExportData, config?: FirebaseConfig, 
     const pathId = libraryId.trim().toLowerCase();
 
     const gamesWithoutDiagrams = (data.games || []).map(game => {
-        const { diagramUrl, ...rest } = game;
+        const normalized = normalizeGame(game);
+        const { diagramUrl, ...rest } = normalized;
         return {
             ...rest,
-            hasDiagram: !!diagramUrl || !!game.hasDiagram
+            // Keep the old combined rules field populated so older app versions can still read the library.
+            rules: normalized.rules,
+            setup: normalized.setup || '',
+            gameplay: normalized.gameplay || '',
+            howToWin: normalized.howToWin || '',
+            hasDiagram: !!diagramUrl || !!normalized.hasDiagram
         };
     });
 
