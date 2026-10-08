@@ -1,10 +1,10 @@
 
 import React, { useState, useEffect } from 'react';
-import { X, Edit3, Check, Folder, Users, Zap, Trophy, Gamepad2, Dumbbell, Music, Drama, Snowflake, Flame, Target, Swords, Flag, Timer, Heart, Star, Sparkles, Ghost, Car, Dices, Volleyball, Brain, Puzzle, PersonStanding, Waves, Mountain, Tent, PartyPopper, GraduationCap, Crown, CircleDot } from 'lucide-react';
+import { X, Edit3, Check, Folder, Users, Zap, Trophy, Gamepad2, Dumbbell, Music, Drama, Snowflake, Flame, Target, Swords, Flag, Timer, Heart, Star, Sparkles, Ghost, Car, Dices, Volleyball, Brain, Puzzle, PersonStanding, Waves, Mountain, Tent, PartyPopper, GraduationCap, Crown, CircleDot, Armchair } from 'lucide-react';
 import { Folder as FolderType } from '../types';
 
 const FOLDER_ICON_OPTIONS = [
-  ['folder',Folder], ['team',Users], ['energy',Zap], ['trophy',Trophy], ['game',Gamepad2], ['fitness',Dumbbell], ['music',Music], ['drama',Drama], ['winter',Snowflake], ['fire',Flame], ['target',Target], ['battle',Swords], ['flag',Flag], ['timer',Timer], ['heart',Heart], ['star',Star], ['sparkle',Sparkles], ['ghost',Ghost], ['racing',Car], ['dice',Dices], ['volleyball',Volleyball], ['brain',Brain], ['puzzle',Puzzle], ['active',PersonStanding], ['water',Waves], ['mountain',Mountain], ['camp',Tent], ['party',PartyPopper], ['school',GraduationCap], ['crown',Crown], ['ball',CircleDot]
+  ['folder',Folder], ['team',Users], ['energy',Zap], ['trophy',Trophy], ['game',Gamepad2], ['fitness',Dumbbell], ['music',Music], ['drama',Drama], ['winter',Snowflake], ['fire',Flame], ['target',Target], ['battle',Swords], ['flag',Flag], ['timer',Timer], ['heart',Heart], ['star',Star], ['sparkle',Sparkles], ['ghost',Ghost], ['racing',Car], ['dice',Dices], ['volleyball',Volleyball], ['brain',Brain], ['puzzle',Puzzle], ['active',PersonStanding], ['water',Waves], ['mountain',Mountain], ['camp',Tent], ['party',PartyPopper], ['school',GraduationCap], ['crown',Crown], ['ball',CircleDot], ['chair',Armchair]
 ] as const;
 
 interface RenameFolderModalProps {
