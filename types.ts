@@ -25,7 +25,12 @@ export interface Folder {
 export interface Game {
   id: string;
   title: string;
+  /** Legacy combined rules field. Kept for backwards compatibility. */
   rules: string;
+  /** Canonical structured game instructions. */
+  setup?: string;
+  gameplay?: string;
+  howToWin?: string;
   materials: string;
   duration: string;
   minPlayers: string;
