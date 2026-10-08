@@ -24,7 +24,7 @@ import PlayersModal from './components/PlayersModal';
 import GameCalendar from './components/GameCalendar';
 import LiveNightModal from './components/LiveNightModal';
 
-const APP_VERSION = "4.9.1";
+const APP_VERSION = "4.9.2";
 
 const APP_UPDATES = [
   "Add games manually by pasting into the editable Setup, Gameplay, and How to Win fields.",
@@ -35,6 +35,7 @@ const APP_UPDATES = [
   "New Game Calendar lets you schedule games and view your plan by month or week.",
   "Live Night walks through scheduled games, combines the night’s supply list, and collects ratings after each main game.",
   "Start Live Night directly from the main screen using today’s lineup or the next scheduled night.",
+  "Game instructions now display bold text and numbered lists correctly, including pasted Markdown with escaped punctuation.",
 ];
 const GLOBAL_ID = "pursuit_global";
 
