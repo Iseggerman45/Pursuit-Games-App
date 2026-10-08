@@ -142,7 +142,6 @@ const LiveNightModal: React.FC<LiveNightModalProps> = ({ date, games, events, on
                   )}
 
                   <div className="mt-6 flex flex-wrap gap-3">
-                    {currentIndex > 0 && <button onClick={() => setCurrentIndex(index => Math.max(0, index - 1))} className="px-4 py-3 rounded-xl border border-black/10 dark:border-white/10 text-sm font-bold text-slate-600 dark:text-slate-300">Previous</button>}
                     <button onClick={finishAndRate} className="flex-1 min-w-[200px] inline-flex items-center justify-center gap-2 px-5 py-3.5 rounded-xl bg-gradient-to-r from-orange-500 to-red-600 text-white font-black shadow-lg shadow-orange-500/20"><Star className="w-4 h-4 fill-current" /> Finish Game & Rate</button>
                   </div>
                   <p className="mt-2 text-center text-[11px] text-slate-400">After the game, collect the group’s 1–5 rating to move to the next scheduled game.</p>
@@ -170,11 +169,11 @@ const LiveNightModal: React.FC<LiveNightModalProps> = ({ date, games, events, on
               <div className="mt-5 pt-4 border-t border-black/5 dark:border-white/10">
                 <h4 className="text-xs font-black uppercase tracking-wider text-slate-400 mb-2">Tonight’s Lineup</h4>
                 <div className="space-y-2">
-                  {nightEvents.map((item, index) => <button key={item.event.id} onClick={() => setCurrentIndex(index)} className={`w-full flex items-start gap-2 text-left p-2 rounded-lg ${index === currentIndex ? 'bg-orange-500/10 text-orange-600 dark:text-orange-400' : index < currentIndex ? 'text-emerald-600 dark:text-emerald-400' : 'text-slate-500 dark:text-slate-400'}`}>
+                  {nightEvents.map((item, index) => <div key={item.event.id} className={`w-full flex items-start gap-2 text-left p-2 rounded-lg ${index === currentIndex ? 'bg-orange-500/10 text-orange-600 dark:text-orange-400' : index < currentIndex ? 'text-emerald-600 dark:text-emerald-400' : 'text-slate-500 dark:text-slate-400'}`}>
                     {index < currentIndex ? <Check className="w-4 h-4 mt-0.5 shrink-0" /> : <span className="w-4 h-4 mt-0.5 shrink-0 rounded-full border border-current text-[9px] flex items-center justify-center">{index + 1}</span>}
                     <span className="min-w-0"><span className="block text-xs font-bold">{item.game.title}</span><span className="block text-[10px] opacity-70">{formatTime(item.event.time)}{item.subGames.length ? ` · ${item.subGames.length} mini-game(s)` : ''}</span></span>
-                    <ChevronRight className="w-3.5 h-3.5 mt-0.5 ml-auto shrink-0 opacity-50" />
-                  </button>)}
+                    {index === currentIndex && <ChevronRight className="w-3.5 h-3.5 mt-0.5 ml-auto shrink-0 opacity-50" />}
+                  </div>)}
                 </div>
                 {checkedSupplies.length > 0 && <button onClick={() => setCheckedSupplies([])} className="mt-4 inline-flex items-center gap-1.5 text-xs font-bold text-slate-400 hover:text-orange-500"><RotateCcw className="w-3.5 h-3.5" /> Reset supply checklist</button>}
               </div>
