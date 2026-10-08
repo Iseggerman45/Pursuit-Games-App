@@ -85,6 +85,8 @@ const ProfileModal: React.FC<ProfileModalProps> = ({ isOpen, onClose, onSave, in
             color,
             emoji
         });
+        // Saving a profile should also finish/close the form, both for first-time setup and edits.
+        onClose();
     }
   };
 
@@ -98,7 +100,7 @@ const ProfileModal: React.FC<ProfileModalProps> = ({ isOpen, onClose, onSave, in
         onClick={() => { if (isDismissible) onClose(); }}
       />
       
-      <div className="relative bg-white/90 backdrop-blur-2xl rounded-[2.5rem] shadow-2xl w-full max-w-lg overflow-hidden animate-in zoom-in-95 slide-in-from-bottom-5 duration-300 border border-white/50 ring-1 ring-black/5 flex flex-col max-h-[90vh]">
+      <div className="relative bg-white/90 backdrop-blur-2xl rounded-[2.5rem] shadow-2xl w-full max-w-lg overflow-hidden animate-in zoom-in-95 slide-in-from-bottom-5 duration-300 border border-white/50 ring-1 ring-black/5 flex flex-col max-h-[calc(100dvh-2rem)]">
         
         {isDismissible && (
             <button 
@@ -109,7 +111,7 @@ const ProfileModal: React.FC<ProfileModalProps> = ({ isOpen, onClose, onSave, in
             </button>
         )}
 
-        <div className="p-8 flex flex-col items-center text-center overflow-y-auto">
+        <div className="p-6 sm:p-8 flex flex-col items-center text-center overflow-y-auto">
             
             <div className={`flex-shrink-0 w-24 h-24 rounded-full ${color} shadow-lg mb-6 flex items-center justify-center text-white text-4xl font-bold transition-colors duration-300 ring-4 ring-white`}>
                 {emoji ? emoji : (name ? name.charAt(0).toUpperCase() : <UserCircle className="w-12 h-12" />)}
@@ -138,7 +140,7 @@ const ProfileModal: React.FC<ProfileModalProps> = ({ isOpen, onClose, onSave, in
                 </div>
 
                 {/* Emoji Picker */}
-                <div className="space-y-2 text-left">
+                    <div className="space-y-2 text-left">
                     <label className="text-xs font-bold text-slate-500 uppercase tracking-wider ml-2">Select Avatar</label>
                     <div className="bg-white/50 rounded-2xl p-3 border border-white/50 h-48 overflow-y-auto scrollbar-thin scrollbar-thumb-slate-200">
                         <div className="flex flex-wrap justify-center gap-2">
