@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
-import { Plus, Trophy, Search, Settings, Cloud, UserCircle, Filter, X, Moon, Sun, FolderPlus, Loader2, Info, Users, CalendarDays } from 'lucide-react';
+import { Plus, Trophy, Search, Settings, Cloud, UserCircle, Filter, X, Moon, Sun, FolderPlus, Loader2, Info, Users, CalendarDays, BookOpen } from 'lucide-react';
 import { Game, UserProfile, GameResult, GroupMessage, FirebaseConfig, Folder, TargetGroup, ExportData, Player, GameCalendarEvent } from './types';
 import { generateGame } from './services/gemini';
 import { playClick, playPop, playSuccess, playDelete, playWhoosh } from './services/sound';
@@ -118,6 +118,7 @@ const App: React.FC = () => {
   const [activeFolderId, setActiveFolderId] = useState<string | null>(null);
   const [isGlobalView, setIsGlobalView] = useState(false);
   const [showCalendar, setShowCalendar] = useState(false);
+  const [showLauncher, setShowLauncher] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
   
@@ -403,7 +404,7 @@ const App: React.FC = () => {
           <nav className="sticky top-0 z-40 bg-white/65 dark:bg-slate-950/65 backdrop-blur-2xl border-b border-white/70 dark:border-white/10 shadow-sm p-4 sm:px-8">
               <div className="max-w-7xl mx-auto flex items-center justify-between gap-4">
                   <div className="flex items-center gap-4">
-                      <div className="flex items-center gap-3 cursor-pointer" onClick={() => { setActiveFolderId(null); setIsGlobalView(false); setShowCalendar(false); }}>
+                      <div className="flex items-center gap-3 cursor-pointer" onClick={() => { setActiveFolderId(null); setIsGlobalView(false); setShowCalendar(false); setShowLauncher(true); }}>
                           <div className="relative p-2.5 bg-gradient-to-br from-orange-500 via-orange-600 to-red-600 rounded-xl shadow-lg shadow-orange-500/25 rotate-3 overflow-visible">
                               <div className="absolute -inset-1.5 rounded-2xl bg-orange-500/20 blur-md animate-pulse pointer-events-none" />
                               <svg className="relative w-5 h-5 drop-shadow-sm" viewBox="0 0 512 512">
@@ -432,7 +433,7 @@ const App: React.FC = () => {
                       <button onClick={() => setIsSyncModalOpen(true)} className="p-2.5 bg-slate-50 dark:bg-white/5 text-slate-500 dark:text-slate-400 rounded-2xl relative">
                           {isBroadcasting ? <Loader2 className="w-5 h-5 animate-spin" /> : <Cloud className="w-5 h-5" />}
                       </button>
-                      <button onClick={() => { setShowCalendar(true); setActiveFolderId(null); }} className={`px-2.5 sm:px-3 py-2.5 rounded-2xl relative border flex items-center gap-2 ${showCalendar ? 'bg-orange-500 text-white border-orange-500 shadow-md shadow-orange-500/20' : 'bg-orange-50/80 dark:bg-orange-500/10 text-orange-600 dark:text-orange-400 border-orange-100/80 dark:border-orange-400/10'}`} title="Game Calendar">
+                      <button onClick={() => { setShowCalendar(true); setShowLauncher(false); setActiveFolderId(null); }} className={`px-2.5 sm:px-3 py-2.5 rounded-2xl relative border flex items-center gap-2 ${showCalendar ? 'bg-orange-500 text-white border-orange-500 shadow-md shadow-orange-500/20' : 'bg-orange-50/80 dark:bg-orange-500/10 text-orange-600 dark:text-orange-400 border-orange-100/80 dark:border-orange-400/10'}`} title="Game Calendar">
                           <CalendarDays className="w-5 h-5" />
                           <span className="hidden sm:inline text-xs font-bold">Calendar</span>
                       </button>
@@ -452,8 +453,64 @@ const App: React.FC = () => {
               <div className="color-orb cyan w-[26rem] h-[26rem] bottom-[-8rem] left-[30%]" />
               <div className="color-orb orange w-[24rem] h-[24rem] top-[55%] left-[5%]" />
               <div className="color-orb red w-[20rem] h-[20rem] bottom-[5%] right-[12%]" />
-              {showCalendar ? (
-                  <GameCalendar games={games} events={calendarEvents} onAddEvent={handleAddCalendarEvent} onDeleteEvent={handleDeleteCalendarEvent} onOpenGame={(game) => { setShowCalendar(false); setSelectedGame(game); }} />
+              {showLauncher ? (
+                  <div className="relative z-10 max-w-5xl mx-auto w-full min-h-[calc(100vh-10rem)] flex items-center justify-center">
+                      <div className="w-full">
+                          <div className="text-center mb-10 sm:mb-14">
+                              <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-orange-500/10 text-orange-600 dark:text-orange-300 text-xs font-black uppercase tracking-wider border border-orange-500/15">
+                                  <span className="w-1.5 h-1.5 rounded-full bg-orange-500 animate-pulse" />
+                                  Pursuit
+                              </div>
+                              <h2 className="mt-5 text-4xl sm:text-6xl font-black tracking-tight gradient-text">What are we doing today?</h2>
+                              <p className="mt-3 text-base sm:text-lg text-slate-500 dark:text-slate-400">Choose where you want to go.</p>
+                          </div>
+                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 sm:gap-8 max-w-3xl mx-auto">
+                              <button
+                                onClick={() => { playClick(); setShowLauncher(false); setShowCalendar(false); setIsGlobalView(false); setActiveFolderId(null); }}
+                                className="group relative min-h-[18rem] sm:min-h-[22rem] rounded-[2.5rem] glass-card border border-white/80 dark:border-white/10 overflow-hidden text-left shadow-xl hover:-translate-y-2 hover:shadow-2xl transition-all duration-300"
+                              >
+                                  <div className="absolute -top-24 -right-24 w-56 h-56 rounded-full bg-indigo-500/15 blur-3xl group-hover:bg-indigo-500/25 transition-all" />
+                                  <div className="relative h-full p-7 sm:p-9 flex flex-col justify-between">
+                                      <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-indigo-500 to-violet-600 text-white flex items-center justify-center shadow-lg shadow-indigo-500/25 group-hover:scale-105 transition-transform">
+                                          <BookOpen className="w-8 h-8" />
+                                      </div>
+                                      <div>
+                                          <div className="flex items-end justify-between gap-4">
+                                              <div>
+                                                  <h3 className="text-2xl sm:text-3xl font-black text-slate-900 dark:text-white">Game Library</h3>
+                                                  <p className="mt-2 text-sm sm:text-base text-slate-500 dark:text-slate-400">Browse, organize, and create all your Pursuit games.</p>
+                                              </div>
+                                              <span className="shrink-0 w-11 h-11 rounded-full bg-slate-950 dark:bg-white text-white dark:text-black flex items-center justify-center text-xl group-hover:translate-x-1 transition-transform">→</span>
+                                          </div>
+                                      </div>
+                                  </div>
+                              </button>
+                              <button
+                                onClick={() => { playClick(); setShowLauncher(false); setShowCalendar(true); }}
+                                className="group relative min-h-[18rem] sm:min-h-[22rem] rounded-[2.5rem] glass-card border border-white/80 dark:border-white/10 overflow-hidden text-left shadow-xl hover:-translate-y-2 hover:shadow-2xl transition-all duration-300"
+                              >
+                                  <div className="absolute -top-24 -right-24 w-56 h-56 rounded-full bg-orange-500/20 blur-3xl group-hover:bg-orange-500/30 transition-all" />
+                                  <div className="absolute -bottom-20 -left-20 w-48 h-48 rounded-full bg-violet-500/10 blur-3xl" />
+                                  <div className="relative h-full p-7 sm:p-9 flex flex-col justify-between">
+                                      <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-orange-500 to-red-600 text-white flex items-center justify-center shadow-lg shadow-orange-500/25 group-hover:scale-105 transition-transform">
+                                          <CalendarDays className="w-8 h-8" />
+                                      </div>
+                                      <div>
+                                          <div className="flex items-end justify-between gap-4">
+                                              <div>
+                                                  <h3 className="text-2xl sm:text-3xl font-black text-slate-900 dark:text-white">Game Calendar</h3>
+                                                  <p className="mt-2 text-sm sm:text-base text-slate-500 dark:text-slate-400">Plan your games by week or month so you always know what’s next.</p>
+                                              </div>
+                                              <span className="shrink-0 w-11 h-11 rounded-full bg-orange-500 text-white flex items-center justify-center text-xl shadow-lg shadow-orange-500/20 group-hover:translate-x-1 transition-transform">→</span>
+                                          </div>
+                                      </div>
+                                  </div>
+                              </button>
+                          </div>
+                      </div>
+                  </div>
+              ) : showCalendar ? (
+                  <GameCalendar games={games} events={calendarEvents} onAddEvent={handleAddCalendarEvent} onDeleteEvent={handleDeleteCalendarEvent} onOpenGame={(game) => { setShowCalendar(false); setShowLauncher(false); setSelectedGame(game); }} />
               ) : <div className="relative z-10 max-w-7xl mx-auto w-full">
               <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-12">
                    <div>
