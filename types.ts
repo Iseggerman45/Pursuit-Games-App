@@ -98,6 +98,7 @@ export interface CalendarSettings {
 export interface GameCalendarEvent {
   id: string;
   gameId: string;
+  subGameIds?: string[]; // Optional mini-games included as part of this scheduled game
   date: string; // YYYY-MM-DD calendar date
   time?: string; // HH:mm, optional
   notes?: string;
