@@ -23,13 +23,13 @@ import LeaderboardModal from './components/LeaderboardModal';
 import MoveToFolderModal from './components/MoveToFolderModal';
 import PlayersModal from './components/PlayersModal';
 
-const APP_VERSION = "4.1.6";
+const APP_VERSION = "4.2.0";
 
 const APP_UPDATES = [
-  "New glass-style design with stronger color depth and fire-inspired accents.",
-  "Improved light and dark mode visuals.",
-  "Full-screen ambient background with subtle floating color orbs.",
-  "Refined Pursuit branding with the orange fire logo."
+  "Game instructions are now stored as separate Setup, Gameplay, and How to Win fields.",
+  "Existing games are automatically upgraded when they load from Firebase.",
+  "Game editing now keeps the new structured data and legacy rules synchronized.",
+  "Improved Firebase game syncing and data normalization."
 ];
 const GLOBAL_ID = "pursuit_global";
 
