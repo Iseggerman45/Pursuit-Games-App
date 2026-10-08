@@ -5,7 +5,11 @@ let aiInstance: GoogleGenAI | null = null;
 
 const getAiInstance = () => {
     if (!aiInstance) {
-        aiInstance = new GoogleGenAI({ apiKey: process.env.API_KEY });
+        const apiKey = process.env.API_KEY || process.env.GEMINI_API_KEY;
+        if (!apiKey || apiKey === 'undefined' || apiKey === 'null') {
+            throw new Error('The AI service is not configured yet. Please add GEMINI_API_KEY to the app’s Vercel environment variables, then redeploy.');
+        }
+        aiInstance = new GoogleGenAI({ apiKey });
     }
     return aiInstance;
 }
