@@ -18,6 +18,7 @@ export interface Folder {
   id: string;
   name: string;
   color?: string;
+  icon?: string;
   createdAt: number;
   lastUpdated?: number;
 }
