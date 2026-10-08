@@ -45,7 +45,8 @@ const AddGameModal: React.FC<AddGameModalProps> = ({ isOpen, onClose, onCreate, 
   const [gameplay, setGameplay] = useState('');
   const [howToWin, setHowToWin] = useState('');
   const [hasWinner, setHasWinner] = useState(true);
-  const [materials, setMaterials] = useState('');
+  const [supplies, setSupplies] = useState<string[]>([]);
+  const [supplyInput, setSupplyInput] = useState('');
   const [minPlayers, setMinPlayers] = useState('2+');
   const [duration, setDuration] = useState('15 minutes');
   const [targetGroup, setTargetGroup] = useState<TargetGroup | 'Both'>('Both');
@@ -79,7 +80,8 @@ const AddGameModal: React.FC<AddGameModalProps> = ({ isOpen, onClose, onCreate, 
       setGameplay('');
       setHowToWin('');
       setHasWinner(true);
-      setMaterials('');
+      setSupplies([]);
+      setSupplyInput('');
       setMinPlayers('2+');
       setDuration('15 minutes');
       setTargetGroup('Both');
@@ -106,7 +108,7 @@ const AddGameModal: React.FC<AddGameModalProps> = ({ isOpen, onClose, onCreate, 
         gameplay: gameplay.trim(),
         howToWin: hasWinner ? howToWin.trim() : '',
         hasWinner,
-        materials: materials.trim() || 'None required',
+        materials: supplies.length ? supplies.map(item => `• ${item}`).join('\n') : 'None required',
         duration: duration.trim() || 'Not specified',
         minPlayers: minPlayers.trim() || '2+',
         targetGroup,
@@ -166,7 +168,35 @@ const AddGameModal: React.FC<AddGameModalProps> = ({ isOpen, onClose, onCreate, 
               </div>
               <div>
                 <label className={sectionLabelClass}><Box className="w-4 h-4 text-orange-600" /> Materials / Supplies</label>
-                <input value={materials} onChange={e => setMaterials(e.target.value)} className={fieldClass} placeholder="e.g. 4 cones, 2 balls" disabled={isLoading} />
+                <input
+                  value={supplyInput}
+                  onChange={e => setSupplyInput(e.target.value)}
+                  onKeyDown={e => {
+                    if (e.key === 'Enter') {
+                      e.preventDefault();
+                      const item = supplyInput.trim();
+                      if (item && !isLoading) {
+                        setSupplies(prev => [...prev, item]);
+                        setSupplyInput('');
+                      }
+                    }
+                  }}
+                  className={fieldClass}
+                  placeholder="Type a supply and press Enter (e.g. 4 cones)"
+                  disabled={isLoading}
+                  aria-label="Add a supply"
+                />
+                {supplies.length > 0 && (
+                  <ul className="mt-2 space-y-1.5" aria-label="Supplies added">
+                    {supplies.map((item, index) => (
+                      <li key={`${item}-${index}`} className="flex items-center justify-between gap-2 rounded-xl bg-slate-50 border border-slate-100 px-3 py-2 text-sm text-slate-700">
+                        <span>• {item}</span>
+                        <button type="button" onClick={() => setSupplies(prev => prev.filter((_, i) => i !== index))} disabled={isLoading} className="text-slate-400 hover:text-red-600 px-1" aria-label={`Remove ${item}`}>×</button>
+                      </li>
+                    ))}
+                  </ul>
+                )}
+                <p className="mt-1 text-xs text-slate-500">Press Enter after each item to add another.</p>
               </div>
             </div>
 
