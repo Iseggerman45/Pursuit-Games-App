@@ -563,7 +563,7 @@ const App: React.FC = () => {
                   ) : null}
 
                   {filteredGames.map(game => (
-                      <GameCard key={game.id} game={game} onRateClick={setRatingGame} onLogWin={setWinnerGame} onDelete={handleDeleteGame} onClick={() => { playWhoosh(); setSelectedGame(game); }} onMoveClick={setMovingGame} showFolderName={isGlobalView} folderName={game.folderId ? (folders.find(f => f.id === game.folderId)?.name || 'Root') : 'Root'} />
+                      <GameCard key={game.id} game={game} onRateClick={setRatingGame} onLogWin={setWinnerGame} onDelete={handleDeleteGame} onClick={() => { playWhoosh(); setSelectedGame(game); }} onMoveClick={setMovingGame} showFolderName={isGlobalView} folderName={game.folderId ? (folders.find(f => f.id === game.folderId)?.name || 'Root') : 'Root'} folderIcon={game.folderId ? (folders.find(f => f.id === game.folderId)?.icon || 'folder') : game.folderIcon} />
                   ))}
                   {activeFolderId && filteredGames.length === 0 && (
                       <div className="col-span-full py-16 text-center rounded-[2rem] border border-dashed border-slate-200 dark:border-white/10 bg-white/30 dark:bg-white/[0.02]">
