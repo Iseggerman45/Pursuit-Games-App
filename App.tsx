@@ -24,7 +24,7 @@ import PlayersModal from './components/PlayersModal';
 import GameCalendar from './components/GameCalendar';
 import LiveNightModal from './components/LiveNightModal';
 
-const APP_VERSION = "4.9.3";
+const APP_VERSION = "4.9.4";
 
 const APP_UPDATES = [
   "Add games manually by pasting into the editable Setup, Gameplay, and How to Win fields.",
@@ -37,6 +37,7 @@ const APP_UPDATES = [
   "Start Live Night directly from the main screen using today’s lineup or the next scheduled night.",
   "Game instructions now display bold text and numbered lists correctly, including pasted Markdown with escaped punctuation.",
   "Improved game instruction readability in dark mode.",
+  "Fixed dark mode text contrast with explicit Markdown text colors and refreshed cached assets.",
 ];
 const GLOBAL_ID = "pursuit_global";
 
