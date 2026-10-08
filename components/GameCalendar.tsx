@@ -1,10 +1,11 @@
 import React, { useMemo, useState } from 'react';
 import { CalendarDays, ChevronLeft, ChevronRight, Plus, Trash2, X, StickyNote, Search, CalendarPlus, ClipboardList, Copy, Printer } from 'lucide-react';
-import { Game, GameCalendarEvent, CalendarSettings, CalendarSchedule } from '../types';
+import { Game, Folder, GameCalendarEvent, CalendarSettings, CalendarSchedule } from '../types';
 import { playClick, playPop, playDelete } from '../services/sound';
 
 interface GameCalendarProps {
   games: Game[];
+  folders: Folder[];
   settings: CalendarSettings;
   onSaveSettings: (settings: CalendarSettings) => void;
   events: GameCalendarEvent[];
@@ -61,7 +62,7 @@ const formatTime = (time?: string) => {
   return `${displayHour}:${pad(minute)} ${suffix}`;
 };
 
-const GameCalendar: React.FC<GameCalendarProps> = ({ games, settings, onSaveSettings, events, onAddEvent, onDeleteEvent, onOpenGame }) => {
+const GameCalendar: React.FC<GameCalendarProps> = ({ games, folders, settings, onSaveSettings, events, onAddEvent, onDeleteEvent, onOpenGame }) => {
   const [view, setView] = useState<ViewMode>('month');
   const [anchorDate, setAnchorDate] = useState(todayKey());
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -444,13 +445,14 @@ const GameCalendar: React.FC<GameCalendarProps> = ({ games, settings, onSaveSett
                     <label className="text-xs font-black uppercase tracking-wider text-slate-400">Mini-games / Sub-games <span className="font-normal normal-case">(optional)</span></label>
                     <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">Add smaller games that are part of the main game, such as the mini-games used in Ultimate Tic-Tac-Toe.</p>
                     <div className="mt-2 max-h-36 overflow-y-auto space-y-1.5">
-                      {games.filter(game => game.id !== selectedGameId).map(game => (
+                      {games.filter(game => game.id !== selectedGameId && folders.some(folder => folder.name.trim().toLowerCase() === 'mini games' && folder.id === game.folderId)).map(game => (
                         <label key={game.id} className="flex items-center gap-3 px-3 py-2.5 rounded-xl border border-black/5 dark:border-white/10 bg-white/50 dark:bg-white/5 text-sm text-slate-700 dark:text-slate-200">
                           <input type="checkbox" checked={selectedSubGameIds.includes(game.id)} onChange={e => setSelectedSubGameIds(prev => e.target.checked ? [...prev, game.id] : prev.filter(id => id !== game.id))} className="accent-orange-500" />
                           <span>{game.title}</span>
                         </label>
                       ))}
                     </div>
+                    {games.filter(game => game.id !== selectedGameId && folders.some(folder => folder.name.trim().toLowerCase() === 'mini games' && folder.id === game.folderId)).length === 0 && <p className="mt-2 text-xs text-slate-400">Add games to the “Mini Games” folder to see them here.</p>}
                     {selectedSubGameIds.length > 0 && <p className="mt-1 text-xs text-orange-600 dark:text-orange-400">{selectedSubGameIds.length} mini-game{selectedSubGameIds.length === 1 ? '' : 's'} selected</p>}
                   </div>
                   <div className="grid grid-cols-2 gap-3">
