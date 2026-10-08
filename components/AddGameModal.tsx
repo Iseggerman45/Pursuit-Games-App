@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { X, Users, Clock, FileText, BookOpen, Sword, FlagTriangleRight, GraduationCap, UserCircle, Tag, Save, Box } from 'lucide-react';
 import { TargetGroup, UserProfile } from '../types';
 import { playClick } from '../services/sound';
@@ -51,9 +51,25 @@ const AddGameModal: React.FC<AddGameModalProps> = ({ isOpen, onClose, onCreate, 
   const [targetGroup, setTargetGroup] = useState<TargetGroup | 'Both'>('Both');
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
   const [formError, setFormError] = useState<string | null>(null);
+  const setupRef = useRef<HTMLTextAreaElement>(null);
+  const gameplayRef = useRef<HTMLTextAreaElement>(null);
+  const howToWinRef = useRef<HTMLTextAreaElement>(null);
 
-  const appendRulePrefix = (setter: React.Dispatch<React.SetStateAction<string>>, currentValue: string, prefix: string) => {
-    setter(currentValue ? `${currentValue.replace(/\s*$/, '')}\n${prefix}` : prefix);
+  const insertRulePrefix = (setter: React.Dispatch<React.SetStateAction<string>>, value: string, textareaRef: { current: HTMLTextAreaElement | null }, prefix: string) => {
+    const textarea = textareaRef.current;
+    const start = textarea?.selectionStart ?? value.length;
+    const end = textarea?.selectionEnd ?? value.length;
+    const before = value.slice(0, start);
+    const after = value.slice(end);
+    const lineBreak = before.length > 0 && !before.endsWith('\n') ? '\n' : '';
+    const insertion = `${lineBreak}${prefix}`;
+    setter(`${before}${insertion}${after}`);
+    window.setTimeout(() => {
+      if (!textarea) return;
+      textarea.focus();
+      const cursor = before.length + insertion.length;
+      textarea.setSelectionRange(cursor, cursor);
+    }, 0);
   };
 
   useEffect(() => {
@@ -165,13 +181,13 @@ const AddGameModal: React.FC<AddGameModalProps> = ({ isOpen, onClose, onCreate, 
             <div className="rounded-2xl border border-slate-200 p-4 space-y-2">
               <div>
                 <label className="text-xs font-bold text-blue-600 uppercase tracking-wider flex items-center gap-2 mb-2"><BookOpen className="w-3.5 h-3.5" /> 1. Setup *</label>
-                <RuleFormattingToolbar onInsert={(prefix) => appendRulePrefix(setSetup, setup, prefix)} />
-                <textarea value={setup} onChange={e => setSetup(e.target.value)} className={`${fieldClass} min-h-28 resize-y`} placeholder="Where to play, what to prepare, how to split teams, and starting positions..." disabled={isLoading} />
+                <RuleFormattingToolbar onInsert={(prefix) => insertRulePrefix(setSetup, setup, setupRef, prefix)} />
+                <textarea value={setup} onChange={e => setSetup(e.target.value)} ref={setupRef} className={`${fieldClass} min-h-28 resize-y`} placeholder="Where to play, what to prepare, how to split teams, and starting positions..." disabled={isLoading} />
               </div>
               <div>
                 <label className="text-xs font-bold text-emerald-600 uppercase tracking-wider flex items-center gap-2 mb-2"><Sword className="w-3.5 h-3.5" /> 2. Gameplay / How to Play *</label>
-                <RuleFormattingToolbar onInsert={(prefix) => appendRulePrefix(setGameplay, gameplay, prefix)} />
-                <textarea value={gameplay} onChange={e => setGameplay(e.target.value)} className={`${fieldClass} min-h-40 resize-y`} placeholder="Write the rules in order, including what players do and what leaders should watch for..." disabled={isLoading} />
+                <RuleFormattingToolbar onInsert={(prefix) => insertRulePrefix(setGameplay, gameplay, gameplayRef, prefix)} />
+                <textarea value={gameplay} onChange={e => setGameplay(e.target.value)} ref={gameplayRef} className={`${fieldClass} min-h-40 resize-y`} placeholder="Write the rules in order, including what players do and what leaders should watch for..." disabled={isLoading} />
               </div>
               <div>
                 <label className="text-xs font-bold text-orange-600 uppercase tracking-wider flex items-center gap-2 mb-2"><FlagTriangleRight className="w-3.5 h-3.5" /> 3. How to Win / Just for Fun *</label>
@@ -179,8 +195,8 @@ const AddGameModal: React.FC<AddGameModalProps> = ({ isOpen, onClose, onCreate, 
                   <button type="button" onClick={() => setHasWinner(true)} className={`rounded-full px-3 py-1.5 text-xs font-semibold border ${hasWinner ? 'bg-orange-500 border-orange-500 text-white' : 'border-slate-200 text-slate-500'}`}>Has a winner</button>
                   <button type="button" onClick={() => setHasWinner(false)} className={`rounded-full px-3 py-1.5 text-xs font-semibold border ${!hasWinner ? 'bg-emerald-600 border-emerald-600 text-white' : 'border-slate-200 text-slate-500'}`}>Just for fun — no winner</button>
                 </div>
-                <RuleFormattingToolbar onInsert={(prefix) => appendRulePrefix(setHowToWin, howToWin, prefix)} />
-                <textarea value={howToWin} onChange={e => setHowToWin(e.target.value)} className={`${fieldClass} min-h-24 resize-y`} placeholder={hasWinner ? 'Explain the win condition and how ties are handled...' : 'Explain when to end the activity and how to wrap it up without a winner...'} disabled={isLoading} />
+                <RuleFormattingToolbar onInsert={(prefix) => insertRulePrefix(setHowToWin, howToWin, howToWinRef, prefix)} />
+                <textarea value={howToWin} onChange={e => setHowToWin(e.target.value)} ref={howToWinRef} className={`${fieldClass} min-h-24 resize-y`} placeholder={hasWinner ? 'Explain the win condition and how ties are handled...' : 'Explain when to end the activity and how to wrap it up without a winner...'} disabled={isLoading} />
               </div>
             </div>
           </form>
