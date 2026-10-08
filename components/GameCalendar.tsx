@@ -326,6 +326,7 @@ const GameCalendar: React.FC<GameCalendarProps> = ({ games, settings, onSaveSett
                               <button onClick={() => onOpenGame(game)} className="min-w-0 flex-1 text-left px-2.5 py-2">
                                 <div className="text-[10px] font-bold text-indigo-700 dark:text-indigo-300 truncate">{event.time ? formatTime(event.time) + ' · ' : ''}{game.title}</div>
                                 <div className="text-[9px] text-slate-400 truncate">{game.duration}</div>
+                                {!!event.subGameIds?.length && <div className="text-[9px] text-orange-600 dark:text-orange-400 truncate">+ {event.subGameIds.map(id => gameMap.get(id)?.title).filter(Boolean).join(", ")}</div> 
                               </button>
                               <button onClick={() => { if (confirm(`Remove ${game.title} from the calendar?`)) { playDelete(); onDeleteEvent(event.id); } }} className="px-2 text-slate-300 hover:text-red-500 hover:bg-red-500/5 transition-colors" aria-label={`Remove ${game.title} from calendar`}><Trash2 className="w-3 h-3" /></button>
                             </div>
@@ -364,6 +365,7 @@ const GameCalendar: React.FC<GameCalendarProps> = ({ games, settings, onSaveSett
                               <div className="text-[10px] font-bold text-orange-600 dark:text-orange-400">{formatTime(event.time)}</div>
                               <div className="mt-1 text-xs font-black text-slate-800 dark:text-white leading-snug">{game.title}</div>
                               <div className="mt-1 text-[10px] text-slate-400">{game.duration}</div>
+                              {!!event.subGameIds?.length && <div className="mt-1 text-[10px] text-orange-600 dark:text-orange-400">Mini-games: {event.subGameIds.map(id => gameMap.get(id)?.title).filter(Boolean).join(", ")}</div>}
                               {event.notes && <div className="mt-2 text-[10px] text-slate-500 dark:text-slate-400 line-clamp-2">{event.notes}</div>}
                             </button>
                             <button onClick={() => { if (confirm(`Remove ${game.title} from the calendar?`)) { playDelete(); onDeleteEvent(event.id); } }} className="mt-2 text-slate-300 hover:text-red-500 transition-colors" aria-label={`Remove ${game.title}`}><Trash2 className="w-3.5 h-3.5" /></button>
