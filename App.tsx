@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
-import { Plus, Trophy, Search, Settings, Cloud, UserCircle, Filter, X, Moon, Sun, FolderPlus, Loader2, Info, Users, CalendarDays, BookOpen, ArrowLeft } from 'lucide-react';
+import { Plus, Trophy, Search, Settings, Cloud, UserCircle, Filter, X, Moon, Sun, FolderPlus, Loader2, Info, Users, CalendarDays, BookOpen, ArrowLeft, Package } from 'lucide-react';
 import { Game, UserProfile, GameResult, GroupMessage, FirebaseConfig, Folder, TargetGroup, ExportData, Player, GameCalendarEvent, CalendarSettings } from './types';
 import { generateGame } from './services/gemini';
 import { playClick, playPop, playSuccess, playDelete, playWhoosh } from './services/sound';
@@ -23,15 +23,17 @@ import LeaderboardModal from './components/LeaderboardModal';
 import MoveToFolderModal from './components/MoveToFolderModal';
 import PlayersModal from './components/PlayersModal';
 import GameCalendar from './components/GameCalendar';
+import SupplyInventory from './components/SupplyInventory';
 
-const APP_VERSION = "4.3.0";
+const APP_VERSION = "4.4.0";
 
 const APP_UPDATES = [
   "Game instructions are now stored as separate Setup, Gameplay, and How to Win fields.",
   "Existing games are automatically upgraded when they load from Firebase.",
   "Game editing now keeps the new structured data and legacy rules synchronized.",
   "Improved Firebase game syncing and data normalization.",
-  "New Game Calendar lets you schedule games and view your plan by month or week."
+  "New Game Calendar lets you schedule games and view your plan by month or week.",
+  "New Supplies tracks your inventory and builds a smart shopping list from game materials."
 ];
 const GLOBAL_ID = "pursuit_global";
 
@@ -113,12 +115,15 @@ const App: React.FC = () => {
   const [messages, setMessages] = useState<GroupMessage[]>(() => JSON.parse(localStorage.getItem('pursuit_messages') || '[]'));
   const [calendarEvents, setCalendarEvents] = useState<GameCalendarEvent[]>(() => JSON.parse(localStorage.getItem('pursuit_calendar_events') || '[]'));
   const [calendarSettings, setCalendarSettings] = useState<CalendarSettings>(() => JSON.parse(localStorage.getItem('pursuit_calendar_settings') || '{"configured":false,"schedules":[]}'));
+  const [supplies, setSupplies] = useState<import('./types').SupplyItem[]>(() => JSON.parse(localStorage.getItem('pursuit_supplies') || '[]'));
+  const [shoppingList, setShoppingList] = useState<import('./types').ShoppingItem[]>(() => JSON.parse(localStorage.getItem('pursuit_shopping_list') || '[]'));
   
   const [isInitializing, setIsInitializing] = useState(true);
   const [showApp, setShowApp] = useState(false);
   const [activeFolderId, setActiveFolderId] = useState<string | null>(null);
   const [isGlobalView, setIsGlobalView] = useState(false);
   const [showCalendar, setShowCalendar] = useState(false);
+  const [showSupplies, setShowSupplies] = useState(false);
   const [showLauncher, setShowLauncher] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
@@ -162,6 +167,8 @@ const App: React.FC = () => {
   useEffect(() => { localStorage.setItem('pursuit_results', safeStringify(results)); }, [results]);
   useEffect(() => { localStorage.setItem('pursuit_calendar_events', safeStringify(calendarEvents)); }, [calendarEvents]);
   useEffect(() => { localStorage.setItem('pursuit_calendar_settings', safeStringify(calendarSettings)); }, [calendarSettings]);
+  useEffect(() => { localStorage.setItem('pursuit_supplies', safeStringify(supplies)); }, [supplies]);
+  useEffect(() => { localStorage.setItem('pursuit_shopping_list', safeStringify(shoppingList)); }, [shoppingList]);
   useEffect(() => { localStorage.setItem('pursuit_library_id', libraryId); }, [libraryId]);
   useEffect(() => { localStorage.setItem('pursuit_theme', isDarkMode ? 'dark' : 'light'); }, [isDarkMode]);
 
@@ -176,7 +183,7 @@ const App: React.FC = () => {
   }, [isDarkMode]);
 
   // --- SYNC ENGINE ---
-  const triggerBroadcast = useCallback(async (overrideGames?: Game[], overrideFolders?: Folder[], overrideMessages?: GroupMessage[], overrideResults?: GameResult[], overridePlayers?: Player[], overrideCalendarEvents?: GameCalendarEvent[], overrideCalendarSettings?: CalendarSettings) => {
+  const triggerBroadcast = useCallback(async (overrideGames?: Game[], overrideFolders?: Folder[], overrideMessages?: GroupMessage[], overrideResults?: GameResult[], overridePlayers?: Player[], overrideCalendarEvents?: GameCalendarEvent[], overrideCalendarSettings?: CalendarSettings, overrideSupplies?: import('./types').SupplyItem[], overrideShoppingList?: import('./types').ShoppingItem[]) => {
     if (!libraryId) return { success: false, error: 'No library ID' };
     setIsBroadcasting(true);
     try {
@@ -187,7 +194,7 @@ const App: React.FC = () => {
             messages: overrideMessages || messages,
             results: overrideResults || results,
             players: overridePlayers || players,
-            calendarEvents: overrideCalendarEvents || calendarEvents, calendarSettings: overrideCalendarSettings || calendarSettings,
+            calendarEvents: overrideCalendarEvents || calendarEvents, calendarSettings: overrideCalendarSettings || calendarSettings, supplies: overrideSupplies || supplies, shoppingList: overrideShoppingList || shoppingList,
             tags, categories: []
         }, AUTO_FIREBASE_CONFIG, libraryId);
         return { success: true };
@@ -196,7 +203,7 @@ const App: React.FC = () => {
     } finally { 
         setIsBroadcasting(false); 
     }
-  }, [games, folders, messages, results, players, calendarEvents, calendarSettings, libraryId, tags]);
+  }, [games, folders, messages, results, players, calendarEvents, calendarSettings, supplies, shoppingList, libraryId, tags]);
 
   useEffect(() => {
     if (AUTO_FIREBASE_CONFIG && libraryId) {
@@ -233,6 +240,8 @@ const App: React.FC = () => {
                 if (data.tags) setTags(data.tags);
                 if (Array.isArray(data.calendarEvents)) setCalendarEvents(data.calendarEvents);
                 if (data.calendarSettings) setCalendarSettings(data.calendarSettings as CalendarSettings);
+                if (Array.isArray(data.supplies)) setSupplies(data.supplies);
+                if (Array.isArray(data.shoppingList)) setShoppingList(data.shoppingList);
             }
         };
 
@@ -261,6 +270,9 @@ const App: React.FC = () => {
       setCalendarSettings(settings);
       triggerBroadcast(undefined, undefined, undefined, undefined, undefined, undefined, settings);
   };
+
+  const handleSaveSupplies = (items: import('./types').SupplyItem[]) => { setSupplies(items); triggerBroadcast(undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, items, shoppingList); };
+  const handleSaveShoppingList = (items: import('./types').ShoppingItem[]) => { setShoppingList(items); triggerBroadcast(undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, supplies, items); };
 
   const handleAddCalendarEvent = (event: GameCalendarEvent) => {
       const newEvents = [...calendarEvents, event];
@@ -517,6 +529,8 @@ const App: React.FC = () => {
                           </div>
                       </div>
                   </div>
+              ) : showSupplies ? (
+                  <SupplyInventory games={games} supplies={supplies} shoppingList={shoppingList} onSaveSupplies={handleSaveSupplies} onSaveShopping={handleSaveShoppingList} />
               ) : showCalendar ? (
                   <GameCalendar games={games} events={calendarEvents} settings={calendarSettings} onSaveSettings={handleSaveCalendarSettings} onAddEvent={handleAddCalendarEvent} onDeleteEvent={handleDeleteCalendarEvent} onOpenGame={(game) => { setShowCalendar(false); setShowLauncher(false); setSelectedGame(game); }} />
               ) : <div className="relative z-10 max-w-7xl mx-auto w-full">
