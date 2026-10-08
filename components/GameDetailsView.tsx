@@ -123,9 +123,9 @@ const GameDetailsView: React.FC<GameDetailsViewProps> = ({
   const viewWin = game.howToWin?.trim() || legacyView.w;
 
   const markdownComponents = {
-      p: ({children}: any) => <p className="mb-3 last:mb-0 leading-relaxed">{children}</p>,
-      ul: ({children}: any) => <ul className="list-disc pl-5 mb-4 space-y-1 leading-relaxed">{children}</ul>,
-      ol: ({children}: any) => <ol className="list-decimal pl-5 mb-4 space-y-1 leading-relaxed">{children}</ol>,
+      p: ({children}: any) => <p className="mb-3 last:mb-0 leading-relaxed text-slate-800 dark:text-slate-100">{children}</p>,
+      ul: ({children}: any) => <ul className="list-disc pl-5 mb-4 space-y-1 leading-relaxed text-slate-800 dark:text-slate-100">{children}</ul>,
+      ol: ({children}: any) => <ol className="list-decimal pl-5 mb-4 space-y-1 leading-relaxed text-slate-800 dark:text-slate-100">{children}</ol>,
       strong: ({children}: any) => <strong className="font-bold text-slate-800 dark:text-white bg-orange-100 dark:bg-orange-500/20 px-1 rounded-md">{children}</strong>,
   };
 
