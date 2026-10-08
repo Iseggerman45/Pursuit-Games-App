@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from 'react';
-import { CalendarDays, ChevronLeft, ChevronRight, Plus, Trash2, X, StickyNote, Search, CalendarPlus, ClipboardList, Copy, Printer } from 'lucide-react';
+import { CalendarDays, ChevronLeft, ChevronRight, Plus, Trash2, X, StickyNote, Search, CalendarPlus, ClipboardList, Copy, Printer, Play } from 'lucide-react';
 import { Game, Folder, GameCalendarEvent, CalendarSettings, CalendarSchedule } from '../types';
 import { playClick, playPop, playDelete } from '../services/sound';
 
@@ -12,6 +12,7 @@ interface GameCalendarProps {
   onAddEvent: (event: GameCalendarEvent) => void;
   onDeleteEvent: (id: string) => void;
   onOpenGame: (game: Game) => void;
+  onStartNight: (date: string) => void;
 }
 
 type ViewMode = 'month' | 'week';
@@ -62,7 +63,7 @@ const formatTime = (time?: string) => {
   return `${displayHour}:${pad(minute)} ${suffix}`;
 };
 
-const GameCalendar: React.FC<GameCalendarProps> = ({ games, folders, settings, onSaveSettings, events, onAddEvent, onDeleteEvent, onOpenGame }) => {
+const GameCalendar: React.FC<GameCalendarProps> = ({ games, folders, settings, onSaveSettings, events, onAddEvent, onDeleteEvent, onOpenGame, onStartNight }) => {
   const [view, setView] = useState<ViewMode>('month');
   const [anchorDate, setAnchorDate] = useState(todayKey());
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -337,6 +338,7 @@ const GameCalendar: React.FC<GameCalendarProps> = ({ games, folders, settings, o
                           <button onClick={() => { setView('week'); setAnchorDate(date); }} className="text-[10px] font-bold text-orange-600 dark:text-orange-400 px-2">+{dayEvents.length - 4} more</button>
                         )}
                       </div>
+                      {dayEvents.length > 0 && <button onClick={() => onStartNight(date)} className="mt-2 w-full inline-flex items-center justify-center gap-1 rounded-lg bg-orange-500/10 px-2 py-1.5 text-[9px] font-black text-orange-600 dark:text-orange-400 hover:bg-orange-500/20"><Play className="w-3 h-3" /> Start Night</button>}
                     </div>
                   );
                 })}
@@ -373,6 +375,7 @@ const GameCalendar: React.FC<GameCalendarProps> = ({ games, folders, settings, o
                           </div>
                         );
                       })}
+                      {dayEvents.length > 0 && <button onClick={() => onStartNight(date)} className="mt-2 w-full inline-flex items-center justify-center gap-1.5 px-2.5 py-2 rounded-xl bg-gradient-to-r from-orange-500 to-red-600 text-white text-[10px] font-black shadow-md"><Play className="w-3.5 h-3.5" /> Start Live Night</button>}
                       <button onClick={() => setSupplyListDate(date)} className="mt-3 w-full inline-flex items-center justify-center gap-1.5 px-2.5 py-2 rounded-xl bg-orange-500/10 text-orange-600 dark:text-orange-400 text-[10px] font-black hover:bg-orange-500/20 transition-colors"><ClipboardList className="w-3.5 h-3.5" /> Supply List</button>
                       {dayEvents.length === 0 && <button onClick={() => openAdd(date)} className="w-full py-8 rounded-2xl border border-dashed border-slate-200 dark:border-white/10 text-slate-300 hover:text-orange-500 hover:border-orange-300 transition-colors"><Plus className="w-5 h-5 mx-auto" /></button>}
                     </div>
