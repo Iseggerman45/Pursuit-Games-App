@@ -61,7 +61,7 @@ const FolderCard: React.FC<FolderCardProps> = ({ folder, gameCount, onClick, onD
   return (
     <div 
       className={`
-        group relative w-full h-[10rem] sm:h-[12rem] cursor-pointer transition-all duration-300
+        group relative w-full h-[10rem] sm:h-[12rem] cursor-pointer interactive-lift
         ${isDragOver ? 'scale-105 z-20' : 'hover:-translate-y-1 z-0'}
       `}
       onClick={() => { playClick(); onClick(); }}
@@ -74,7 +74,7 @@ const FolderCard: React.FC<FolderCardProps> = ({ folder, gameCount, onClick, onD
         w-full h-full rounded-[2rem] border overflow-hidden flex flex-col items-center justify-center text-center p-6 transition-all duration-300 pointer-events-none
         ${isDragOver 
             ? 'bg-indigo-100 dark:bg-indigo-900/40 border-indigo-400 shadow-[0_0_30px_rgba(99,102,241,0.3)] ring-4 ring-indigo-400/20' 
-            : 'bg-white/60 dark:bg-white/5 backdrop-blur-xl border-white/60 dark:border-white/10 shadow-sm hover:shadow-xl hover:border-orange-300/50 dark:hover:border-white/20'
+            : 'glass-card backdrop-blur-xl border-white/70 dark:border-white/10 shadow-sm hover:shadow-xl hover:border-indigo-300/60 dark:hover:border-white/20'
         }
       `}>
         {/* Action Buttons (Hover) */}
@@ -97,7 +97,7 @@ const FolderCard: React.FC<FolderCardProps> = ({ folder, gameCount, onClick, onD
 
         <div className={`
             w-16 h-16 rounded-3xl flex items-center justify-center mb-3 transition-colors duration-300
-            ${isDragOver ? 'bg-indigo-500 text-white shadow-lg scale-110' : 'bg-orange-100 dark:bg-orange-500/20 text-orange-600 dark:text-orange-400'}
+            ${isDragOver ? 'bg-indigo-500 text-white shadow-lg scale-110' : 'bg-gradient-to-br from-indigo-500/10 via-violet-500/10 to-orange-500/15 dark:from-indigo-500/20 dark:via-violet-500/15 dark:to-orange-500/15 text-indigo-600 dark:text-indigo-300 ring-1 ring-indigo-500/10'}
         `}>
              {isDragOver ? <CornerRightDown className="w-8 h-8 animate-bounce" /> : (gameCount > 0 ? <FolderOpen className="w-8 h-8" /> : <Folder className="w-8 h-8" />)}
         </div>
