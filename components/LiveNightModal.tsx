@@ -28,6 +28,14 @@ const formatTime = (time?: string) => {
 
 const normalizeMarkdown = (value: string) => value.replace(/\\([\\`*_{}\[\]()#+.!>|~-])/g, '$1');
 
+const liveMarkdownComponents = {
+  p: ({ children }: any) => <p className="!text-slate-800 dark:!text-slate-100 mb-2 last:mb-0">{children}</p>,
+  ul: ({ children }: any) => <ul className="!text-slate-800 dark:!text-slate-100 list-disc pl-5 mb-3 space-y-1">{children}</ul>,
+  ol: ({ children }: any) => <ol className="!text-slate-800 dark:!text-slate-100 list-decimal pl-5 mb-3 space-y-1">{children}</ol>,
+  li: ({ children }: any) => <li className="!text-slate-800 dark:!text-slate-100">{children}</li>,
+  strong: ({ children }: any) => <strong className="!text-slate-900 dark:!text-white font-bold">{children}</strong>,
+};
+
 const LiveNightModal: React.FC<LiveNightModalProps> = ({ date, games, events, onClose, onSaveRating }) => {
   const gameMap = useMemo(() => new Map(games.map(game => [game.id, game])), [games]);
   const nightEvents = useMemo(() => events
@@ -120,9 +128,9 @@ const LiveNightModal: React.FC<LiveNightModalProps> = ({ date, games, events, on
                     </div>
                     {current.event.notes && <p className="mt-4 text-sm text-slate-600 dark:text-slate-300">{current.event.notes}</p>}
                     <div className="mt-5 space-y-4">
-                      {current.game.setup && <div><h4 className="text-xs font-black uppercase tracking-wider text-slate-400">Setup</h4><div className="mt-1.5 text-sm prose prose-sm max-w-none text-slate-800 dark:text-slate-100 prose-strong:text-slate-900 dark:prose-strong:text-white prose-li:text-slate-800 dark:prose-li:text-slate-100 dark:prose-invert"><ReactMarkdown>{normalizeMarkdown(current.game.setup)}</ReactMarkdown></div></div>}
-                      <div><h4 className="text-xs font-black uppercase tracking-wider text-slate-400">How to Play</h4><div className="mt-1.5 text-sm prose prose-sm max-w-none text-slate-800 dark:text-slate-100 prose-strong:text-slate-900 dark:prose-strong:text-white prose-li:text-slate-800 dark:prose-li:text-slate-100 dark:prose-invert"><ReactMarkdown>{normalizeMarkdown(current.game.gameplay || current.game.rules || 'No instructions have been added yet.')}</ReactMarkdown></div></div>
-                      {current.game.howToWin && <div><h4 className="text-xs font-black uppercase tracking-wider text-slate-400">How to Win</h4><div className="mt-1.5 text-sm prose prose-sm max-w-none text-slate-800 dark:text-slate-100 prose-strong:text-slate-900 dark:prose-strong:text-white prose-li:text-slate-800 dark:prose-li:text-slate-100 dark:prose-invert"><ReactMarkdown>{normalizeMarkdown(current.game.howToWin)}</ReactMarkdown></div></div>}
+                      {current.game.setup && <div><h4 className="text-xs font-black uppercase tracking-wider text-slate-400">Setup</h4><div className="mt-1.5 text-sm prose prose-sm max-w-none text-slate-800 dark:text-slate-100 prose-strong:text-slate-900 dark:prose-strong:text-white prose-li:text-slate-800 dark:prose-li:text-slate-100 dark:prose-invert"><ReactMarkdown components={liveMarkdownComponents}>{normalizeMarkdown(current.game.setup)}</ReactMarkdown></div></div>}
+                      <div><h4 className="text-xs font-black uppercase tracking-wider text-slate-400">How to Play</h4><div className="mt-1.5 text-sm prose prose-sm max-w-none text-slate-800 dark:text-slate-100 prose-strong:text-slate-900 dark:prose-strong:text-white prose-li:text-slate-800 dark:prose-li:text-slate-100 dark:prose-invert"><ReactMarkdown components={liveMarkdownComponents}>{normalizeMarkdown(current.game.gameplay || current.game.rules || 'No instructions have been added yet.')}</ReactMarkdown></div></div>
+                      {current.game.howToWin && <div><h4 className="text-xs font-black uppercase tracking-wider text-slate-400">How to Win</h4><div className="mt-1.5 text-sm prose prose-sm max-w-none text-slate-800 dark:text-slate-100 prose-strong:text-slate-900 dark:prose-strong:text-white prose-li:text-slate-800 dark:prose-li:text-slate-100 dark:prose-invert"><ReactMarkdown components={liveMarkdownComponents}>{normalizeMarkdown(current.game.howToWin)}</ReactMarkdown></div></div>}
                     </div>
                   </div>
 
@@ -134,9 +142,9 @@ const LiveNightModal: React.FC<LiveNightModalProps> = ({ date, games, events, on
                           <details key={subGame.id} className="rounded-xl border border-black/5 dark:border-white/10 bg-white/50 dark:bg-white/5">
                             <summary className="cursor-pointer px-4 py-3 text-sm font-bold text-slate-700 dark:text-slate-200">{subGame.title}</summary>
                             <div className="px-4 pb-4 space-y-3">
-                              {subGame.setup && <div className="text-sm prose prose-sm max-w-none text-slate-800 dark:text-slate-100 prose-strong:text-slate-900 dark:prose-strong:text-white prose-li:text-slate-800 dark:prose-li:text-slate-100 dark:prose-invert"><strong>Setup:</strong><ReactMarkdown>{normalizeMarkdown(subGame.setup)}</ReactMarkdown></div>}
-                              <div className="text-sm prose prose-sm max-w-none text-slate-800 dark:text-slate-100 prose-strong:text-slate-900 dark:prose-strong:text-white prose-li:text-slate-800 dark:prose-li:text-slate-100 dark:prose-invert"><strong>How to play:</strong><ReactMarkdown>{normalizeMarkdown(subGame.gameplay || subGame.rules || 'No instructions have been added yet.')}</ReactMarkdown></div>
-                              {subGame.howToWin && <div className="text-sm prose prose-sm max-w-none text-slate-800 dark:text-slate-100 prose-strong:text-slate-900 dark:prose-strong:text-white prose-li:text-slate-800 dark:prose-li:text-slate-100 dark:prose-invert"><strong>How to win:</strong><ReactMarkdown>{normalizeMarkdown(subGame.howToWin)}</ReactMarkdown></div>}
+                              {subGame.setup && <div className="text-sm prose prose-sm max-w-none text-slate-800 dark:text-slate-100 prose-strong:text-slate-900 dark:prose-strong:text-white prose-li:text-slate-800 dark:prose-li:text-slate-100 dark:prose-invert"><strong>Setup:</strong><ReactMarkdown components={liveMarkdownComponents}>{normalizeMarkdown(subGame.setup)}</ReactMarkdown></div>}
+                              <div className="text-sm prose prose-sm max-w-none text-slate-800 dark:text-slate-100 prose-strong:text-slate-900 dark:prose-strong:text-white prose-li:text-slate-800 dark:prose-li:text-slate-100 dark:prose-invert"><strong>How to play:</strong><ReactMarkdown components={liveMarkdownComponents}>{normalizeMarkdown(subGame.gameplay || subGame.rules || 'No instructions have been added yet.')}</ReactMarkdown></div>
+                              {subGame.howToWin && <div className="text-sm prose prose-sm max-w-none text-slate-800 dark:text-slate-100 prose-strong:text-slate-900 dark:prose-strong:text-white prose-li:text-slate-800 dark:prose-li:text-slate-100 dark:prose-invert"><strong>How to win:</strong><ReactMarkdown components={liveMarkdownComponents}>{normalizeMarkdown(subGame.howToWin)}</ReactMarkdown></div>}
                             </div>
                           </details>
                         ))}
