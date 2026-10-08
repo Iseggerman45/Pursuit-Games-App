@@ -23,7 +23,14 @@ import LeaderboardModal from './components/LeaderboardModal';
 import MoveToFolderModal from './components/MoveToFolderModal';
 import PlayersModal from './components/PlayersModal';
 
-const APP_VERSION = "4.1.5";
+const APP_VERSION = "4.1.6";
+
+const APP_UPDATES = [
+  "New glass-style design with stronger color depth and fire-inspired accents.",
+  "Improved light and dark mode visuals.",
+  "Full-screen ambient background with subtle floating color orbs.",
+  "Refined Pursuit branding with the orange fire logo."
+];
 const GLOBAL_ID = "pursuit_global";
 
 const AUTO_FIREBASE_CONFIG: FirebaseConfig | null = {
@@ -91,6 +98,9 @@ const App: React.FC = () => {
 
   // --- UI STATE ---
   const [isDarkMode, setIsDarkMode] = useState<boolean>(() => localStorage.getItem('pursuit_theme') === 'dark');
+  const [showUpdates, setShowUpdates] = useState<boolean>(() => {
+    return localStorage.getItem('pursuit_last_seen_version') !== APP_VERSION;
+  });
   const [tags, setTags] = useState<string[]>(() => JSON.parse(localStorage.getItem('pursuit_tags') || JSON.stringify(DEFAULT_TAGS)));
   
   const [results, setResults] = useState<GameResult[]>(() => {
@@ -147,6 +157,11 @@ const App: React.FC = () => {
   useEffect(() => { localStorage.setItem('pursuit_results', safeStringify(results)); }, [results]);
   useEffect(() => { localStorage.setItem('pursuit_library_id', libraryId); }, [libraryId]);
   useEffect(() => { localStorage.setItem('pursuit_theme', isDarkMode ? 'dark' : 'light'); }, [isDarkMode]);
+
+  const dismissUpdates = () => {
+    localStorage.setItem('pursuit_last_seen_version', APP_VERSION);
+    setShowUpdates(false);
+  };
 
   useEffect(() => {
     if (isDarkMode) document.documentElement.classList.add('dark');
@@ -317,7 +332,42 @@ const App: React.FC = () => {
       {isInitializing || !showApp ? <SplashScreen isExiting={!isInitializing} /> : null}
       
       <div className={`min-h-screen bg-[#F5F5F7] dark:bg-[#0A0A0C] transition-opacity duration-500 flex flex-col ${!showApp ? 'opacity-0' : 'opacity-100'}`}>
-          {!user && !isProfileModalOpen && (
+          {showUpdates && (
+          <div className="fixed inset-0 z-[180] bg-slate-950/55 backdrop-blur-xl flex items-center justify-center p-5 sm:p-6">
+              <div className="glass-card w-full max-w-md rounded-[2rem] overflow-hidden shadow-2xl animate-[soft-pop_.45s_cubic-bezier(.22,1,.36,1)_both]">
+                  <div className="relative px-7 pt-7 pb-5 bg-gradient-to-br from-orange-500/15 via-white/20 to-indigo-500/15 dark:from-orange-500/15 dark:via-white/5 dark:to-indigo-500/15 border-b border-black/5 dark:border-white/10">
+                      <div className="flex items-start justify-between gap-4">
+                          <div>
+                              <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-orange-500/10 text-orange-600 dark:text-orange-300 text-xs font-black uppercase tracking-wider border border-orange-500/15">
+                                  <span className="w-1.5 h-1.5 rounded-full bg-orange-500 animate-pulse" />
+                                  New Updates
+                              </div>
+                              <h2 className="mt-4 text-3xl font-black tracking-tight text-slate-900 dark:text-white">What’s new</h2>
+                              <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">Here’s what changed since your last visit.</p>
+                          </div>
+                          <div className="shrink-0 px-3 py-1.5 rounded-xl bg-slate-900/5 dark:bg-white/10 text-xs font-bold text-slate-600 dark:text-slate-300">
+                              v{APP_VERSION}
+                          </div>
+                      </div>
+                  </div>
+                  <div className="px-7 py-6">
+                      <ul className="space-y-4">
+                          {APP_UPDATES.map((update, index) => (
+                              <li key={index} className="flex items-start gap-3 text-sm text-slate-700 dark:text-slate-300 leading-relaxed">
+                                  <span className="mt-2 w-2 h-2 shrink-0 rounded-full bg-gradient-to-br from-orange-500 to-red-500 shadow-sm shadow-orange-500/30" />
+                                  <span>{update}</span>
+                              </li>
+                          ))}
+                      </ul>
+                      <button onClick={dismissUpdates} className="mt-7 w-full py-3.5 rounded-2xl bg-gradient-to-r from-orange-500 via-orange-600 to-red-600 text-white font-bold shadow-lg shadow-orange-500/20 hover:shadow-orange-500/30 hover:-translate-y-0.5 transition-all">
+                          Got it
+                      </button>
+                  </div>
+              </div>
+          </div>
+      )}
+
+      {!user && !isProfileModalOpen && (
               <div className="fixed inset-0 z-[100] bg-black/60 backdrop-blur-xl flex items-center justify-center p-6 text-center">
                   <div className="glass-card p-10 rounded-[3rem] shadow-2xl max-w-sm">
                       <div className="w-20 h-20 bg-gradient-to-br from-indigo-500/15 via-violet-500/10 to-orange-500/15 dark:from-indigo-500/20 dark:to-orange-500/15 rounded-full flex items-center justify-center mx-auto mb-6 text-indigo-600 dark:text-indigo-300 ring-1 ring-indigo-500/10">
