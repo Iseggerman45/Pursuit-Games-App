@@ -266,6 +266,12 @@ const App: React.FC = () => {
   }, [libraryId]);
 
   // --- HANDLERS ---
+  const handleSaveProfile = (profile: UserProfile) => {
+      setUser(profile);
+      localStorage.setItem('pursuit_user_profile', JSON.stringify(profile));
+      setIsProfileModalOpen(false);
+  };
+
   const handleSaveCalendarSettings = (settings: CalendarSettings) => {
       setCalendarSettings(settings);
       triggerBroadcast(undefined, undefined, undefined, undefined, undefined, undefined, settings);
@@ -657,7 +663,7 @@ const App: React.FC = () => {
               triggerBroadcast(newGames); 
           }} />
 
-          <ProfileModal isOpen={isProfileModalOpen} onClose={() => setIsProfileModalOpen(false)} onSave={setUser} initialUser={user} />
+          <ProfileModal isOpen={isProfileModalOpen} onClose={() => setIsProfileModalOpen(false)} onSave={handleSaveProfile} initialUser={user} />
           <SettingsModal isOpen={isSettingsModalOpen} onClose={() => setIsSettingsModalOpen(false)} categories={[]} onCreateCategory={()=>{}} onDeleteCategory={()=>{}} tags={tags} onCreateTag={(t) => setTags(prev => [...prev, t])} onDeleteTag={(t) => setTags(prev => prev.filter(x => x !== t))} rivalries={[]} onCreateRivalry={()=>{}} onDeleteRivalry={()=>{}} appVersion={APP_VERSION} gameCount={games.length} folderCount={folders.length} />
           <MoveToFolderModal isOpen={!!movingGame} game={movingGame} folders={folders} onClose={() => setMovingGame(null)} onMove={(gid, fid) => { const newGames = games.map(g => g.id === gid ? {...g, folderId: fid || undefined, folderIcon: fid ? (folders.find(f => f.id === fid)?.icon || 'folder') : undefined, lastUpdated: Date.now()} : g); setGames(newGames); setMovingGame(null); playPop(); triggerBroadcast(newGames); }} />
           <GameAIModal isOpen={!!aiGame} game={aiGame} onClose={() => setAiGame(null)} onUpdateRules={(id, rules) => { const newGames = games.map(g => g.id === id ? {...g, rules, lastUpdated: Date.now()} : g); setGames(newGames); triggerBroadcast(newGames); }} />
