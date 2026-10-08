@@ -1,5 +1,5 @@
 
-const CACHE_NAME = 'pursuit-v11-gpt-generation'; // Refresh cached app assets after GPT generation update
+const CACHE_NAME = 'pursuit-v12-manual-game-entry'; // Refresh cached assets for manual game entry
 const urlsToCache = [
   '/',
   '/index.html',
