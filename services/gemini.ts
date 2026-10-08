@@ -15,43 +15,49 @@ const getAiInstance = () => {
 }
 
 export const generateGame = async (prompt: string, manualTags: string[] = []): Promise<Omit<Game, 'id' | 'rating'>> => {
-    const ai = getAiInstance();
-    
-    const gameSchema = {
-        type: Type.OBJECT,
-        properties: {
-            title: { type: Type.STRING, description: "The fun and catchy name of the game" },
-            setup: { type: Type.STRING, description: "What leaders need to do before the game begins. Clear, practical instructions." },
-            gameplay: { type: Type.STRING, description: "Step-by-step instructions for how to play the game." },
-            howToWin: { type: Type.STRING, description: "Exactly how the game ends and how a winner is determined." },
-            rules: { type: Type.STRING, description: "Legacy combined game guide. Include the same content as Setup, Gameplay, and How to Win for backwards compatibility." },
-            materials: { type: Type.STRING, description: "A Markdown bulleted list of items needed to play." },
-            duration: { type: Type.STRING, description: "Estimated time (e.g., '15 mins')" },
-            minPlayers: { type: Type.STRING, description: "Minimum number of players needed (e.g., '4')" },
-            tags: { 
-                type: Type.ARRAY, 
-                items: { type: Type.STRING },
-                description: "Short descriptive tags"
-            }
-        },
-        required: ["title", "setup", "gameplay", "howToWin", "rules", "materials", "duration", "minPlayers", "tags"],
-    };
-
-    const response: GenerateContentResponse = await ai.models.generateContent({
-        model: 'gemini-3-flash-preview',
-        contents: `Create a youth group game based on this description: "${prompt}". 
-                   Return three separate instruction fields: setup, gameplay, and howToWin. Also populate the legacy rules field with the same three sections using these exact headings: '## Setup', '## Gameplay', and '## How to Win'. Never leave any of the three structured fields empty.`,
-        config: {
-            responseMimeType: "application/json",
-            responseSchema: gameSchema,
-        }
+    const response = await fetch('/api/generate-game', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ prompt, manualTags }),
     });
 
-    if (!response.text) throw new Error("Failed to generate game content");
-    const generatedGame = JSON.parse(response.text);
-    const mergedTags = Array.from(new Set([...(generatedGame.tags || []), ...manualTags]));
+    let payload: any;
+    try {
+        payload = await response.json();
+    } catch {
+        throw new Error('The game-generation service returned an unreadable response. Please try again.');
+    }
 
-    return { ...generatedGame, tags: mergedTags };
+    if (!response.ok) {
+        throw new Error(payload?.error || 'Game generation failed. Please try again.');
+    }
+
+    if (!payload?.game || typeof payload.game !== 'object') {
+        throw new Error('The AI response was missing the game details. Please try again.');
+    }
+
+    const generatedGame = payload.game;
+    const setup = String(generatedGame.setup || '').trim();
+    const gameplay = String(generatedGame.gameplay || '').trim();
+    const howToWin = String(generatedGame.howToWin || '').trim();
+    if (!generatedGame.title || !setup || !gameplay || !howToWin) {
+        throw new Error('The AI did not return all required game instructions. Please try again.');
+    }
+
+    const mergedTags = Array.from(new Set([
+        ...(Array.isArray(generatedGame.tags) ? generatedGame.tags : []),
+        ...manualTags,
+    ]));
+
+    return {
+        ...generatedGame,
+        setup,
+        gameplay,
+        howToWin,
+        rules: `## Setup\\n${setup}\\n\\n## Gameplay\\n${gameplay}\\n\\n## How to Win\\n${howToWin}`,
+        tags: mergedTags,
+        category: generatedGame.category || 'General',
+    };
 };
 
 // --- CLASSIC PLAYBOOK DIAGRAM SYSTEM (Strict Constraints) ---
