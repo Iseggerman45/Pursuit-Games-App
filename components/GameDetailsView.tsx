@@ -32,8 +32,25 @@ const GameDetailsView: React.FC<GameDetailsViewProps> = ({
   const [editedGame, setEditedGame] = useState<Game | null>(null);
   const [customDuration, setCustomDuration] = useState(15);
 
-  const appendRulePrefix = (setter: React.Dispatch<React.SetStateAction<string>>, currentValue: string, prefix: string) => {
-      setter(currentValue ? `${currentValue.replace(/\s*$/, '')}\n${prefix}` : prefix);
+  const setupRef = React.useRef<HTMLTextAreaElement>(null);
+  const gameplayRef = React.useRef<HTMLTextAreaElement>(null);
+  const winRef = React.useRef<HTMLTextAreaElement>(null);
+
+  const insertRulePrefix = (setter: React.Dispatch<React.SetStateAction<string>>, value: string, textareaRef: { current: HTMLTextAreaElement | null }, prefix: string) => {
+      const textarea = textareaRef.current;
+      const start = textarea?.selectionStart ?? value.length;
+      const end = textarea?.selectionEnd ?? value.length;
+      const before = value.slice(0, start);
+      const after = value.slice(end);
+      const lineBreak = before.length > 0 && !before.endsWith('\n') ? '\n' : '';
+      const insertion = `${lineBreak}${prefix}`;
+      setter(`${before}${insertion}${after}`);
+      window.setTimeout(() => {
+          if (!textarea) return;
+          textarea.focus();
+          const cursor = before.length + insertion.length;
+          textarea.setSelectionRange(cursor, cursor);
+      }, 0);
   };
 
   const RuleFormattingToolbar = ({ onInsert }: { onInsert: (prefix: string) => void }) => (
@@ -164,9 +181,10 @@ const GameDetailsView: React.FC<GameDetailsViewProps> = ({
                                         <label className="text-xs font-bold text-blue-600 dark:text-blue-400 uppercase tracking-wider flex items-center gap-2">
                                             <BookOpen className="w-3.5 h-3.5" /> 1. Setup
                                         </label>
-                                        <RuleFormattingToolbar onInsert={(prefix) => appendRulePrefix(setEditSetup, editSetup, prefix)} />
+                                        <RuleFormattingToolbar onInsert={(prefix) => insertRulePrefix(setEditSetup, editSetup, setupRef, prefix)} />
                                         <textarea 
                                             value={editSetup} 
+                                            ref={setupRef} 
                                             onChange={(e) => setEditSetup(e.target.value)} 
                                             className="w-full h-32 bg-white dark:bg-neutral-800 border border-slate-200 dark:border-white/10 rounded-2xl p-4 text-sm focus:ring-2 focus:ring-blue-500/20 resize-none text-slate-800 dark:text-white" 
                                             placeholder="What happens before the game starts?" 
@@ -177,9 +195,10 @@ const GameDetailsView: React.FC<GameDetailsViewProps> = ({
                                         <label className="text-xs font-bold text-emerald-600 dark:text-emerald-400 uppercase tracking-wider flex items-center gap-2">
                                             <Sword className="w-3.5 h-3.5" /> 2. Gameplay
                                         </label>
-                                        <RuleFormattingToolbar onInsert={(prefix) => appendRulePrefix(setEditGameplay, editGameplay, prefix)} />
+                                        <RuleFormattingToolbar onInsert={(prefix) => insertRulePrefix(setEditGameplay, editGameplay, gameplayRef, prefix)} />
                                         <textarea 
                                             value={editGameplay} 
+                                            ref={gameplayRef} 
                                             onChange={(e) => setEditGameplay(e.target.value)} 
                                             className="w-full h-48 bg-white dark:bg-neutral-800 border border-slate-200 dark:border-white/10 rounded-2xl p-4 text-sm focus:ring-2 focus:ring-emerald-500/20 resize-none text-slate-800 dark:text-white" 
                                             placeholder="How do you actually play the game?" 
@@ -190,9 +209,10 @@ const GameDetailsView: React.FC<GameDetailsViewProps> = ({
                                         <label className="text-xs font-bold text-orange-600 dark:text-orange-400 uppercase tracking-wider flex items-center gap-2">
                                             <FlagTriangleRight className="w-3.5 h-3.5" /> 3. How to Win / Wrap-Up
                                         </label>
-                                        <RuleFormattingToolbar onInsert={(prefix) => appendRulePrefix(setEditWin, editWin, prefix)} />
+                                        <RuleFormattingToolbar onInsert={(prefix) => insertRulePrefix(setEditWin, editWin, winRef, prefix)} />
                                         <textarea 
                                             value={editWin} 
+                                            ref={winRef} 
                                             onChange={(e) => setEditWin(e.target.value)} 
                                             className="w-full h-24 bg-white dark:bg-neutral-800 border border-slate-200 dark:border-white/10 rounded-2xl p-4 text-sm focus:ring-2 focus:ring-orange-500/20 resize-none text-slate-800 dark:text-white" 
                                             placeholder="When does it end? If there is no winner, explain how to wrap it up." 
