@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
-import { Plus, Trophy, Search, Settings, Cloud, UserCircle, Filter, X, MessageCircle, Moon, Sun, FolderPlus, Loader2, Info, Users } from 'lucide-react';
+import { Plus, Trophy, Search, Settings, Cloud, UserCircle, Filter, X, Moon, Sun, FolderPlus, Loader2, Info, Users } from 'lucide-react';
 import { Game, UserProfile, GameResult, GroupMessage, FirebaseConfig, Folder, TargetGroup, ExportData, Player } from './types';
 import { generateGame } from './services/gemini';
 import { playClick, playPop, playSuccess, playDelete, playWhoosh } from './services/sound';
@@ -123,7 +123,6 @@ const App: React.FC = () => {
   const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
   const [isSyncModalOpen, setIsSyncModalOpen] = useState(false);
   const [isFilterModalOpen, setIsFilterModalOpen] = useState(false);
-  const [isMessagingModalOpen, setIsMessagingModalOpen] = useState(false);
   const [isLeaderboardModalOpen, setIsLeaderboardModalOpen] = useState(false);
   const [isPlayersModalOpen, setIsPlayersModalOpen] = useState(false);
   
@@ -412,7 +411,6 @@ const App: React.FC = () => {
                       <button onClick={() => setIsSyncModalOpen(true)} className="p-2.5 bg-slate-50 dark:bg-white/5 text-slate-500 dark:text-slate-400 rounded-2xl relative">
                           {isBroadcasting ? <Loader2 className="w-5 h-5 animate-spin" /> : <Cloud className="w-5 h-5" />}
                       </button>
-                      <button onClick={() => setIsMessagingModalOpen(true)} className="p-2.5 bg-indigo-50/80 dark:bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 rounded-2xl relative border border-indigo-100/80 dark:border-indigo-400/10"><MessageCircle className="w-5 h-5" />{messages.length > 0 && <div className="absolute top-1.5 right-1.5 w-2 h-2 bg-red-500 rounded-full border-2 border-white dark:border-[#1D1D1F]" />}</button>
                       <button onClick={() => setIsPlayersModalOpen(true)} className="p-2.5 bg-sky-50/80 dark:bg-sky-500/10 text-sky-600 dark:text-sky-400 rounded-2xl relative border border-sky-100/80 dark:border-sky-400/10">
                           <Users className="w-5 h-5" />
                       </button>
@@ -538,7 +536,6 @@ const App: React.FC = () => {
           }} />
 
           <ProfileModal isOpen={isProfileModalOpen} onClose={() => setIsProfileModalOpen(false)} onSave={setUser} initialUser={user} />
-          <MessagingModal isOpen={isMessagingModalOpen} onClose={() => setIsMessagingModalOpen(false)} messages={messages} onSendMessage={(c) => { if(user) { const newMessages = [...messages, { id: crypto.randomUUID(), senderId: user.id, senderName: user.name, senderColor: user.color, senderEmoji: user.emoji, content: c, timestamp: Date.now() }]; setMessages(newMessages); triggerBroadcast(undefined, undefined, newMessages); } }} user={user} />
           <SettingsModal isOpen={isSettingsModalOpen} onClose={() => setIsSettingsModalOpen(false)} categories={[]} onCreateCategory={()=>{}} onDeleteCategory={()=>{}} tags={tags} onCreateTag={(t) => setTags(prev => [...prev, t])} onDeleteTag={(t) => setTags(prev => prev.filter(x => x !== t))} rivalries={[]} onCreateRivalry={()=>{}} onDeleteRivalry={()=>{}} appVersion={APP_VERSION} gameCount={games.length} folderCount={folders.length} />
           <MoveToFolderModal isOpen={!!movingGame} game={movingGame} folders={folders} onClose={() => setMovingGame(null)} onMove={(gid, fid) => { const newGames = games.map(g => g.id === gid ? {...g, folderId: fid || undefined, lastUpdated: Date.now()} : g); setGames(newGames); setMovingGame(null); playPop(); triggerBroadcast(newGames); }} />
           <GameAIModal isOpen={!!aiGame} game={aiGame} onClose={() => setAiGame(null)} onUpdateRules={(id, rules) => { const newGames = games.map(g => g.id === id ? {...g, rules, lastUpdated: Date.now()} : g); setGames(newGames); triggerBroadcast(newGames); }} />
