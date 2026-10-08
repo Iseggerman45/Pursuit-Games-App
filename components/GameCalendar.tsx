@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from 'react';
-import { CalendarDays, ChevronLeft, ChevronRight, Plus, Trash2, X, StickyNote, Search, CalendarPlus } from 'lucide-react';
+import { CalendarDays, ChevronLeft, ChevronRight, Plus, Trash2, X, StickyNote, Search, CalendarPlus, ClipboardList, Copy, Printer } from 'lucide-react';
 import { Game, GameCalendarEvent, CalendarSettings, CalendarSchedule } from '../types';
 import { playClick, playPop, playDelete } from '../services/sound';
 
@@ -74,6 +74,7 @@ const GameCalendar: React.FC<GameCalendarProps> = ({ games, settings, onSaveSett
   const [selectedNights, setSelectedNights] = useState<number[]>([]);
   const [nightGroups, setNightGroups] = useState<Record<number, 'Middle School' | 'High School'>>({});
   const [isEditingSchedule, setIsEditingSchedule] = useState(false);
+  const [supplyListDate, setSupplyListDate] = useState<string | null>(null);
 
   const weekLabels = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
 
@@ -175,6 +176,33 @@ const GameCalendar: React.FC<GameCalendarProps> = ({ games, settings, onSaveSett
   const goToday = () => {
     playClick();
     setAnchorDate(todayKey());
+  };
+
+  const supplyList = useMemo(() => {
+    if (!supplyListDate) return [];
+    const dayEvents = eventsForDate(supplyListDate);
+    const items: { name: string; games: string[] }[] = [];
+    dayEvents.forEach(event => {
+      const game = gameMap.get(event.gameId);
+      if (!game || !game.materials?.trim()) return;
+      const parts = game.materials.split(/\n|[,;•]/).map(item => item.replace(/^[\s\-–—*•]+/, '').trim()).filter(Boolean);
+      parts.forEach(name => {
+        const key = name.toLowerCase().replace(/\s+/g, ' ');
+        const existing = items.find(item => item.name.toLowerCase().replace(/\s+/g, ' ') === key);
+        if (existing) {
+          if (!existing.games.includes(game.title)) existing.games.push(game.title);
+        } else items.push({ name, games: [game.title] });
+      });
+    });
+    return items;
+  }, [supplyListDate, events, gameMap]);
+
+  const copySupplyList = async () => {
+    if (!supplyListDate) return;
+    const lines = ['Supply List — ' + shortDayLabel(supplyListDate), ''];
+    supplyList.forEach(item => lines.push('☐ ' + item.name + (item.games.length ? ' — ' + item.games.join(', ') : '')));
+    try { await navigator.clipboard.writeText(lines.join('\n')); } catch {}
+    playPop();
   };
 
   const filteredGames = useMemo(() => {
@@ -337,6 +365,7 @@ const GameCalendar: React.FC<GameCalendarProps> = ({ games, settings, onSaveSett
                           </div>
                         );
                       })}
+                      <button onClick={() => setSupplyListDate(date)} className="mt-3 w-full inline-flex items-center justify-center gap-1.5 px-2.5 py-2 rounded-xl bg-orange-500/10 text-orange-600 dark:text-orange-400 text-[10px] font-black hover:bg-orange-500/20 transition-colors"><ClipboardList className="w-3.5 h-3.5" /> Supply List</button>
                       {dayEvents.length === 0 && <button onClick={() => openAdd(date)} className="w-full py-8 rounded-2xl border border-dashed border-slate-200 dark:border-white/10 text-slate-300 hover:text-orange-500 hover:border-orange-300 transition-colors"><Plus className="w-5 h-5 mx-auto" /></button>}
                     </div>
                   </div>
@@ -353,6 +382,21 @@ const GameCalendar: React.FC<GameCalendarProps> = ({ games, settings, onSaveSett
           <h3 className="font-black text-slate-900 dark:text-white">Your calendar is ready.</h3>
           <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">Schedule your first game and you’ll never have to remember what you planned again.</p>
           <button onClick={() => openAdd(todayKey())} className="mt-4 px-5 py-2.5 rounded-xl bg-slate-950 dark:bg-white text-white dark:text-black text-sm font-bold">Schedule your first game</button>
+        </div>
+      )}
+
+      {supplyListDate && (
+        <div className="fixed inset-0 z-[160] bg-slate-950/55 backdrop-blur-xl flex items-center justify-center p-4">
+          <div className="w-full max-w-lg glass-card rounded-[2rem] overflow-hidden shadow-2xl">
+            <div className="px-6 py-5 border-b border-black/5 dark:border-white/10 flex items-center justify-between">
+              <div className="flex items-center gap-3"><div className="p-2.5 rounded-xl bg-orange-500/10 text-orange-600 dark:text-orange-400"><ClipboardList className="w-5 h-5" /></div><div><div className="text-xs font-black uppercase tracking-wider text-orange-600 dark:text-orange-400">Game Coordinator</div><h3 className="text-xl font-black text-slate-900 dark:text-white">Supply List</h3><p className="text-xs text-slate-400 mt-0.5">{shortDayLabel(supplyListDate)}</p></div></div>
+              <button onClick={() => setSupplyListDate(null)} className="p-2 rounded-xl bg-slate-100 dark:bg-white/10 text-slate-500"><X className="w-5 h-5" /></button>
+            </div>
+            <div className="p-6">
+              {supplyList.length ? <div className="space-y-2 max-h-[50vh] overflow-y-auto">{supplyList.map(item => <div key={item.name} className="flex items-start gap-3 p-3 rounded-xl bg-white/60 dark:bg-white/5 border border-black/5 dark:border-white/10"><span className="mt-0.5 text-slate-400">☐</span><div><div className="text-sm font-bold text-slate-800 dark:text-white">{item.name}</div><div className="text-[10px] text-slate-400 mt-0.5">For: {item.games.join(', ')}</div></div></div>)}</div> : <div className="py-10 text-center"><ClipboardList className="w-9 h-9 mx-auto text-slate-300 mb-3" /><p className="font-bold text-slate-700 dark:text-slate-200">No supplies listed.</p><p className="text-sm text-slate-400 mt-1">Add materials to the games scheduled for this night.</p></div>}
+              <div className="mt-5 flex justify-end gap-2"><button onClick={copySupplyList} disabled={!supplyList.length} className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-slate-100 dark:bg-white/10 text-slate-700 dark:text-slate-200 text-sm font-bold disabled:opacity-40"><Copy className="w-4 h-4" /> Copy List</button><button onClick={() => window.print()} disabled={!supplyList.length} className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-gradient-to-r from-orange-500 to-red-600 text-white text-sm font-bold disabled:opacity-40"><Printer className="w-4 h-4" /> Print</button></div>
+            </div>
+          </div>
         </div>
       )}
 
