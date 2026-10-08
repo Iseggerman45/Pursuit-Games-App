@@ -215,12 +215,12 @@ const AddGameModal: React.FC<AddGameModalProps> = ({ isOpen, onClose, onGenerate
             <div>
                 <label className="text-sm font-semibold text-slate-800 mb-2.5 flex items-center gap-2">
                      <FileText className="w-4 h-4 text-orange-600" />
-                     Vibe / Theme <span className="text-slate-400 font-normal ml-auto text-xs">(Optional)</span>
+                     Game idea or name <span className="text-slate-400 font-normal ml-auto text-xs">(Optional)</span>
                 </label>
                 <textarea
                     value={description}
                     onChange={(e) => setDescription(e.target.value)}
-                    placeholder="e.g. Something high energy involving water balloons..."
+                    placeholder="e.g. Sharks and Minnows, a silly icebreaker, or a new game involving pool noodles..."
                     className="w-full h-24 p-4 border-none rounded-2xl resize-none text-slate-700 placeholder:text-slate-400 bg-white shadow-inner focus:ring-2 focus:ring-orange-500/20 text-sm leading-relaxed"
                     disabled={isLoading}
                 />
