@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { Plus, Trophy, Search, Settings, Cloud, UserCircle, Filter, X, Moon, Sun, FolderPlus, Loader2, Info, Users, CalendarDays, BookOpen, ArrowLeft } from 'lucide-react';
-import { Game, UserProfile, GameResult, GroupMessage, FirebaseConfig, Folder, TargetGroup, ExportData, Player, GameCalendarEvent } from './types';
+import { Game, UserProfile, GameResult, GroupMessage, FirebaseConfig, Folder, TargetGroup, ExportData, Player, GameCalendarEvent, CalendarSettings } from './types';
 import { generateGame } from './services/gemini';
 import { playClick, playPop, playSuccess, playDelete, playWhoosh } from './services/sound';
 import { initFirebase, saveToFirebase, subscribeToLibrary, saveGameDiagram, deleteGameAssets, cleanData } from './services/firebase';
@@ -112,6 +112,7 @@ const App: React.FC = () => {
   
   const [messages, setMessages] = useState<GroupMessage[]>(() => JSON.parse(localStorage.getItem('pursuit_messages') || '[]'));
   const [calendarEvents, setCalendarEvents] = useState<GameCalendarEvent[]>(() => JSON.parse(localStorage.getItem('pursuit_calendar_events') || '[]'));
+  const [calendarSettings, setCalendarSettings] = useState<CalendarSettings>(() => JSON.parse(localStorage.getItem('pursuit_calendar_settings') || '{"configured":false,"schedules":[]}'));
   
   const [isInitializing, setIsInitializing] = useState(true);
   const [showApp, setShowApp] = useState(false);
@@ -160,6 +161,7 @@ const App: React.FC = () => {
   useEffect(() => { localStorage.setItem('pursuit_user_profile', safeStringify(user)); }, [user]);
   useEffect(() => { localStorage.setItem('pursuit_results', safeStringify(results)); }, [results]);
   useEffect(() => { localStorage.setItem('pursuit_calendar_events', safeStringify(calendarEvents)); }, [calendarEvents]);
+  useEffect(() => { localStorage.setItem('pursuit_calendar_settings', safeStringify(calendarSettings)); }, [calendarSettings]);
   useEffect(() => { localStorage.setItem('pursuit_library_id', libraryId); }, [libraryId]);
   useEffect(() => { localStorage.setItem('pursuit_theme', isDarkMode ? 'dark' : 'light'); }, [isDarkMode]);
 
@@ -174,7 +176,7 @@ const App: React.FC = () => {
   }, [isDarkMode]);
 
   // --- SYNC ENGINE ---
-  const triggerBroadcast = useCallback(async (overrideGames?: Game[], overrideFolders?: Folder[], overrideMessages?: GroupMessage[], overrideResults?: GameResult[], overridePlayers?: Player[], overrideCalendarEvents?: GameCalendarEvent[]) => {
+  const triggerBroadcast = useCallback(async (overrideGames?: Game[], overrideFolders?: Folder[], overrideMessages?: GroupMessage[], overrideResults?: GameResult[], overridePlayers?: Player[], overrideCalendarEvents?: GameCalendarEvent[], overrideCalendarSettings?: CalendarSettings) => {
     if (!libraryId) return { success: false, error: 'No library ID' };
     setIsBroadcasting(true);
     try {
@@ -185,7 +187,7 @@ const App: React.FC = () => {
             messages: overrideMessages || messages,
             results: overrideResults || results,
             players: overridePlayers || players,
-            calendarEvents: overrideCalendarEvents || calendarEvents,
+            calendarEvents: overrideCalendarEvents || calendarEvents, calendarSettings: overrideCalendarSettings || calendarSettings,
             tags, categories: []
         }, AUTO_FIREBASE_CONFIG, libraryId);
         return { success: true };
@@ -194,7 +196,7 @@ const App: React.FC = () => {
     } finally { 
         setIsBroadcasting(false); 
     }
-  }, [games, folders, messages, results, players, calendarEvents, libraryId, tags]);
+  }, [games, folders, messages, results, players, calendarEvents, calendarSettings, libraryId, tags]);
 
   useEffect(() => {
     if (AUTO_FIREBASE_CONFIG && libraryId) {
@@ -230,6 +232,7 @@ const App: React.FC = () => {
                 }
                 if (data.tags) setTags(data.tags);
                 if (Array.isArray(data.calendarEvents)) setCalendarEvents(data.calendarEvents);
+                if (data.calendarSettings) setCalendarSettings(data.calendarSettings as CalendarSettings);
             }
         };
 
@@ -254,6 +257,11 @@ const App: React.FC = () => {
   }, [libraryId]);
 
   // --- HANDLERS ---
+  const handleSaveCalendarSettings = (settings: CalendarSettings) => {
+      setCalendarSettings(settings);
+      triggerBroadcast(undefined, undefined, undefined, undefined, undefined, undefined, settings);
+  };
+
   const handleAddCalendarEvent = (event: GameCalendarEvent) => {
       const newEvents = [...calendarEvents, event];
       setCalendarEvents(newEvents);
@@ -510,7 +518,7 @@ const App: React.FC = () => {
                       </div>
                   </div>
               ) : showCalendar ? (
-                  <GameCalendar games={games} events={calendarEvents} onAddEvent={handleAddCalendarEvent} onDeleteEvent={handleDeleteCalendarEvent} onOpenGame={(game) => { setShowCalendar(false); setShowLauncher(false); setSelectedGame(game); }} />
+                  <GameCalendar games={games} events={calendarEvents} settings={calendarSettings} onSaveSettings={handleSaveCalendarSettings} onAddEvent={handleAddCalendarEvent} onDeleteEvent={handleDeleteCalendarEvent} onOpenGame={(game) => { setShowCalendar(false); setShowLauncher(false); setSelectedGame(game); }} />
               ) : <div className="relative z-10 max-w-7xl mx-auto w-full">
               <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-12">
                    <div>
