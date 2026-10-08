@@ -15,11 +15,12 @@ interface GameCardProps {
   onMoveClick: (game: Game) => void; 
   showFolderName?: boolean; 
   folderName?: string; 
+  folderIcon?: string; 
   libraryId?: string;
 }
 
 const GameCard: React.FC<GameCardProps> = ({ 
-    game, onRateClick, onDelete, onLogWin, onClick, onMoveClick, showFolderName, folderName
+    game, onRateClick, onDelete, onLogWin, onClick, onMoveClick, showFolderName, folderName, folderIcon
 }) => {
   const handleClick = () => {
     playWhoosh();
@@ -41,7 +42,7 @@ const GameCard: React.FC<GameCardProps> = ({
         <div className="w-full h-full glass-card rounded-[2rem] overflow-hidden flex flex-col">
           
           <div className="relative w-full h-24 bg-gradient-to-br from-sky-400/15 via-indigo-500/10 to-orange-400/15 dark:from-sky-500/15 dark:via-indigo-500/15 dark:to-orange-500/10 flex items-center justify-center">
-                {(() => { const Icon = FOLDER_ICONS[game.folderIcon || 'folder'] || BookOpen; return <Icon className="w-10 h-10 text-indigo-500 dark:text-indigo-300 opacity-25" />; })()}
+                {(() => { const Icon = FOLDER_ICONS[folderIcon || game.folderIcon || 'folder'] || BookOpen; return <Icon className="w-10 h-10 text-indigo-500 dark:text-indigo-300 opacity-25" />; })()}
                 {showFolderName && folderName && (
                   <div className="absolute top-3 left-3">
                     <span className="px-2 py-0.5 bg-black/40 backdrop-blur-md text-[8px] font-black uppercase text-white rounded-md border border-white/10">
