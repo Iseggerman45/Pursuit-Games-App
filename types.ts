@@ -32,6 +32,8 @@ export interface Game {
   setup?: string;
   gameplay?: string;
   howToWin?: string;
+  /** False when the activity is cooperative or just for fun rather than competitive. */
+  hasWinner?: boolean;
   materials: string;
   duration: string;
   minPlayers: string;
