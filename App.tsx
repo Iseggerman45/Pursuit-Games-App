@@ -475,7 +475,7 @@ const App: React.FC = () => {
                               <h2 className="mt-5 text-4xl sm:text-6xl font-black tracking-tight gradient-text">What are we doing today?</h2>
                               <p className="mt-3 text-base sm:text-lg text-slate-500 dark:text-slate-400">Choose where you want to go.</p>
                           </div>
-                          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8 max-w-6xl mx-auto">
+                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 sm:gap-8 max-w-4xl mx-auto">
                               <button
                                 onClick={() => { playClick(); setShowLauncher(false); setShowCalendar(false); setIsGlobalView(false); setActiveFolderId(null); }}
                                 className="group relative min-h-[18rem] sm:min-h-[22rem] rounded-[2.5rem] glass-card border border-white/80 dark:border-white/10 overflow-hidden text-left shadow-xl hover:-translate-y-2 hover:shadow-2xl transition-all duration-300"
