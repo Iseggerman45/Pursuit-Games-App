@@ -326,7 +326,7 @@ const GameCalendar: React.FC<GameCalendarProps> = ({ games, settings, onSaveSett
                               <button onClick={() => onOpenGame(game)} className="min-w-0 flex-1 text-left px-2.5 py-2">
                                 <div className="text-[10px] font-bold text-indigo-700 dark:text-indigo-300 truncate">{event.time ? formatTime(event.time) + ' · ' : ''}{game.title}</div>
                                 <div className="text-[9px] text-slate-400 truncate">{game.duration}</div>
-                                {!!event.subGameIds?.length && <div className="text-[9px] text-orange-600 dark:text-orange-400 truncate">+ {event.subGameIds.map(id => gameMap.get(id)?.title).filter(Boolean).join(", ")}</div> 
+                                {!!event.subGameIds?.length && <div className="text-[9px] text-orange-600 dark:text-orange-400 truncate">+ {event.subGameIds.map(id => gameMap.get(id)?.title).filter(Boolean).join(", ")}</div>}
                               </button>
                               <button onClick={() => { if (confirm(`Remove ${game.title} from the calendar?`)) { playDelete(); onDeleteEvent(event.id); } }} className="px-2 text-slate-300 hover:text-red-500 hover:bg-red-500/5 transition-colors" aria-label={`Remove ${game.title} from calendar`}><Trash2 className="w-3 h-3" /></button>
                             </div>
@@ -444,7 +444,7 @@ const GameCalendar: React.FC<GameCalendarProps> = ({ games, settings, onSaveSett
                     <label className="text-xs font-black uppercase tracking-wider text-slate-400">Mini-games / Sub-games <span className="font-normal normal-case">(optional)</span></label>
                     <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">Add smaller games that are part of the main game, such as the mini-games used in Ultimate Tic-Tac-Toe.</p>
                     <div className="mt-2 max-h-36 overflow-y-auto space-y-1.5">
-                      {games.filter(game => game.id !== selectedGameId && game.title.toLowerCase().includes(gameSearch.trim().toLowerCase())).map(game => (
+                      {games.filter(game => game.id !== selectedGameId).map(game => (
                         <label key={game.id} className="flex items-center gap-3 px-3 py-2.5 rounded-xl border border-black/5 dark:border-white/10 bg-white/50 dark:bg-white/5 text-sm text-slate-700 dark:text-slate-200">
                           <input type="checkbox" checked={selectedSubGameIds.includes(game.id)} onChange={e => setSelectedSubGameIds(prev => e.target.checked ? [...prev, game.id] : prev.filter(id => id !== game.id))} className="accent-orange-500" />
                           <span>{game.title}</span>
