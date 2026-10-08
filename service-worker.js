@@ -1,5 +1,5 @@
 
-const CACHE_NAME = 'pursuit-v10-roster-fix'; // v10 for isolated roster logic
+const CACHE_NAME = 'pursuit-v11-gpt-generation'; // Refresh cached app assets after GPT generation update
 const urlsToCache = [
   '/',
   '/index.html',
