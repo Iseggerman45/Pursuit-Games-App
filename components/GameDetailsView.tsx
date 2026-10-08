@@ -25,6 +25,8 @@ interface GameDetailsViewProps {
   hideDelete?: boolean;
 }
 
+const normalizeMarkdown = (value: string) => value.replace(/\\([\\`*_{}\[\]()#+.!>|~-])/g, '$1');
+
 const GameDetailsView: React.FC<GameDetailsViewProps> = ({ 
     game, onClose, onRate, onLogWin, onOpenAI, onDelete, onUpdateGame, allTags, onCreateTag,
     activeTimer, onStartTimer, onStopTimer, onResetRating, onMoveClick, libraryId, hideDelete = false
@@ -226,21 +228,21 @@ const GameDetailsView: React.FC<GameDetailsViewProps> = ({
                                         <div className="bg-blue-50/50 dark:bg-blue-500/5 rounded-2xl border border-blue-100 dark:border-blue-500/20 p-5">
                                             <span className="font-bold text-blue-600 dark:text-blue-400 text-[10px] uppercase tracking-widest mb-3 block">1. The Setup</span>
                                             <div className="text-sm prose prose-sm max-w-none dark:prose-invert">
-                                                <ReactMarkdown components={markdownComponents}>{viewSetup || '_No setup details available._'}</ReactMarkdown>
+                                                <ReactMarkdown components={markdownComponents}>{normalizeMarkdown(viewSetup) || '_No setup details available._'}</ReactMarkdown>
                                             </div>
                                         </div>
                                     ) : null}
                                     <div className="bg-emerald-50/50 dark:bg-emerald-500/5 rounded-2xl border border-emerald-100 dark:border-emerald-500/20 p-5">
                                         <span className="font-bold text-emerald-600 dark:text-emerald-400 text-[10px] uppercase tracking-widest mb-3 block">2. Gameplay</span>
                                         <div className="text-sm prose prose-sm max-w-none dark:prose-invert">
-                                            <ReactMarkdown components={markdownComponents}>{viewGameplay || '_No gameplay instructions provided._'}</ReactMarkdown>
+                                            <ReactMarkdown components={markdownComponents}>{normalizeMarkdown(viewGameplay) || '_No gameplay instructions provided._'}</ReactMarkdown>
                                         </div>
                                     </div>
                                     {viewWin && (
                                         <div className="bg-orange-50/50 dark:bg-orange-500/5 rounded-2xl border border-orange-100 dark:border-orange-500/20 p-5">
                                             <span className="font-bold text-orange-600 dark:text-orange-400 text-[10px] uppercase tracking-widest mb-3 block">{game.hasWinner === false ? '3. Just for Fun — No Winner' : '3. How to Win'}</span>
                                             <div className="text-sm prose prose-sm max-w-none dark:prose-invert">
-                                                <ReactMarkdown components={markdownComponents}>{viewWin}</ReactMarkdown>
+                                                <ReactMarkdown components={markdownComponents}>{normalizeMarkdown(viewWin)}</ReactMarkdown>
                                             </div>
                                         </div>
                                     )}
