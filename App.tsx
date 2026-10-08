@@ -23,7 +23,7 @@ import MoveToFolderModal from './components/MoveToFolderModal';
 import PlayersModal from './components/PlayersModal';
 import GameCalendar from './components/GameCalendar';
 
-const APP_VERSION = "4.8.5";
+const APP_VERSION = "4.8.6";
 
 const APP_UPDATES = [
   "Add games manually by pasting into the editable Setup, Gameplay, and How to Win fields.",
@@ -135,6 +135,7 @@ const App: React.FC = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [isBroadcasting, setIsBroadcasting] = useState(false);
   const [selectedGame, setSelectedGame] = useState<Game | null>(null);
+  const [selectedGameFromCalendar, setSelectedGameFromCalendar] = useState(false);
   const [ratingGame, setRatingGame] = useState<Game | null>(null);
   const [winnerGame, setWinnerGame] = useState<Game | null>(null);
   const [aiGame, setAiGame] = useState<Game | null>(null);
@@ -523,7 +524,7 @@ const App: React.FC = () => {
                       </div>
                   </div>
               ) : showCalendar ? (
-                  <GameCalendar games={games} events={calendarEvents} settings={calendarSettings} onSaveSettings={handleSaveCalendarSettings} onAddEvent={handleAddCalendarEvent} onDeleteEvent={handleDeleteCalendarEvent} onOpenGame={(game) => { setShowCalendar(false); setShowLauncher(false); setSelectedGame(game); }} />
+                  <GameCalendar games={games} events={calendarEvents} settings={calendarSettings} onSaveSettings={handleSaveCalendarSettings} onAddEvent={handleAddCalendarEvent} onDeleteEvent={handleDeleteCalendarEvent} onOpenGame={(game) => { setShowCalendar(false); setShowLauncher(false); setSelectedGameFromCalendar(true); setSelectedGame(game); }} />
               ) : <div className="relative z-10 max-w-7xl mx-auto w-full">
               <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-12">
                    <div>
@@ -576,7 +577,7 @@ const App: React.FC = () => {
                   ) : null}
 
                   {filteredGames.map(game => (
-                      <GameCard key={game.id} game={game} onRateClick={setRatingGame} onLogWin={setWinnerGame} onDelete={handleDeleteGame} onClick={() => { playWhoosh(); setSelectedGame(game); }} onMoveClick={setMovingGame} showFolderName={isGlobalView} folderName={game.folderId ? (folders.find(f => f.id === game.folderId)?.name || 'Root') : 'Root'} folderIcon={game.folderId ? (folders.find(f => f.id === game.folderId)?.icon || 'folder') : game.folderIcon} />
+                      <GameCard key={game.id} game={game} onRateClick={setRatingGame} onLogWin={setWinnerGame} onDelete={handleDeleteGame} onClick={() => { playWhoosh(); setSelectedGameFromCalendar(false); setSelectedGame(game); }} onMoveClick={setMovingGame} showFolderName={isGlobalView} folderName={game.folderId ? (folders.find(f => f.id === game.folderId)?.name || 'Root') : 'Root'} folderIcon={game.folderId ? (folders.find(f => f.id === game.folderId)?.icon || 'folder') : game.folderIcon} />
                   ))}
                   {activeFolderId && filteredGames.length === 0 && (
                       <div className="col-span-full py-16 text-center rounded-[2rem] border border-dashed border-slate-200 dark:border-white/10 bg-white/30 dark:bg-white/[0.02]">
@@ -607,7 +608,7 @@ const App: React.FC = () => {
 
           <LeaderboardModal isOpen={isLeaderboardModalOpen} onClose={() => setIsLeaderboardModalOpen(false)} results={results} user={user} players={players} rivalries={[]} />
 
-          <GameDetailsView game={selectedGame} onClose={() => setSelectedGame(null)} onRate={setRatingGame} onLogWin={setWinnerGame} onOpenAI={setAiGame} onDelete={handleDeleteGame} onUpdateGame={handleUpdateGame} allTags={tags} onCreateTag={()=>{}} activeTimer={null} onStartTimer={()=>{}} onStopTimer={()=>{}} onResetRating={()=>{}} onMoveClick={setMovingGame} libraryId={libraryId} />
+          <GameDetailsView game={selectedGame} hideDelete={selectedGameFromCalendar} onClose={() => { setSelectedGame(null); setSelectedGameFromCalendar(false); }} onRate={setRatingGame} onLogWin={setWinnerGame} onOpenAI={setAiGame} onDelete={handleDeleteGame} onUpdateGame={handleUpdateGame} allTags={tags} onCreateTag={()=>{}} activeTimer={null} onStartTimer={()=>{}} onStopTimer={()=>{}} onResetRating={()=>{}} onMoveClick={setMovingGame} libraryId={libraryId} />
 
           <SyncModal isOpen={isSyncModalOpen} onClose={() => setIsSyncModalOpen(false)} games={games} messages={messages} results={results} players={players} categories={[]} tags={tags} recentPlayers={[]} syncId={libraryId} firebaseConfig={AUTO_FIREBASE_CONFIG} onImport={() => {}} onStartLiveSync={() => {}} onJoinLiveSync={(id) => { setLibraryId(id); setIsSyncModalOpen(false); }} onConnectFirebase={() => {}} onDisconnectFirebase={() => {}} onDownloadCloud={() => window.location.reload()} onUpload={() => triggerBroadcast()} onHardReset={handleHardRefresh} isLoading={isLoading || isBroadcasting} appVersion={APP_VERSION} />
           
