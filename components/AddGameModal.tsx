@@ -204,7 +204,7 @@ const AddGameModal: React.FC<AddGameModalProps> = ({ isOpen, onClose, onCreate, 
 
         <div className="p-5 border-t border-black/5 bg-white/70 flex justify-end gap-3">
           <button type="button" onClick={onClose} disabled={isLoading} className="px-5 py-3 text-sm font-semibold text-slate-500 hover:bg-black/5 rounded-full">Cancel</button>
-          <button type="submit" form="manual-game-form" disabled={isLoading} className="px-7 py-3 bg-[#1D1D1F] hover:bg-black text-white text-sm font-semibold rounded-full shadow-lg flex items-center gap-2 disabled:opacity-60"><Save className="w-4 h-4 text-orange-300" /> Save Game</button>
+          <button type="button" onClick={(e) => { e.preventDefault(); void handleSubmit(e as unknown as React.FormEvent); }} disabled={isLoading} className="px-7 py-3 bg-[#1D1D1F] hover:bg-black text-white text-sm font-semibold rounded-full shadow-lg flex items-center gap-2 disabled:opacity-60"><Save className="w-4 h-4 text-orange-300" /> Save Game</button>
         </div>
       </div>
     </div>
