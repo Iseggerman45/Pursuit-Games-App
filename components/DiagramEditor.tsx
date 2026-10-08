@@ -60,6 +60,14 @@ const DiagramEditor: React.FC<DiagramEditorProps> = ({
     });
     
     const [isFullscreen, setIsFullscreen] = useState(false);
+    const [isFetching, setIsFetching] = useState(false);
+    const [isGenerating, setIsGenerating] = useState(false);
+    const [prompt, setPrompt] = useState('');
+    const [error, setError] = useState<string | null>(null);
+    const [history, setHistory] = useState<{ url: string | null; ann: DiagramObject[] }[]>([]);
+    const [draggingId, setDraggingId] = useState<string | null>(null);
+    const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 });
+    const containerRef = useRef<HTMLDivElement | null>(null);
     // Asset lazy-load: If we don't have the image but cloud says it exists, fetch it
     useEffect(() => {
         if (!imageUrl && hasCloudAsset && gameId && libraryId) {
