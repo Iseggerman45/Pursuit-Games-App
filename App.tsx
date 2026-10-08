@@ -478,7 +478,7 @@ const App: React.FC = () => {
                                           <div className="flex items-end justify-between gap-4">
                                               <div>
                                                   <h3 className="text-2xl sm:text-3xl font-black text-slate-900 dark:text-white">Game Library</h3>
-                                                  <p className="mt-2 text-sm sm:text-base text-slate-500 dark:text-slate-400">Browse, organize, and create all your Pursuit games.</p>
+                                                  <p className="mt-2 text-sm sm:text-base text-slate-500 dark:text-slate-400">Browse, organize, and create all your games.</p>
                                               </div>
                                               <span className="shrink-0 w-11 h-11 rounded-full bg-slate-950 dark:bg-white text-white dark:text-black flex items-center justify-center text-xl group-hover:translate-x-1 transition-transform">→</span>
                                           </div>
