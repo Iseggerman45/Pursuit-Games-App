@@ -45,9 +45,9 @@ const LiveNightModal: React.FC<LiveNightModalProps> = ({ date, games, events, on
     nightEvents.forEach(({ game, subGames }) => {
       [game, ...subGames].forEach(itemGame => {
         if (!itemGame.materials?.trim()) return;
-        itemGame.materials.split(/\\n|[,;•]/).map(item => item.replace(/^[\\s\\-–—*•]+/, '').trim()).filter(Boolean).forEach(name => {
-          const key = name.toLowerCase().replace(/\\s+/g, ' ');
-          const existing = items.find(item => item.name.toLowerCase().replace(/\\s+/g, ' ') === key);
+        itemGame.materials.split(/\n|[,;•]/).map(item => item.replace(/^[\s\-–—*•]+/, '').trim()).filter(Boolean).forEach(name => {
+          const key = name.toLowerCase().replace(/\s+/g, ' ');
+          const existing = items.find(item => item.name.toLowerCase().replace(/\s+/g, ' ') === key);
           if (existing) {
             if (!existing.games.includes(itemGame.title)) existing.games.push(itemGame.title);
           } else items.push({ name, games: [itemGame.title] });
