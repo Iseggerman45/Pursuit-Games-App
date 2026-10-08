@@ -72,18 +72,110 @@
         transform: rotateY(180deg);
       }
 
-      /* Glass utilities */
-      .glass-panel {
-        background: rgba(255, 255, 255, 0.65);
-        backdrop-filter: blur(20px);
-        -webkit-backdrop-filter: blur(20px);
-        border: 1px solid rgba(255, 255, 255, 0.5);
+      /* Pursuit design system */
+      :root {
+        --pursuit-blue: #2563eb;
+        --pursuit-indigo: #6366f1;
+        --pursuit-violet: #8b5cf6;
+        --pursuit-cyan: #06b6d4;
+        --pursuit-orange: #f97316;
+        --pursuit-ink: #111827;
       }
-      
-      /* Dark mode glass */
-      .dark .glass-panel {
-        background: rgba(10, 10, 10, 0.7);
-        border: 1px solid rgba(255, 255, 255, 0.1);
+
+      body {
+        background:
+          radial-gradient(circle at 10% 10%, rgba(99,102,241,.10), transparent 28%),
+          radial-gradient(circle at 90% 20%, rgba(6,182,212,.08), transparent 24%),
+          radial-gradient(circle at 55% 90%, rgba(249,115,22,.07), transparent 26%),
+          #f7f8fb;
+        color: var(--pursuit-ink);
+      }
+
+      .dark body {
+        background:
+          radial-gradient(circle at 12% 10%, rgba(99,102,241,.14), transparent 30%),
+          radial-gradient(circle at 88% 18%, rgba(6,182,212,.10), transparent 25%),
+          radial-gradient(circle at 50% 90%, rgba(249,115,22,.08), transparent 30%),
+          #08090d;
+      }
+
+      .glass-panel,
+      .glass-surface {
+        background: rgba(255, 255, 255, 0.68);
+        backdrop-filter: blur(24px) saturate(150%);
+        -webkit-backdrop-filter: blur(24px) saturate(150%);
+        border: 1px solid rgba(255, 255, 255, 0.72);
+        box-shadow: 0 12px 40px rgba(15, 23, 42, 0.07), inset 0 1px 0 rgba(255,255,255,.7);
+      }
+
+      .dark .glass-panel,
+      .dark .glass-surface {
+        background: rgba(20, 21, 27, 0.68);
+        border: 1px solid rgba(255, 255, 255, 0.10);
+        box-shadow: 0 16px 50px rgba(0,0,0,.28), inset 0 1px 0 rgba(255,255,255,.06);
+      }
+
+      .glass-card {
+        background: linear-gradient(145deg, rgba(255,255,255,.86), rgba(255,255,255,.62));
+        backdrop-filter: blur(22px) saturate(145%);
+        -webkit-backdrop-filter: blur(22px) saturate(145%);
+        border: 1px solid rgba(255,255,255,.8);
+        box-shadow: 0 10px 35px rgba(15,23,42,.07), 0 1px 2px rgba(15,23,42,.04);
+      }
+
+      .dark .glass-card {
+        background: linear-gradient(145deg, rgba(29,30,38,.88), rgba(16,17,22,.72));
+        border-color: rgba(255,255,255,.09);
+      }
+
+      .gradient-text {
+        background: linear-gradient(100deg, #2563eb 0%, #6366f1 45%, #8b5cf6 72%, #f97316 100%);
+        -webkit-background-clip: text;
+        background-clip: text;
+        color: transparent;
+      }
+
+      .color-orb {
+        position: absolute;
+        border-radius: 9999px;
+        filter: blur(70px);
+        pointer-events: none;
+        opacity: .45;
+        animation: orb-float 12s ease-in-out infinite;
+      }
+
+      .color-orb.blue { background: rgba(37,99,235,.20); }
+      .color-orb.violet { background: rgba(139,92,246,.17); animation-delay: -4s; }
+      .color-orb.cyan { background: rgba(6,182,212,.15); animation-delay: -8s; }
+
+      @keyframes orb-float {
+        0%,100% { transform: translate3d(0,0,0) scale(1); }
+        50% { transform: translate3d(18px,-14px,0) scale(1.08); }
+      }
+
+      @keyframes soft-pop {
+        0% { opacity: 0; transform: translateY(10px) scale(.98); }
+        100% { opacity: 1; transform: translateY(0) scale(1); }
+      }
+
+      .soft-pop { animation: soft-pop .55s cubic-bezier(.22,1,.36,1) both; }
+
+      .interactive-lift {
+        transition: transform .35s cubic-bezier(.22,1,.36,1), box-shadow .35s ease, border-color .35s ease;
+      }
+      .interactive-lift:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 18px 50px rgba(15,23,42,.10);
+      }
+      .dark .interactive-lift:hover { box-shadow: 0 20px 55px rgba(0,0,0,.35); }
+
+      @media (prefers-reduced-motion: reduce) {
+        *, *::before, *::after {
+          animation-duration: .01ms !important;
+          animation-iteration-count: 1 !important;
+          scroll-behavior: auto !important;
+          transition-duration: .01ms !important;
+        }
       }
     </style>
   <script type="importmap">
