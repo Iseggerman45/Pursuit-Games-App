@@ -38,10 +38,10 @@ const AUTO_FIREBASE_CONFIG: FirebaseConfig | null = {
 const DEFAULT_TAGS = ['Team Game', 'Free for All', 'Students vs Leaders', 'Boys vs Girls', 'No Props', 'Indoor', 'Outdoor', 'High Energy', 'Ice Breaker'];
 
 const SplashScreen: React.FC<{ isExiting: boolean }> = ({ isExiting }) => (
-  <div className={`fixed inset-0 z-[200] flex flex-col items-center justify-center bg-[#F5F5F7] dark:bg-[#0A0A0C] transition-all duration-700 ${isExiting ? 'opacity-0 scale-110 pointer-events-none' : 'opacity-100'}`}>
+  <div className={`fixed inset-0 z-[200] flex flex-col items-center justify-center bg-slate-50/90 dark:bg-[#08090d] transition-all duration-700 ${isExiting ? 'opacity-0 scale-110 pointer-events-none' : 'opacity-100'}`}>
     <div className="relative group">
-        <div className="absolute inset-0 bg-orange-500/20 blur-3xl rounded-full animate-pulse" />
-        <div className="relative p-6 bg-[#1D1D1F] dark:bg-white/5 rounded-[2.5rem] shadow-2xl animate-bounce duration-1000">
+        <div className="absolute inset-0 bg-gradient-to-r from-indigo-500/25 via-violet-500/20 to-orange-500/20 blur-3xl rounded-full animate-pulse" />
+        <div className="relative p-6 bg-slate-950 dark:bg-white/10 rounded-[2.5rem] shadow-2xl shadow-indigo-500/10 border border-white/10 animate-bounce duration-1000">
             <svg className="w-16 h-16 sm:w-20 sm:h-20" viewBox="0 0 512 512">
                 <defs>
                     <linearGradient id="splash-g" x1="256" y1="42" x2="256" y2="470" gradientUnits="userSpaceOnUse">
@@ -319,24 +319,24 @@ const App: React.FC = () => {
       <div className={`min-h-screen bg-[#F5F5F7] dark:bg-[#0A0A0C] transition-opacity duration-500 flex flex-col ${!showApp ? 'opacity-0' : 'opacity-100'}`}>
           {!user && !isProfileModalOpen && (
               <div className="fixed inset-0 z-[100] bg-black/60 backdrop-blur-xl flex items-center justify-center p-6 text-center">
-                  <div className="bg-white dark:bg-[#1D1D1F] p-10 rounded-[3rem] shadow-2xl max-w-sm border border-black/5 dark:border-white/5">
-                      <div className="w-20 h-20 bg-orange-100 dark:bg-orange-500/20 rounded-full flex items-center justify-center mx-auto mb-6 text-orange-600">
+                  <div className="glass-card p-10 rounded-[3rem] shadow-2xl max-w-sm">
+                      <div className="w-20 h-20 bg-gradient-to-br from-indigo-500/15 via-violet-500/10 to-orange-500/15 dark:from-indigo-500/20 dark:to-orange-500/15 rounded-full flex items-center justify-center mx-auto mb-6 text-indigo-600 dark:text-indigo-300 ring-1 ring-indigo-500/10">
                           <UserCircle className="w-10 h-10" />
                       </div>
                       <h2 className="text-2xl font-bold dark:text-white mb-2">Welcome Home</h2>
                       <p className="text-slate-500 dark:text-slate-400 text-sm mb-8 leading-relaxed">Let's set up your profile to start organizing your playbook.</p>
-                      <button onClick={() => { playClick(); setIsProfileModalOpen(true); }} className="w-full py-4 bg-[#1D1D1F] dark:bg-white text-white dark:text-black rounded-2xl font-bold hover:scale-105 active:scale-95 transition-transform shadow-xl">Get Started</button>
+                      <button onClick={() => { playClick(); setIsProfileModalOpen(true); }} className="w-full py-4 bg-gradient-to-r from-indigo-600 via-violet-600 to-blue-600 text-white rounded-2xl font-bold hover:scale-105 active:scale-95 transition-transform shadow-xl">Get Started</button>
                   </div>
               </div>
           )}
 
-          <nav className="sticky top-0 z-40 bg-white/70 dark:bg-[#1D1D1F]/70 backdrop-blur-xl border-b border-black/5 dark:border-white/5 p-4 sm:px-8">
+          <nav className="sticky top-0 z-40 bg-white/65 dark:bg-slate-950/65 backdrop-blur-2xl border-b border-white/70 dark:border-white/10 shadow-sm p-4 sm:px-8">
               <div className="max-w-7xl mx-auto flex items-center justify-between gap-4">
                   <div className="flex items-center gap-4">
                       <div className="flex items-center gap-3 cursor-pointer" onClick={() => { setActiveFolderId(null); setIsGlobalView(false); }}>
-                          <div className="p-2 bg-[#1D1D1F] dark:bg-white rounded-xl shadow-lg rotate-3">
-                              <svg className="w-5 h-5" viewBox="0 0 512 512">
-                                  <path d="M256 42.6C256 42.6 405.3 170.6 405.3 298.6C405.3 394.6 330.6 469.3 256 469.3C181.3 469.3 106.6 394.6 106.6 298.6C106.6 170.6 256 42.6 256 42.6Z" fill="#F97316"/>
+                          <div className="p-2 bg-gradient-to-br from-slate-950 via-indigo-950 to-slate-900 dark:from-white dark:to-slate-100 rounded-xl shadow-lg shadow-indigo-500/15 rotate-3">
+                              <svg className="w-5 h-5" viewBox="0 0 512 512"><defs><linearGradient id="brand-g" x1="0" y1="0" x2="1" y2="1"><stop stopColor="#38BDF8"/><stop offset=".55" stopColor="#6366F1"/><stop offset="1" stopColor="#F97316"/></linearGradient></defs>
+                                  <path d="M256 42.6C256 42.6 405.3 170.6 405.3 298.6C405.3 394.6 330.6 469.3 256 469.3C181.3 469.3 106.6 394.6 106.6 298.6C106.6 170.6 256 42.6 256 42.6Z" fill="url(#brand-g)"/>
                               </svg>
                           </div>
                           <h1 className="text-xl font-black text-[#1D1D1F] dark:text-white tracking-tighter uppercase hidden sm:block">Pursuit</h1>
@@ -344,7 +344,7 @@ const App: React.FC = () => {
                   </div>
                   <div className="flex-1 max-w-md relative">
                       <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-                      <input type="text" value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} placeholder="Search everything..." className="w-full pl-12 pr-4 py-3 bg-slate-100 dark:bg-white/5 border-none rounded-2xl text-sm focus:ring-2 focus:ring-orange-500/20 dark:text-white transition-all shadow-inner" />
+                      <input type="text" value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} placeholder="Search everything..." className="w-full pl-12 pr-4 py-3 bg-slate-100 dark:bg-white/5 border-none rounded-2xl text-sm focus:ring-2 focus:ring-indigo-500/25 focus:bg-white dark:focus:bg-white/10 dark:text-white transition-all shadow-inner" />
                   </div>
                   <div className="flex items-center gap-2">
                       <button onClick={() => setIsDarkMode(!isDarkMode)} className="p-2.5 bg-slate-50 dark:bg-white/5 text-slate-500 dark:text-slate-400 rounded-2xl">
@@ -353,30 +353,30 @@ const App: React.FC = () => {
                       <button onClick={() => setIsSyncModalOpen(true)} className="p-2.5 bg-slate-50 dark:bg-white/5 text-slate-500 dark:text-slate-400 rounded-2xl relative">
                           {isBroadcasting ? <Loader2 className="w-5 h-5 animate-spin" /> : <Cloud className="w-5 h-5" />}
                       </button>
-                      <button onClick={() => setIsMessagingModalOpen(true)} className="p-2.5 bg-indigo-50 dark:bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 rounded-2xl relative"><MessageCircle className="w-5 h-5" />{messages.length > 0 && <div className="absolute top-1.5 right-1.5 w-2 h-2 bg-red-500 rounded-full border-2 border-white dark:border-[#1D1D1F]" />}</button>
-                      <button onClick={() => setIsPlayersModalOpen(true)} className="p-2.5 bg-blue-50 dark:bg-blue-500/10 text-blue-600 dark:text-blue-400 rounded-2xl relative">
+                      <button onClick={() => setIsMessagingModalOpen(true)} className="p-2.5 bg-indigo-50/80 dark:bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 rounded-2xl relative border border-indigo-100/80 dark:border-indigo-400/10"><MessageCircle className="w-5 h-5" />{messages.length > 0 && <div className="absolute top-1.5 right-1.5 w-2 h-2 bg-red-500 rounded-full border-2 border-white dark:border-[#1D1D1F]" />}</button>
+                      <button onClick={() => setIsPlayersModalOpen(true)} className="p-2.5 bg-sky-50/80 dark:bg-sky-500/10 text-sky-600 dark:text-sky-400 rounded-2xl relative border border-sky-100/80 dark:border-sky-400/10">
                           <Users className="w-5 h-5" />
                       </button>
-                      <button onClick={() => setIsLeaderboardModalOpen(true)} className="p-2.5 bg-yellow-50 dark:bg-yellow-500/10 text-yellow-600 dark:text-yellow-400 rounded-2xl"><Trophy className="w-5 h-5" /></button>
+                      <button onClick={() => setIsLeaderboardModalOpen(true)} className="p-2.5 bg-amber-50/80 dark:bg-amber-500/10 text-amber-600 dark:text-amber-400 rounded-2xl border border-amber-100/80 dark:border-amber-400/10"><Trophy className="w-5 h-5" /></button>
                       <div className="w-px h-6 bg-slate-200 dark:bg-white/10 mx-1" />
                       <button onClick={() => setIsProfileModalOpen(true)} className={`w-10 h-10 rounded-full ${user?.color || 'bg-slate-500'} flex items-center justify-center text-white font-bold shadow-md border-2 border-white dark:border-white/10`}>{user?.emoji || user?.name?.charAt(0)}</button>
                   </div>
               </div>
           </nav>
 
-          <main className="flex-1 p-6 sm:p-12 pt-8 max-w-7xl mx-auto w-full">
+          <main className="relative flex-1 overflow-hidden p-6 sm:p-12 pt-8 max-w-7xl mx-auto w-full"><div className="color-orb blue w-72 h-72 -top-24 -left-24" /><div className="color-orb violet w-80 h-80 top-72 -right-32" /><div className="color-orb cyan w-64 h-64 bottom-0 left-1/3" /><div className="relative z-10">
               <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-12">
                    <div>
-                      <h2 className="text-4xl sm:text-5xl font-black text-[#1D1D1F] dark:text-white tracking-tight flex items-baseline gap-4">
+                      <h2 className="text-4xl sm:text-5xl font-black gradient-text tracking-tight flex items-baseline gap-4">
                           {isGlobalView ? 'All Games' : (activeFolderId ? folders.find(f => f.id === activeFolderId)?.name : 'Playbook')}
                           <span className="text-lg font-bold text-slate-300 dark:text-slate-600">{filteredGames.length} Items</span>
                       </h2>
                   </div>
                   <div className="flex flex-wrap items-center gap-2">
                       <button onClick={() => setIsFilterModalOpen(true)} className={`p-3 rounded-2xl border ${selectedTags.length > 0 ? 'bg-indigo-600 text-white' : 'bg-white dark:bg-white/5 text-slate-600 border-black/5 dark:border-white/5 shadow-sm'}`}><Filter className="w-4 h-4" /></button>
-                      <div className="p-1 bg-white dark:bg-white/5 border border-black/5 dark:border-white/5 rounded-2xl flex shadow-sm">
-                          <button onClick={() => { setIsGlobalView(false); setActiveFolderId(null); }} className={`px-4 py-2 rounded-xl text-xs font-bold transition-all ${!isGlobalView ? 'bg-[#1D1D1F] dark:bg-white text-white dark:text-black shadow-md' : 'text-slate-500'}`}>Folders</button>
-                          <button onClick={() => { setIsGlobalView(true); setActiveFolderId(null); }} className={`px-4 py-2 rounded-xl text-xs font-bold transition-all ${isGlobalView ? 'bg-[#1D1D1F] dark:bg-white text-white dark:text-black shadow-md' : 'text-slate-500'}`}>List</button>
+                      <div className="p-1 bg-white/65 dark:bg-white/5 backdrop-blur-xl border border-white/70 dark:border-white/10 rounded-2xl flex shadow-sm">
+                          <button onClick={() => { setIsGlobalView(false); setActiveFolderId(null); }} className={`px-4 py-2 rounded-xl text-xs font-bold transition-all ${!isGlobalView ? 'bg-slate-950 dark:bg-white text-white dark:text-black shadow-md' : 'text-slate-500'}`}>Folders</button>
+                          <button onClick={() => { setIsGlobalView(true); setActiveFolderId(null); }} className={`px-4 py-2 rounded-xl text-xs font-bold transition-all ${isGlobalView ? 'bg-slate-950 dark:bg-white text-white dark:text-black shadow-md' : 'text-slate-500'}`}>List</button>
                       </div>
                       <button onClick={() => setIsSettingsModalOpen(true)} className="p-3 bg-white dark:bg-white/5 border border-black/5 dark:border-white/5 rounded-2xl shadow-sm"><Settings className="w-5 h-5 text-slate-600" /></button>
                   </div>
@@ -399,13 +399,13 @@ const App: React.FC = () => {
                                   }
                               }} onRename={() => setRenamingFolder(folder)} />
                           ))}
-                          <button onClick={() => setIsFolderModalOpen(true)} className="h-[10rem] sm:h-[12rem] rounded-[2rem] border-2 border-dashed border-slate-200 dark:border-white/10 flex flex-col items-center justify-center gap-3 text-slate-400 hover:text-indigo-600 hover:bg-indigo-50/10 transition-all"><FolderPlus className="w-6 h-6" /><span className="text-sm font-bold">New Folder</span></button>
+                          <button onClick={() => setIsFolderModalOpen(true)} className="h-[10rem] sm:h-[12rem] rounded-[2rem] border-2 border-dashed border-indigo-200/70 dark:border-white/10 flex flex-col items-center justify-center gap-3 text-slate-400 hover:text-indigo-600 hover:bg-indigo-50/10 transition-all"><FolderPlus className="w-6 h-6" /><span className="text-sm font-bold">New Folder</span></button>
                       </>
                   )}
 
                   {(!searchTerm && !isGlobalView && !activeFolderId) || activeFolderId ? (
-                      <button onClick={() => setIsModalOpen(true)} className="h-[22rem] rounded-[2rem] border-4 border-dashed border-slate-200 dark:border-white/10 flex flex-col items-center justify-center gap-4 group hover:border-indigo-400 hover:bg-indigo-50/20 transition-all">
-                          <div className="w-16 h-16 bg-slate-100 dark:bg-white/5 rounded-3xl flex items-center justify-center group-hover:bg-indigo-600 transition-all shadow-sm"><Plus className="w-8 h-8 text-slate-400 group-hover:text-white" /></div>
+                      <button onClick={() => setIsModalOpen(true)} className="h-[22rem] rounded-[2rem] border-4 border-dashed border-slate-200 dark:border-white/10 flex flex-col items-center justify-center gap-4 group hover:border-indigo-300/80 hover:bg-gradient-to-br hover:from-indigo-50/50 hover:to-cyan-50/30 dark:hover:from-indigo-500/10 dark:hover:to-cyan-500/5 transition-all">
+                          <div className="w-16 h-16 bg-gradient-to-br from-indigo-500/10 to-cyan-500/10 dark:from-indigo-500/15 dark:to-cyan-500/10 rounded-3xl flex items-center justify-center group-hover:from-indigo-600 group-hover:to-violet-600 transition-all shadow-sm"><Plus className="w-8 h-8 text-slate-400 group-hover:text-white" /></div>
                           <span className="text-xl font-bold text-slate-700 dark:text-white">Add Game</span>
                       </button>
                   ) : null}
@@ -414,7 +414,7 @@ const App: React.FC = () => {
                       <GameCard key={game.id} game={game} onRateClick={setRatingGame} onLogWin={setWinnerGame} onDelete={handleDeleteGame} onClick={() => { playWhoosh(); setSelectedGame(game); }} onMoveClick={setMovingGame} showFolderName={isGlobalView} folderName={game.folderId ? (folders.find(f => f.id === game.folderId)?.name || 'Root') : 'Root'} />
                   ))}
               </div>
-          </main>
+          </div></main>
 
           <PlayersModal 
             isOpen={isPlayersModalOpen} 
