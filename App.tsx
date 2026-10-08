@@ -373,7 +373,13 @@ const App: React.FC = () => {
               </div>
           </nav>
 
-          <main className="relative flex-1 overflow-hidden p-6 sm:p-12 pt-8 max-w-7xl mx-auto w-full"><div className="color-orb blue w-72 h-72 -top-24 -left-24" /><div className="color-orb violet w-80 h-80 top-72 -right-32" /><div className="color-orb cyan w-64 h-64 bottom-0 left-1/3" /><div className="relative z-10">
+          <main className="relative flex-1 overflow-hidden p-6 sm:p-12 pt-8 w-full">
+              <div className="color-orb blue w-[30rem] h-[30rem] -top-40 -left-40" />
+              <div className="color-orb violet w-[34rem] h-[34rem] top-[20%] -right-56" />
+              <div className="color-orb cyan w-[26rem] h-[26rem] bottom-[-8rem] left-[30%]" />
+              <div className="color-orb orange w-[24rem] h-[24rem] top-[55%] left-[5%]" />
+              <div className="color-orb red w-[20rem] h-[20rem] bottom-[5%] right-[12%]" />
+              <div className="relative z-10 max-w-7xl mx-auto w-full">
               <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-12">
                    <div>
                       <h2 className="text-4xl sm:text-5xl font-black gradient-text tracking-tight flex items-baseline gap-4">
