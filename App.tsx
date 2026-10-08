@@ -22,8 +22,9 @@ import LeaderboardModal from './components/LeaderboardModal';
 import MoveToFolderModal from './components/MoveToFolderModal';
 import PlayersModal from './components/PlayersModal';
 import GameCalendar from './components/GameCalendar';
+import LiveNightModal from './components/LiveNightModal';
 
-const APP_VERSION = "4.8.8";
+const APP_VERSION = "4.9.0";
 
 const APP_UPDATES = [
   "Add games manually by pasting into the editable Setup, Gameplay, and How to Win fields.",
@@ -32,6 +33,7 @@ const APP_UPDATES = [
   "Game editing now keeps the new structured data and legacy rules synchronized.",
   "Improved Firebase game syncing and data normalization.",
   "New Game Calendar lets you schedule games and view your plan by month or week.",
+  "Live Night walks through scheduled games, combines the night’s supply list, and collects ratings after each main game.",
 ];
 const GLOBAL_ID = "pursuit_global";
 
@@ -119,6 +121,7 @@ const App: React.FC = () => {
   const [activeFolderId, setActiveFolderId] = useState<string | null>(null);
   const [isGlobalView, setIsGlobalView] = useState(false);
   const [showCalendar, setShowCalendar] = useState(false);
+  const [liveNightDate, setLiveNightDate] = useState<string | null>(null);
   const [showLauncher, setShowLauncher] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
@@ -262,6 +265,12 @@ const App: React.FC = () => {
       setUser(profile);
       localStorage.setItem('pursuit_user_profile', JSON.stringify(profile));
       setIsProfileModalOpen(false);
+  };
+
+  const handleSaveRating = (id: string, rating: number) => {
+      const newGames = games.map(g => g.id === id ? { ...g, rating, ratingCount: (g.ratingCount || 0) + 1, lastUpdated: Date.now() } : g);
+      setGames(newGames);
+      triggerBroadcast(newGames);
   };
 
   const handleSaveCalendarSettings = (settings: CalendarSettings) => {
@@ -524,7 +533,7 @@ const App: React.FC = () => {
                       </div>
                   </div>
               ) : showCalendar ? (
-                  <GameCalendar games={games} folders={folders} events={calendarEvents} settings={calendarSettings} onSaveSettings={handleSaveCalendarSettings} onAddEvent={handleAddCalendarEvent} onDeleteEvent={handleDeleteCalendarEvent} onOpenGame={(game) => { setShowCalendar(false); setShowLauncher(false); setSelectedGameFromCalendar(true); setSelectedGame(game); }} />
+                  <GameCalendar games={games} folders={folders} events={calendarEvents} settings={calendarSettings} onSaveSettings={handleSaveCalendarSettings} onAddEvent={handleAddCalendarEvent} onDeleteEvent={handleDeleteCalendarEvent} onOpenGame={(game) => { setShowCalendar(false); setShowLauncher(false); setSelectedGameFromCalendar(true); setSelectedGame(game); }} onStartNight={(date) => setLiveNightDate(date)} />
               ) : <div className="relative z-10 max-w-7xl mx-auto w-full">
               <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-12">
                    <div>
@@ -664,11 +673,8 @@ const App: React.FC = () => {
               setRenamingFolder(null);
           }} />
 
-          <RatingModal isOpen={!!ratingGame} game={ratingGame} onClose={() => setRatingGame(null)} onSave={(id, r) => { 
-              const newGames = games.map(g => g.id === id ? {...g, rating: r, ratingCount: (g.ratingCount||0)+1, lastUpdated: Date.now()} : g);
-              setGames(newGames); 
-              triggerBroadcast(newGames); 
-          }} />
+          <RatingModal isOpen={!!ratingGame} game={ratingGame} onClose={() => setRatingGame(null)} onSave={handleSaveRating} />
+          {liveNightDate && <LiveNightModal date={liveNightDate} games={games} events={calendarEvents} onClose={() => setLiveNightDate(null)} onSaveRating={handleSaveRating} />}
 
           <ProfileModal isOpen={isProfileModalOpen} onClose={() => setIsProfileModalOpen(false)} onSave={handleSaveProfile} initialUser={user} />
           <SettingsModal isOpen={isSettingsModalOpen} onClose={() => setIsSettingsModalOpen(false)} categories={[]} onCreateCategory={()=>{}} onDeleteCategory={()=>{}} tags={tags} onCreateTag={(t) => setTags(prev => [...prev, t])} onDeleteTag={(t) => setTags(prev => prev.filter(x => x !== t))} rivalries={[]} onCreateRivalry={()=>{}} onDeleteRivalry={()=>{}} appVersion={APP_VERSION} gameCount={games.length} folderCount={folders.length} />
