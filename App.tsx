@@ -308,11 +308,13 @@ const App: React.FC = () => {
   const handleDeleteGame = async (id: string) => {
       if(confirm("Delete game?")) {
         const newGames = games.filter(g => g.id !== id);
-        setGames(newGames); 
+        const newCalendarEvents = calendarEvents.filter(event => event.gameId !== id);
+        setGames(newGames);
+        setCalendarEvents(newCalendarEvents);
         setSelectedGame(null);
-        playDelete(); 
+        playDelete();
         await deleteGameAssets(libraryId, id);
-        triggerBroadcast(newGames);
+        triggerBroadcast(newGames, undefined, undefined, undefined, undefined, newCalendarEvents);
       }
   };
 
@@ -419,10 +421,10 @@ const App: React.FC = () => {
                           <h1 className="text-xl font-black text-[#1D1D1F] dark:text-white tracking-tighter uppercase hidden sm:block">Pursuit</h1>
                       </div>
                   </div>
-                  <div className="flex-1 max-w-md relative">
+                  {!showCalendar && <div className="flex-1 max-w-md relative">
                       <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
                       <input type="text" value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} placeholder="Search everything..." className="w-full pl-12 pr-4 py-3 bg-slate-100 dark:bg-white/5 border-none rounded-2xl text-sm focus:ring-2 focus:ring-indigo-500/25 focus:bg-white dark:focus:bg-white/10 dark:text-white transition-all shadow-inner" />
-                  </div>
+                  </div>}
                   <div className="flex items-center gap-2">
                       <button onClick={() => setIsDarkMode(!isDarkMode)} className="p-2.5 bg-slate-50 dark:bg-white/5 text-slate-500 dark:text-slate-400 rounded-2xl">
                           {isDarkMode ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
@@ -430,8 +432,9 @@ const App: React.FC = () => {
                       <button onClick={() => setIsSyncModalOpen(true)} className="p-2.5 bg-slate-50 dark:bg-white/5 text-slate-500 dark:text-slate-400 rounded-2xl relative">
                           {isBroadcasting ? <Loader2 className="w-5 h-5 animate-spin" /> : <Cloud className="w-5 h-5" />}
                       </button>
-                      <button onClick={() => setShowCalendar(true)} className={`p-2.5 rounded-2xl relative border ${showCalendar ? 'bg-orange-500 text-white border-orange-500 shadow-md shadow-orange-500/20' : 'bg-orange-50/80 dark:bg-orange-500/10 text-orange-600 dark:text-orange-400 border-orange-100/80 dark:border-orange-400/10'}`} title="Game Calendar">
+                      <button onClick={() => { setShowCalendar(true); setActiveFolderId(null); }} className={`px-2.5 sm:px-3 py-2.5 rounded-2xl relative border flex items-center gap-2 ${showCalendar ? 'bg-orange-500 text-white border-orange-500 shadow-md shadow-orange-500/20' : 'bg-orange-50/80 dark:bg-orange-500/10 text-orange-600 dark:text-orange-400 border-orange-100/80 dark:border-orange-400/10'}`} title="Game Calendar">
                           <CalendarDays className="w-5 h-5" />
+                          <span className="hidden sm:inline text-xs font-bold">Calendar</span>
                       </button>
                       <button onClick={() => setIsPlayersModalOpen(true)} className="p-2.5 bg-sky-50/80 dark:bg-sky-500/10 text-sky-600 dark:text-sky-400 rounded-2xl relative border border-sky-100/80 dark:border-sky-400/10">
                           <Users className="w-5 h-5" />
