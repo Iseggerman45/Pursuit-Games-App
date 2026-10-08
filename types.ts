@@ -61,6 +61,16 @@ export interface DiagramObject {
     fill?: boolean;
 }
 
+export interface GameCalendarEvent {
+  id: string;
+  gameId: string;
+  date: string; // YYYY-MM-DD calendar date
+  time?: string; // HH:mm, optional
+  notes?: string;
+  createdAt: number;
+  updatedAt?: number;
+}
+
 export interface GameResult {
   id: string;
   gameId: string;
@@ -121,6 +131,7 @@ export interface ExportData {
   rivalries?: Rivalry[];
   messages?: GroupMessage[];
   players?: Player[];
+  calendarEvents?: GameCalendarEvent[];
   syncId?: string;
 }
 
