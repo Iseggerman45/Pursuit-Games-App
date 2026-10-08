@@ -17,7 +17,10 @@ export const generateGame = async (prompt: string, manualTags: string[] = []): P
         type: Type.OBJECT,
         properties: {
             title: { type: Type.STRING, description: "The fun and catchy name of the game" },
-            rules: { type: Type.STRING, description: "The full game guide. Organized into ## Setup, ## Gameplay, and ## How to Win." },
+            setup: { type: Type.STRING, description: "What leaders need to do before the game begins. Clear, practical instructions." },
+            gameplay: { type: Type.STRING, description: "Step-by-step instructions for how to play the game." },
+            howToWin: { type: Type.STRING, description: "Exactly how the game ends and how a winner is determined." },
+            rules: { type: Type.STRING, description: "Legacy combined game guide. Include the same content as Setup, Gameplay, and How to Win for backwards compatibility." },
             materials: { type: Type.STRING, description: "A Markdown bulleted list of items needed to play." },
             duration: { type: Type.STRING, description: "Estimated time (e.g., '15 mins')" },
             minPlayers: { type: Type.STRING, description: "Minimum number of players needed (e.g., '4')" },
@@ -27,13 +30,13 @@ export const generateGame = async (prompt: string, manualTags: string[] = []): P
                 description: "Short descriptive tags"
             }
         },
-        required: ["title", "rules", "materials", "duration", "minPlayers", "tags"],
+        required: ["title", "setup", "gameplay", "howToWin", "rules", "materials", "duration", "minPlayers", "tags"],
     };
 
     const response: GenerateContentResponse = await ai.models.generateContent({
         model: 'gemini-3-flash-preview',
         contents: `Create a youth group game based on this description: "${prompt}". 
-                   The rules field MUST contain '## Setup', '## Gameplay', and '## How to Win' sections.`,
+                   Return three separate instruction fields: setup, gameplay, and howToWin. Also populate the legacy rules field with the same three sections using these exact headings: '## Setup', '## Gameplay', and '## How to Win'. Never leave any of the three structured fields empty.`,
         config: {
             responseMimeType: "application/json",
             responseSchema: gameSchema,
