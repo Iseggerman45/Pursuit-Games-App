@@ -45,6 +45,8 @@ export interface Game {
   creatorId?: string;
   isDeleted?: boolean;
   folderId?: string;
+  /** Icon inherited from the folder when the game is added or moved into it. */
+  folderIcon?: string;
   diagramUrl?: string;
   diagramData?: string; // JSON string of DiagramObject[]
   hasDiagram?: boolean; // Flag to indicate if a separate asset exists in cloud
