@@ -23,7 +23,7 @@ import MoveToFolderModal from './components/MoveToFolderModal';
 import PlayersModal from './components/PlayersModal';
 import GameCalendar from './components/GameCalendar';
 
-const APP_VERSION = "4.8.7";
+const APP_VERSION = "4.8.8";
 
 const APP_UPDATES = [
   "Add games manually by pasting into the editable Setup, Gameplay, and How to Win fields.",
@@ -524,7 +524,7 @@ const App: React.FC = () => {
                       </div>
                   </div>
               ) : showCalendar ? (
-                  <GameCalendar games={games} events={calendarEvents} settings={calendarSettings} onSaveSettings={handleSaveCalendarSettings} onAddEvent={handleAddCalendarEvent} onDeleteEvent={handleDeleteCalendarEvent} onOpenGame={(game) => { setShowCalendar(false); setShowLauncher(false); setSelectedGameFromCalendar(true); setSelectedGame(game); }} />
+                  <GameCalendar games={games} folders={folders} events={calendarEvents} settings={calendarSettings} onSaveSettings={handleSaveCalendarSettings} onAddEvent={handleAddCalendarEvent} onDeleteEvent={handleDeleteCalendarEvent} onOpenGame={(game) => { setShowCalendar(false); setShowLauncher(false); setSelectedGameFromCalendar(true); setSelectedGame(game); }} />
               ) : <div className="relative z-10 max-w-7xl mx-auto w-full">
               <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-12">
                    <div>
