@@ -64,6 +64,16 @@ export interface DiagramObject {
     fill?: boolean;
 }
 
+export interface CalendarSchedule {
+  dayOfWeek: number; // 0 = Sunday, 6 = Saturday
+  targetGroup: 'Middle School' | 'High School';
+}
+
+export interface CalendarSettings {
+  configured: boolean;
+  schedules: CalendarSchedule[];
+}
+
 export interface GameCalendarEvent {
   id: string;
   gameId: string;
@@ -135,6 +145,7 @@ export interface ExportData {
   messages?: GroupMessage[];
   players?: Player[];
   calendarEvents?: GameCalendarEvent[];
+  calendarSettings?: CalendarSettings;
   syncId?: string;
 }
 
