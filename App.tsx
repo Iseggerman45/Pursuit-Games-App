@@ -617,8 +617,8 @@ const App: React.FC = () => {
               triggerBroadcast(undefined, newFolders); 
           }} />
 
-          <RenameFolderModal isOpen={!!renamingFolder} folder={renamingFolder} onClose={() => setRenamingFolder(null)} onRename={(id, name) => {
-              const newFolders = folders.map(f => f.id === id ? { ...f, name, lastUpdated: Date.now() } : f);
+          <RenameFolderModal isOpen={!!renamingFolder} folder={renamingFolder} onClose={() => setRenamingFolder(null)} onRename={(id, name, icon) => {
+              const newFolders = folders.map(f => f.id === id ? { ...f, name, icon, lastUpdated: Date.now() } : f);
               setFolders(newFolders);
               triggerBroadcast(undefined, newFolders);
               playPop();
