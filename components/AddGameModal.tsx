@@ -30,6 +30,15 @@ interface AddGameModalProps {
 const fieldClass = 'w-full p-3.5 bg-white border border-slate-200 rounded-2xl text-slate-700 placeholder:text-slate-400 shadow-sm focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-300';
 const sectionLabelClass = 'text-sm font-semibold text-slate-800 mb-2.5 flex items-center gap-2';
 
+const RuleFormattingToolbar: React.FC<{ onInsert: (prefix: string) => void }> = ({ onInsert }) => (
+  <div className="flex flex-wrap items-center gap-1.5 mb-2" aria-label="Rule formatting">
+    <span className="text-[11px] text-slate-500 mr-1">Add formatting:</span>
+    <button type="button" onClick={() => onInsert('- ')} className="px-2.5 py-1 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 text-xs font-semibold text-slate-700">• Bullet</button>
+    <button type="button" onClick={() => onInsert('1. ')} className="px-2.5 py-1 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 text-xs font-semibold text-slate-700">1. Number</button>
+    <button type="button" onClick={() => onInsert('  - ')} className="px-2.5 py-1 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 text-xs font-semibold text-slate-700">↳ Sub-point</button>
+  </div>
+);
+
 const AddGameModal: React.FC<AddGameModalProps> = ({ isOpen, onClose, onCreate, isLoading, allTags, user }) => {
   const [title, setTitle] = useState('');
   const [setup, setSetup] = useState('');
@@ -42,6 +51,10 @@ const AddGameModal: React.FC<AddGameModalProps> = ({ isOpen, onClose, onCreate, 
   const [targetGroup, setTargetGroup] = useState<TargetGroup | 'Both'>('Both');
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
   const [formError, setFormError] = useState<string | null>(null);
+
+  const appendRulePrefix = (setter: React.Dispatch<React.SetStateAction<string>>, currentValue: string, prefix: string) => {
+    setter(currentValue ? `${currentValue.replace(/\s*$/, '')}\n${prefix}` : prefix);
+  };
 
   useEffect(() => {
     if (isOpen) {
@@ -153,10 +166,12 @@ const AddGameModal: React.FC<AddGameModalProps> = ({ isOpen, onClose, onCreate, 
               <p className="text-xs text-slate-500">Paste rules from ChatGPT directly into these three editable sections. No AI generation or API key is needed to add a game.</p>
               <div>
                 <label className="text-xs font-bold text-blue-600 uppercase tracking-wider flex items-center gap-2 mb-2"><BookOpen className="w-3.5 h-3.5" /> 1. Setup *</label>
+                <RuleFormattingToolbar onInsert={(prefix) => appendRulePrefix(setSetup, setup, prefix)} />
                 <textarea value={setup} onChange={e => setSetup(e.target.value)} className={`${fieldClass} min-h-28 resize-y`} placeholder="Where to play, what to prepare, how to split teams, and starting positions..." disabled={isLoading} />
               </div>
               <div>
                 <label className="text-xs font-bold text-emerald-600 uppercase tracking-wider flex items-center gap-2 mb-2"><Sword className="w-3.5 h-3.5" /> 2. Gameplay / How to Play *</label>
+                <RuleFormattingToolbar onInsert={(prefix) => appendRulePrefix(setGameplay, gameplay, prefix)} />
                 <textarea value={gameplay} onChange={e => setGameplay(e.target.value)} className={`${fieldClass} min-h-40 resize-y`} placeholder="Write the rules in order, including what players do and what leaders should watch for..." disabled={isLoading} />
               </div>
               <div>
@@ -165,6 +180,7 @@ const AddGameModal: React.FC<AddGameModalProps> = ({ isOpen, onClose, onCreate, 
                   <button type="button" onClick={() => setHasWinner(true)} className={`rounded-full px-3 py-1.5 text-xs font-semibold border ${hasWinner ? 'bg-orange-500 border-orange-500 text-white' : 'border-slate-200 text-slate-500'}`}>Has a winner</button>
                   <button type="button" onClick={() => setHasWinner(false)} className={`rounded-full px-3 py-1.5 text-xs font-semibold border ${!hasWinner ? 'bg-emerald-600 border-emerald-600 text-white' : 'border-slate-200 text-slate-500'}`}>Just for fun — no winner</button>
                 </div>
+                <RuleFormattingToolbar onInsert={(prefix) => appendRulePrefix(setHowToWin, howToWin, prefix)} />
                 <textarea value={howToWin} onChange={e => setHowToWin(e.target.value)} className={`${fieldClass} min-h-24 resize-y`} placeholder={hasWinner ? 'Explain the win condition and how ties are handled...' : 'Explain when to end the activity and how to wrap it up without a winner...'} disabled={isLoading} />
               </div>
             </div>
