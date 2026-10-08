@@ -1,21 +1,27 @@
 
 import React, { useState, useEffect } from 'react';
-import { X, Edit3, Check } from 'lucide-react';
+import { X, Edit3, Check, Folder, Users, Zap, Trophy, Gamepad2, Dumbbell, Music, Drama, Snowflake, Flame, Target, Swords, Flag, Timer, Heart, Star, Sparkles, Ghost, Car, Dices, Volleyball, Brain, Puzzle, PersonStanding, Waves, Mountain, Tent, PartyPopper, GraduationCap, Crown, CircleDot } from 'lucide-react';
 import { Folder } from '../types';
+
+const FOLDER_ICON_OPTIONS = [
+  ['folder',Folder], ['team',Users], ['energy',Zap], ['trophy',Trophy], ['game',Gamepad2], ['fitness',Dumbbell], ['music',Music], ['drama',Drama], ['winter',Snowflake], ['fire',Flame], ['target',Target], ['battle',Swords], ['flag',Flag], ['timer',Timer], ['heart',Heart], ['star',Star], ['sparkle',Sparkles], ['ghost',Ghost], ['racing',Car], ['dice',Dices], ['volleyball',Volleyball], ['brain',Brain], ['puzzle',Puzzle], ['active',PersonStanding], ['water',Waves], ['mountain',Mountain], ['camp',Tent], ['party',PartyPopper], ['school',GraduationCap], ['crown',Crown], ['ball',CircleDot]
+] as const;
 
 interface RenameFolderModalProps {
   isOpen: boolean;
   folder: Folder | null;
   onClose: () => void;
-  onRename: (id: string, name: string) => void;
+  onRename: (id: string, name: string, icon: string) => void;
 }
 
 const RenameFolderModal: React.FC<RenameFolderModalProps> = ({ isOpen, folder, onClose, onRename }) => {
   const [folderName, setFolderName] = useState('');
+  const [selectedIcon, setSelectedIcon] = useState('folder');
 
   useEffect(() => {
     if (isOpen && folder) {
       setFolderName(folder.name);
+      setSelectedIcon(folder.icon || 'folder');
     }
   }, [isOpen, folder]);
 
@@ -23,8 +29,8 @@ const RenameFolderModal: React.FC<RenameFolderModalProps> = ({ isOpen, folder, o
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (folderName.trim() && folderName.trim() !== folder.name) {
-      onRename(folder.id, folderName.trim());
+    if (folderName.trim() && (folderName.trim() !== folder.name || selectedIcon !== (folder.icon || 'folder'))) {
+      onRename(folder.id, folderName.trim(), selectedIcon);
     } else {
       onClose();
     }
@@ -63,6 +69,16 @@ const RenameFolderModal: React.FC<RenameFolderModalProps> = ({ isOpen, folder, o
               placeholder="New Folder Name"
               className="w-full p-4 bg-slate-50 dark:bg-white/5 border-none rounded-2xl text-slate-800 dark:text-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 shadow-inner text-sm"
             />
+            <div className="space-y-2">
+              <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">Choose a game type</label>
+              <div className="grid grid-cols-6 gap-2 max-h-56 overflow-y-auto pr-1">
+                {FOLDER_ICON_OPTIONS.map(([id, Icon]) => (
+                  <button key={id} type="button" onClick={() => setSelectedIcon(id)} title={id} className={`aspect-square rounded-xl flex items-center justify-center border transition-all ${selectedIcon === id ? 'bg-indigo-600 text-white border-indigo-600 shadow-md scale-105' : 'bg-slate-50 dark:bg-white/5 text-slate-500 border-transparent hover:border-indigo-200 hover:text-indigo-600'}`}>
+                    <Icon className="w-5 h-5" />
+                  </button>
+                ))}
+              </div>
+            </div>
             <button
               type="submit"
               disabled={!folderName.trim()}
