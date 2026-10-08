@@ -56,10 +56,10 @@ const GameDetailsView: React.FC<GameDetailsViewProps> = ({
 
   useEffect(() => {
       if (game && !isEditing) {
-          const { s, g, w } = parseRules(game.rules);
-          setEditSetup(s);
-          setEditGameplay(g);
-          setEditWin(w);
+          const legacy = parseRules(game.rules);
+          setEditSetup(game.setup?.trim() || legacy.s);
+          setEditGameplay(game.gameplay?.trim() || legacy.g);
+          setEditWin(game.howToWin?.trim() || legacy.w);
           setEditedGame(game);
       }
   }, [game, isEditing]);
@@ -72,6 +72,10 @@ const GameDetailsView: React.FC<GameDetailsViewProps> = ({
           
           onUpdateGame({
               ...editedGame,
+              setup: editSetup.trim(),
+              gameplay: editGameplay.trim(),
+              howToWin: editWin.trim(),
+              // Keep legacy field synchronized for backwards compatibility.
               rules: combinedRules.trim(),
           });
           setIsEditing(false);
@@ -80,7 +84,10 @@ const GameDetailsView: React.FC<GameDetailsViewProps> = ({
   };
 
   const isGameRunning = activeTimer && activeTimer.status === 'running' && activeTimer.label === game.title;
-  const { s: viewSetup, g: viewGameplay, w: viewWin } = parseRules(game.rules);
+  const legacyView = parseRules(game.rules);
+  const viewSetup = game.setup?.trim() || legacyView.s;
+  const viewGameplay = game.gameplay?.trim() || legacyView.g;
+  const viewWin = game.howToWin?.trim() || legacyView.w;
 
   const markdownComponents = {
       p: ({children}: any) => <p className="mb-3 last:mb-0 leading-relaxed">{children}</p>,
