@@ -24,7 +24,7 @@ import MoveToFolderModal from './components/MoveToFolderModal';
 import PlayersModal from './components/PlayersModal';
 import GameCalendar from './components/GameCalendar';
 
-const APP_VERSION = "4.5.0";
+const APP_VERSION = "4.5.1";
 
 const APP_UPDATES = [
   "Game instructions are now stored as separate Setup, Gameplay, and How to Win fields.",
@@ -620,6 +620,9 @@ const App: React.FC = () => {
                       setGames(newGames);
                       setIsModalOpen(false); setSelectedGame(game); playSuccess();
                       triggerBroadcast(newGames);
+                  } catch (error) {
+                      console.error('Unable to generate game:', error);
+                      throw error;
                   } finally { setIsLoading(false); }
               }} isLoading={isLoading} allTags={tags} user={user} />
           
