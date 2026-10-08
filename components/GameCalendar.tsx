@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from 'react';
-import { CalendarDays, ChevronLeft, ChevronRight, Clock3, Plus, Trash2, X, StickyNote, Search, CalendarPlus } from 'lucide-react';
+import { CalendarDays, ChevronLeft, ChevronRight, Plus, Trash2, X, StickyNote, Search, CalendarPlus } from 'lucide-react';
 import { Game, GameCalendarEvent } from '../types';
 import { playClick, playPop, playDelete } from '../services/sound';
 
@@ -215,10 +215,13 @@ const GameCalendar: React.FC<GameCalendarProps> = ({ games, events, onAddEvent, 
                           const game = gameMap.get(event.gameId);
                           if (!game) return null;
                           return (
-                            <button key={event.id} onClick={() => onOpenGame(game)} className="w-full text-left rounded-xl px-2.5 py-2 bg-gradient-to-r from-indigo-500/10 to-orange-500/10 dark:from-indigo-500/15 dark:to-orange-500/10 border border-indigo-200/60 dark:border-indigo-400/10 hover:border-indigo-400/50 transition-colors">
-                              <div className="text-[10px] font-bold text-indigo-700 dark:text-indigo-300 truncate">{event.time ? formatTime(event.time) + ' · ' : ''}{game.title}</div>
-                              <div className="text-[9px] text-slate-400 truncate">{game.duration}</div>
-                            </button>
+                            <div key={event.id} className="flex items-stretch gap-1 rounded-xl bg-gradient-to-r from-indigo-500/10 to-orange-500/10 dark:from-indigo-500/15 dark:to-orange-500/10 border border-indigo-200/60 dark:border-indigo-400/10 hover:border-indigo-400/50 transition-colors overflow-hidden">
+                              <button onClick={() => onOpenGame(game)} className="min-w-0 flex-1 text-left px-2.5 py-2">
+                                <div className="text-[10px] font-bold text-indigo-700 dark:text-indigo-300 truncate">{event.time ? formatTime(event.time) + ' · ' : ''}{game.title}</div>
+                                <div className="text-[9px] text-slate-400 truncate">{game.duration}</div>
+                              </button>
+                              <button onClick={() => { if (confirm(`Remove ${game.title} from the calendar?`)) { playDelete(); onDeleteEvent(event.id); } }} className="px-2 text-slate-300 hover:text-red-500 hover:bg-red-500/5 transition-colors" aria-label={`Remove ${game.title} from calendar`}><Trash2 className="w-3 h-3" /></button>
+                            </div>
                           );
                         })}
                         {dayEvents.length > 4 && (
@@ -305,7 +308,7 @@ const GameCalendar: React.FC<GameCalendarProps> = ({ games, events, onAddEvent, 
                       {filteredGames.slice(0, 12).map(game => (
                         <button key={game.id} type="button" onClick={() => { setSelectedGameId(game.id); playClick(); }} className={`w-full text-left px-3.5 py-3 rounded-xl border transition-all ${selectedGameId === game.id ? 'bg-orange-500 text-white border-orange-500' : 'bg-white/50 dark:bg-white/5 border-black/5 dark:border-white/10 text-slate-700 dark:text-slate-200 hover:border-orange-300'}`}>
                           <div className="text-sm font-bold truncate">{game.title}</div>
-                          <div className={`text-[10px] mt-0.5 ${selectedGameId === game.id ? 'text-orange-100' : 'text-slate-400'}`}>{game.duration} · {game.minPlayers} min players</div>
+                          <div className={`text-[10px] mt-0.5 ${selectedGameId === game.id ? 'text-orange-100' : 'text-slate-400'}`}>{game.duration} · {game.minPlayers} players minimum</div>
                         </button>
                       ))}
                       {filteredGames.length === 0 && <div className="text-sm text-slate-400 py-4 text-center">No games found.</div>}
