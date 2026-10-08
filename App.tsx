@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
-import { Plus, Trophy, Search, Settings, Cloud, UserCircle, Filter, X, Moon, Sun, FolderPlus, Loader2, Info, Users, CalendarDays, BookOpen } from 'lucide-react';
+import { Plus, Trophy, Search, Settings, Cloud, UserCircle, Filter, X, Moon, Sun, FolderPlus, Loader2, Info, Users, CalendarDays, BookOpen, ArrowLeft } from 'lucide-react';
 import { Game, UserProfile, GameResult, GroupMessage, FirebaseConfig, Folder, TargetGroup, ExportData, Player, GameCalendarEvent } from './types';
 import { generateGame } from './services/gemini';
 import { playClick, playPop, playSuccess, playDelete, playWhoosh } from './services/sound';
@@ -514,8 +514,13 @@ const App: React.FC = () => {
               ) : <div className="relative z-10 max-w-7xl mx-auto w-full">
               <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-12">
                    <div>
+                      {activeFolderId && !isGlobalView && (
+                          <button onClick={() => { playClick(); setActiveFolderId(null); }} className="mb-3 inline-flex items-center gap-2 text-sm font-bold text-slate-500 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">
+                              <ArrowLeft className="w-4 h-4" /> Back to Folders
+                          </button>
+                      )}
                       <h2 className="text-4xl sm:text-5xl font-black gradient-text tracking-tight flex items-baseline gap-4">
-                          {isGlobalView ? 'All Games' : (activeFolderId ? folders.find(f => f.id === activeFolderId)?.name : 'Playbook')}
+                          {isGlobalView ? 'All Games' : (activeFolderId ? (folders.find(f => f.id === activeFolderId)?.name || 'Folder') : 'Playbook')}
                           <span className="text-lg font-bold text-slate-300 dark:text-slate-600">{filteredGames.length} Items</span>
                       </h2>
                   </div>
@@ -560,6 +565,12 @@ const App: React.FC = () => {
                   {filteredGames.map(game => (
                       <GameCard key={game.id} game={game} onRateClick={setRatingGame} onLogWin={setWinnerGame} onDelete={handleDeleteGame} onClick={() => { playWhoosh(); setSelectedGame(game); }} onMoveClick={setMovingGame} showFolderName={isGlobalView} folderName={game.folderId ? (folders.find(f => f.id === game.folderId)?.name || 'Root') : 'Root'} />
                   ))}
+                  {activeFolderId && filteredGames.length === 0 && (
+                      <div className="col-span-full py-16 text-center rounded-[2rem] border border-dashed border-slate-200 dark:border-white/10 bg-white/30 dark:bg-white/[0.02]">
+                          <p className="text-lg font-bold text-slate-600 dark:text-slate-300">This folder is empty</p>
+                          <p className="mt-1 text-sm text-slate-400">Add a game here or go back to your folders.</p>
+                      </div>
+                  )}
               </div>
           </div>}
           </main>
