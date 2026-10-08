@@ -163,7 +163,6 @@ const AddGameModal: React.FC<AddGameModalProps> = ({ isOpen, onClose, onCreate, 
             </div>
 
             <div className="rounded-2xl border border-slate-200 p-4 space-y-2">
-              <p className="text-xs text-slate-500">Paste rules from ChatGPT directly into these three editable sections. No AI generation or API key is needed to add a game.</p>
               <div>
                 <label className="text-xs font-bold text-blue-600 uppercase tracking-wider flex items-center gap-2 mb-2"><BookOpen className="w-3.5 h-3.5" /> 1. Setup *</label>
                 <RuleFormattingToolbar onInsert={(prefix) => appendRulePrefix(setSetup, setup, prefix)} />
