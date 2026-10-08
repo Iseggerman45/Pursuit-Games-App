@@ -1,8 +1,10 @@
 import React from 'react';
-import { Star, Clock, Trophy, FolderInput, Trash2, BookOpen } from 'lucide-react';
+import { Star, Clock, Trophy, FolderInput, Trash2, BookOpen, Folder, Users, Zap, Award, Gamepad2, Dumbbell, Music, Drama, Snowflake, Flame, Target, Swords, Flag, Timer, Heart, Sparkles, Ghost, Car, Dices, Volleyball, Brain, Puzzle, PersonStanding, Waves, Mountain, Tent, PartyPopper, GraduationCap, Crown, CircleDot, Armchair } from 'lucide-react';
 import { Game } from '../types';
 import { playWhoosh } from '../services/sound';
 import { TagIcon } from './TagIcon';
+
+const FOLDER_ICONS: Record<string, React.ElementType> = { folder: Folder, team: Users, energy: Zap, trophy: Award, game: Gamepad2, fitness: Dumbbell, music: Music, drama: Drama, winter: Snowflake, fire: Flame, target: Target, battle: Swords, flag: Flag, timer: Timer, heart: Heart, star: Star, sparkle: Sparkles, ghost: Ghost, racing: Car, dice: Dices, volleyball: Volleyball, brain: Brain, puzzle: Puzzle, active: PersonStanding, water: Waves, mountain: Mountain, camp: Tent, party: PartyPopper, school: GraduationCap, crown: Crown, ball: CircleDot, chair: Armchair };
 
 interface GameCardProps {
   game: Game;
@@ -39,7 +41,7 @@ const GameCard: React.FC<GameCardProps> = ({
         <div className="w-full h-full glass-card rounded-[2rem] overflow-hidden flex flex-col">
           
           <div className="relative w-full h-24 bg-gradient-to-br from-sky-400/15 via-indigo-500/10 to-orange-400/15 dark:from-sky-500/15 dark:via-indigo-500/15 dark:to-orange-500/10 flex items-center justify-center">
-                <BookOpen className="w-10 h-10 text-indigo-500 dark:text-indigo-300 opacity-25" />
+                {(() => { const Icon = FOLDER_ICONS[game.folderIcon || 'folder'] || BookOpen; return <Icon className="w-10 h-10 text-indigo-500 dark:text-indigo-300 opacity-25" />; })()}
                 {showFolderName && folderName && (
                   <div className="absolute top-3 left-3">
                     <span className="px-2 py-0.5 bg-black/40 backdrop-blur-md text-[8px] font-black uppercase text-white rounded-md border border-white/10">
