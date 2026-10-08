@@ -28,7 +28,7 @@ const GameCard: React.FC<GameCardProps> = ({
 
   return (
     <div 
-      className="group relative w-full h-[22rem] cursor-pointer transition-all duration-300 hover:-translate-y-2 hover:shadow-2xl active:scale-95"
+      className="group relative w-full h-[22rem] cursor-pointer interactive-lift active:scale-[.985]"
       onClick={handleClick}
       draggable={true}
       onDragStart={(e) => {
@@ -36,10 +36,10 @@ const GameCard: React.FC<GameCardProps> = ({
           e.dataTransfer.setData('gameId', game.id);
       }}
     >
-        <div className="w-full h-full bg-white dark:bg-[#1D1D1F] rounded-[2rem] shadow-sm border border-black/5 dark:border-white/5 overflow-hidden flex flex-col">
+        <div className="w-full h-full glass-card rounded-[2rem] overflow-hidden flex flex-col">
           
-          <div className="relative w-full h-24 bg-gradient-to-br from-indigo-500/10 to-orange-500/10 dark:from-indigo-500/20 dark:to-orange-500/20 flex items-center justify-center">
-                <BookOpen className="w-10 h-10 text-indigo-400 dark:text-indigo-600 opacity-20" />
+          <div className="relative w-full h-24 bg-gradient-to-br from-sky-400/15 via-indigo-500/10 to-orange-400/15 dark:from-sky-500/15 dark:via-indigo-500/15 dark:to-orange-500/10 flex items-center justify-center">
+                <BookOpen className="w-10 h-10 text-indigo-500 dark:text-indigo-300 opacity-25" />
                 {showFolderName && folderName && (
                   <div className="absolute top-3 left-3">
                     <span className="px-2 py-0.5 bg-black/40 backdrop-blur-md text-[8px] font-black uppercase text-white rounded-md border border-white/10">
@@ -54,7 +54,7 @@ const GameCard: React.FC<GameCardProps> = ({
             
             <div className="flex flex-wrap gap-1.5 mb-auto">
                 {(game.tags || []).slice(0, 3).map((tag, i) => (
-                    <span key={i} className="px-2 py-0.5 bg-slate-50 dark:bg-white/5 border border-black/5 dark:border-white/5 text-slate-500 dark:text-slate-400 text-[10px] font-bold rounded-lg flex items-center gap-1">
+                    <span key={i} className="px-2 py-0.5 bg-white/55 dark:bg-white/5 border border-white/70 dark:border-white/10 text-slate-500 dark:text-slate-400 text-[10px] font-bold rounded-lg flex items-center gap-1">
                         <TagIcon tag={tag} className="w-2.5 h-2.5 opacity-60" />
                         {tag}
                     </span>
@@ -80,7 +80,7 @@ const GameCard: React.FC<GameCardProps> = ({
             </div>
           </div>
 
-          <div className="px-4 py-3 bg-slate-50 dark:bg-black/20 border-t border-black/5 dark:border-white/5 flex items-center justify-between">
+          <div className="px-4 py-3 bg-slate-50/70 dark:bg-black/20 border-t border-white/70 dark:border-white/5 flex items-center justify-between">
             <div className="flex items-center gap-1.5 opacity-60">
                 <div className="w-5 h-5 rounded-full bg-slate-200 dark:bg-white/10 flex items-center justify-center text-[10px] font-black text-slate-500 dark:text-slate-400">
                     {game.createdBy?.charAt(0).toUpperCase() || '?'}
