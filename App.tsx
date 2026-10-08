@@ -561,7 +561,8 @@ const App: React.FC = () => {
                       <GameCard key={game.id} game={game} onRateClick={setRatingGame} onLogWin={setWinnerGame} onDelete={handleDeleteGame} onClick={() => { playWhoosh(); setSelectedGame(game); }} onMoveClick={setMovingGame} showFolderName={isGlobalView} folderName={game.folderId ? (folders.find(f => f.id === game.folderId)?.name || 'Root') : 'Root'} />
                   ))}
               </div>
-          </div></main>
+          </div>)}
+          </main>
 
           <PlayersModal 
             isOpen={isPlayersModalOpen} 
