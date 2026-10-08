@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
-import { Plus, Trophy, Search, Settings, Cloud, UserCircle, Filter, X, Moon, Sun, FolderPlus, Loader2, Info, Users, CalendarDays, BookOpen, ArrowLeft } from 'lucide-react';
+import { Plus, Trophy, Search, Settings, Cloud, UserCircle, Filter, X, Moon, Sun, FolderPlus, Loader2, Info, Users, CalendarDays, BookOpen, ArrowLeft, Play } from 'lucide-react';
 import { Game, UserProfile, GameResult, GroupMessage, FirebaseConfig, Folder, TargetGroup, ExportData, Player, GameCalendarEvent, CalendarSettings } from './types';
 import { playClick, playPop, playSuccess, playDelete, playWhoosh } from './services/sound';
 import { initFirebase, saveToFirebase, subscribeToLibrary, saveGameDiagram, deleteGameAssets, cleanData } from './services/firebase';
@@ -24,7 +24,7 @@ import PlayersModal from './components/PlayersModal';
 import GameCalendar from './components/GameCalendar';
 import LiveNightModal from './components/LiveNightModal';
 
-const APP_VERSION = "4.9.0";
+const APP_VERSION = "4.9.1";
 
 const APP_UPDATES = [
   "Add games manually by pasting into the editable Setup, Gameplay, and How to Win fields.",
@@ -34,6 +34,7 @@ const APP_UPDATES = [
   "Improved Firebase game syncing and data normalization.",
   "New Game Calendar lets you schedule games and view your plan by month or week.",
   "Live Night walks through scheduled games, combines the night’s supply list, and collects ratings after each main game.",
+  "Start Live Night directly from the main screen using today’s lineup or the next scheduled night.",
 ];
 const GLOBAL_ID = "pursuit_global";
 
@@ -475,7 +476,7 @@ const App: React.FC = () => {
               <div className="color-orb orange w-[24rem] h-[24rem] top-[55%] left-[5%]" />
               <div className="color-orb red w-[20rem] h-[20rem] bottom-[5%] right-[12%]" />
               {showLauncher ? (
-                  <div className="relative z-10 max-w-5xl mx-auto w-full min-h-[calc(100vh-10rem)] flex items-center justify-center">
+                  <div className="relative z-10 max-w-6xl mx-auto w-full min-h-[calc(100vh-10rem)] flex items-center justify-center">
                       <div className="w-full">
                           <div className="text-center mb-10 sm:mb-14">
                               <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-orange-500/10 text-orange-600 dark:text-orange-300 text-xs font-black uppercase tracking-wider border border-orange-500/15">
@@ -485,7 +486,7 @@ const App: React.FC = () => {
                               <h2 className="mt-5 text-4xl sm:text-6xl font-black tracking-tight gradient-text">What are we doing today?</h2>
                               <p className="mt-3 text-base sm:text-lg text-slate-500 dark:text-slate-400">Choose where you want to go.</p>
                           </div>
-                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 sm:gap-8 max-w-4xl mx-auto">
+                          <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6 sm:gap-8 max-w-6xl mx-auto">
                               <button
                                 onClick={() => { playClick(); setShowLauncher(false); setShowCalendar(false); setIsGlobalView(false); setActiveFolderId(null); }}
                                 className="group relative min-h-[18rem] sm:min-h-[22rem] rounded-[2.5rem] glass-card border border-white/80 dark:border-white/10 overflow-hidden text-left shadow-xl hover:-translate-y-2 hover:shadow-2xl transition-all duration-300"
@@ -523,6 +524,33 @@ const App: React.FC = () => {
                                                   <p className="mt-2 text-sm sm:text-base text-slate-500 dark:text-slate-400">Plan your games by week or month so you always know what’s next.</p>
                                               </div>
                                               <span className="shrink-0 w-11 h-11 rounded-full bg-orange-500 text-white flex items-center justify-center text-xl shadow-lg shadow-orange-500/20 group-hover:translate-x-1 transition-transform">→</span>
+                                          </div>
+                                      </div>
+                                  </div>
+                              </button>
+                              <button
+                                onClick={() => {
+                                  playClick();
+                                  const now = new Date();
+                                  const today = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+                                  const scheduledDates = [...new Set(calendarEvents.filter(event => event.date >= today).map(event => event.date))].sort();
+                                  setLiveNightDate(scheduledDates[0] || today);
+                                }}
+                                className="group relative min-h-[18rem] sm:min-h-[22rem] rounded-[2.5rem] glass-card border border-orange-200/70 dark:border-orange-400/20 overflow-hidden text-left shadow-xl hover:-translate-y-2 hover:shadow-2xl transition-all duration-300"
+                              >
+                                  <div className="absolute -top-24 -right-24 w-56 h-56 rounded-full bg-emerald-500/20 blur-3xl group-hover:bg-emerald-500/30 transition-all" />
+                                  <div className="absolute -bottom-20 -left-20 w-48 h-48 rounded-full bg-orange-500/10 blur-3xl" />
+                                  <div className="relative h-full p-7 sm:p-9 flex flex-col justify-between">
+                                      <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-emerald-500 to-teal-600 text-white flex items-center justify-center shadow-lg shadow-emerald-500/25 group-hover:scale-105 transition-transform">
+                                          <Play className="w-8 h-8 fill-current" />
+                                      </div>
+                                      <div>
+                                          <div className="flex items-end justify-between gap-4">
+                                              <div>
+                                                  <h3 className="text-2xl sm:text-3xl font-black text-slate-900 dark:text-white">Start Live Night</h3>
+                                                  <p className="mt-2 text-sm sm:text-base text-slate-500 dark:text-slate-400">Jump straight into the next scheduled game night, with game instructions, supplies, and ratings.</p>
+                                              </div>
+                                              <span className="shrink-0 w-11 h-11 rounded-full bg-emerald-500 text-white flex items-center justify-center text-xl shadow-lg shadow-emerald-500/20 group-hover:translate-x-1 transition-transform">→</span>
                                           </div>
                                       </div>
                                   </div>
