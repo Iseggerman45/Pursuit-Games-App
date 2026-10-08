@@ -1,7 +1,7 @@
 
 import * as firebaseAppModule from 'firebase/app';
 import { getFirestore, doc, onSnapshot, setDoc, getDoc, deleteDoc, enableIndexedDbPersistence } from 'firebase/firestore';
-import { FirebaseConfig, ExportData, GroupMessage, GameResult, Game, Player } from '../types';
+import { FirebaseConfig, ExportData, GroupMessage, GameResult, Game, Player, GameCalendarEvent } from '../types';
 
 const firebaseApp = firebaseAppModule as any;
 
@@ -151,7 +151,8 @@ export const subscribeToLibrary = (
             onData({
                 games: (raw.games || []).map(normalizeGame),
                 folders: raw.folders || [],
-                tags: raw.tags || []
+                tags: raw.tags || [],
+                calendarEvents: Array.isArray(raw.calendarEvents) ? raw.calendarEvents as GameCalendarEvent[] : []
             });
         }
     });
@@ -255,6 +256,7 @@ export const saveToFirebase = async (data: ExportData, config?: FirebaseConfig, 
                 games: sanitizedData.games || [],
                 folders: sanitizedData.folders || [],
                 tags: sanitizedData.tags || [],
+                calendarEvents: Array.isArray(sanitizedData.calendarEvents) ? sanitizedData.calendarEvents : [],
                 timestamp: Date.now()
             }),
             setDoc(doc(db, 'pursuit_messages', pathId), { 
