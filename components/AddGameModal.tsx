@@ -8,7 +8,7 @@ import { TagIcon } from './TagIcon';
 interface AddGameModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onGenerate: (prompt: string, category: string, targetGroup: TargetGroup | 'Both', manualTags: string[]) => void;
+  onGenerate: (prompt: string, category: string, targetGroup: TargetGroup | 'Both', manualTags: string[]) => Promise<void> | void;
   isLoading: boolean;
   categories: string[];
   allTags: string[];
@@ -22,6 +22,7 @@ const AddGameModal: React.FC<AddGameModalProps> = ({ isOpen, onClose, onGenerate
   const [minutes, setMinutes] = useState('15');
   const [targetGroup, setTargetGroup] = useState<TargetGroup | 'Both'>('Both');
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
+  const [generationError, setGenerationError] = useState<string | null>(null);
 
   useEffect(() => {
     if (isOpen) {
@@ -31,19 +32,26 @@ const AddGameModal: React.FC<AddGameModalProps> = ({ isOpen, onClose, onGenerate
         setDescription('');
         setTargetGroup('Both');
         setSelectedTags([]);
+        setGenerationError(null);
     }
   }, [isOpen]);
 
   if (!isOpen) return null;
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     let prompt = `Minimum Players: ${minPlayers}. Duration: ${hours} hours and ${minutes} minutes. Target Audience: ${targetGroup}.`;
     if (description.trim()) {
       prompt += ` Description/Theme: ${description}`;
     }
     // Default to 'General' category as it's no longer a primary selector
-    onGenerate(prompt, 'General', targetGroup, selectedTags);
+    setGenerationError(null);
+    try {
+      await onGenerate(prompt, 'General', targetGroup, selectedTags);
+    } catch (error) {
+      console.error('Game generation failed:', error);
+      setGenerationError(error instanceof Error ? error.message : 'Something went wrong while generating the game. Please try again.');
+    }
   };
 
   const toggleTag = (tag: string) => {
@@ -87,6 +95,13 @@ const AddGameModal: React.FC<AddGameModalProps> = ({ isOpen, onClose, onGenerate
 
         <div className="overflow-y-auto p-6 scrollbar-thin scrollbar-thumb-slate-200">
             <form id="game-form" onSubmit={handleSubmit} className="space-y-6">
+            {generationError && (
+              <div role="alert" className="rounded-2xl border border-red-200 bg-red-50 p-4 text-sm text-red-700">
+                <p className="font-bold">Couldn’t generate the game</p>
+                <p className="mt-1 break-words">{generationError}</p>
+                <p className="mt-2 text-xs">If this keeps happening, the app’s AI key may need to be configured in its hosting settings.</p>
+              </div>
+            )}
             
             <div className="grid grid-cols-2 gap-4">
                 {/* Target Group */}
