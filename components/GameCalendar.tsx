@@ -67,6 +67,7 @@ const GameCalendar: React.FC<GameCalendarProps> = ({ games, settings, onSaveSett
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedDate, setSelectedDate] = useState(todayKey());
   const [selectedGameId, setSelectedGameId] = useState('');
+  const [selectedSubGameIds, setSelectedSubGameIds] = useState<string[]>([]);
   const [selectedTime, setSelectedTime] = useState('');
   const [notes, setNotes] = useState('');
   const [gameSearch, setGameSearch] = useState('');
@@ -134,6 +135,7 @@ const GameCalendar: React.FC<GameCalendarProps> = ({ games, settings, onSaveSett
     playClick();
     setSelectedDate(date);
     setSelectedGameId('');
+    setSelectedSubGameIds([]);
     setSelectedTime('');
     setNotes('');
     setGameSearch('');
@@ -151,6 +153,7 @@ const GameCalendar: React.FC<GameCalendarProps> = ({ games, settings, onSaveSett
     const event: GameCalendarEvent = {
       id: crypto.randomUUID(),
       gameId: selectedGameId,
+      subGameIds: selectedSubGameIds.filter(id => id !== selectedGameId),
       date: selectedDate,
       time: selectedTime || undefined,
       notes: notes.trim() || undefined,
@@ -183,15 +186,17 @@ const GameCalendar: React.FC<GameCalendarProps> = ({ games, settings, onSaveSett
     const dayEvents = eventsForDate(supplyListDate);
     const items: { name: string; games: string[] }[] = [];
     dayEvents.forEach(event => {
-      const game = gameMap.get(event.gameId);
-      if (!game || !game.materials?.trim()) return;
-      const parts = game.materials.split(/\n|[,;•]/).map(item => item.replace(/^[\s\-–—*•]+/, '').trim()).filter(Boolean);
-      parts.forEach(name => {
+      const eventGames = [event.gameId, ...(event.subGameIds || [])].map(id => gameMap.get(id)).filter((game): game is Game => Boolean(game));
+      eventGames.forEach(game => {
+        if (!game.materials?.trim()) return;
+        const parts = game.materials.split(/\n|[,;•]/).map(item => item.replace(/^[\s\-–—*•]+/, '').trim()).filter(Boolean);
+        parts.forEach(name => {
         const key = name.toLowerCase().replace(/\s+/g, ' ');
         const existing = items.find(item => item.name.toLowerCase().replace(/\s+/g, ' ') === key);
         if (existing) {
           if (!existing.games.includes(game.title)) existing.games.push(game.title);
         } else items.push({ name, games: [game.title] });
+        });
       });
     });
     return items;
@@ -425,13 +430,26 @@ const GameCalendar: React.FC<GameCalendarProps> = ({ games, settings, onSaveSett
                     </div>
                     <div className="mt-2 max-h-44 overflow-y-auto space-y-1.5">
                       {filteredGames.slice(0, 12).map(game => (
-                        <button key={game.id} type="button" onClick={() => { setSelectedGameId(game.id); playClick(); }} className={`w-full text-left px-3.5 py-3 rounded-xl border transition-all ${selectedGameId === game.id ? 'bg-orange-500 text-white border-orange-500' : 'bg-white/50 dark:bg-white/5 border-black/5 dark:border-white/10 text-slate-700 dark:text-slate-200 hover:border-orange-300'}`}>
+                        <button key={game.id} type="button" onClick={() => { setSelectedGameId(game.id); setSelectedSubGameIds(prev => prev.filter(id => id !== game.id)); playClick(); }} className={`w-full text-left px-3.5 py-3 rounded-xl border transition-all ${selectedGameId === game.id ? 'bg-orange-500 text-white border-orange-500' : 'bg-white/50 dark:bg-white/5 border-black/5 dark:border-white/10 text-slate-700 dark:text-slate-200 hover:border-orange-300'}`}>
                           <div className="text-sm font-bold truncate">{game.title}</div>
                           <div className={`text-[10px] mt-0.5 ${selectedGameId === game.id ? 'text-orange-100' : 'text-slate-400'}`}>{game.duration} · {game.minPlayers} players minimum</div>
                         </button>
                       ))}
                       {filteredGames.length === 0 && <div className="text-sm text-slate-400 py-4 text-center">No games found.</div>}
                     </div>
+                  </div>
+                  <div>
+                    <label className="text-xs font-black uppercase tracking-wider text-slate-400">Mini-games / Sub-games <span className="font-normal normal-case">(optional)</span></label>
+                    <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">Add smaller games that are part of the main game, such as the mini-games used in Ultimate Tic-Tac-Toe.</p>
+                    <div className="mt-2 max-h-36 overflow-y-auto space-y-1.5">
+                      {games.filter(game => game.id !== selectedGameId && game.title.toLowerCase().includes(gameSearch.trim().toLowerCase())).map(game => (
+                        <label key={game.id} className="flex items-center gap-3 px-3 py-2.5 rounded-xl border border-black/5 dark:border-white/10 bg-white/50 dark:bg-white/5 text-sm text-slate-700 dark:text-slate-200">
+                          <input type="checkbox" checked={selectedSubGameIds.includes(game.id)} onChange={e => setSelectedSubGameIds(prev => e.target.checked ? [...prev, game.id] : prev.filter(id => id !== game.id))} className="accent-orange-500" />
+                          <span>{game.title}</span>
+                        </label>
+                      ))}
+                    </div>
+                    {selectedSubGameIds.length > 0 && <p className="mt-1 text-xs text-orange-600 dark:text-orange-400">{selectedSubGameIds.length} mini-game{selectedSubGameIds.length === 1 ? '' : 's'} selected</p>}
                   </div>
                   <div className="grid grid-cols-2 gap-3">
                     <div>
