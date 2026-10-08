@@ -22,11 +22,12 @@ interface GameDetailsViewProps {
   onResetRating: (id: string) => void;
   onMoveClick: (game: Game) => void;
   libraryId: string;
+  hideDelete?: boolean;
 }
 
 const GameDetailsView: React.FC<GameDetailsViewProps> = ({ 
     game, onClose, onRate, onLogWin, onOpenAI, onDelete, onUpdateGame, allTags, onCreateTag,
-    activeTimer, onStartTimer, onStopTimer, onResetRating, onMoveClick, libraryId
+    activeTimer, onStartTimer, onStopTimer, onResetRating, onMoveClick, libraryId, hideDelete = false
 }) => {
   const [isEditing, setIsEditing] = useState(false);
   const [editedGame, setEditedGame] = useState<Game | null>(null);
@@ -353,9 +354,11 @@ const GameDetailsView: React.FC<GameDetailsViewProps> = ({
                 ) : (
                     <>
                         <div className="flex gap-2">
-                          <button onClick={() => onDelete(game.id)} className="px-4 py-3 text-red-500 dark:text-red-400 font-bold hover:bg-red-50 dark:hover:bg-red-500/10 rounded-xl transition-all flex items-center gap-2">
+                          {!hideDelete && (
+                            <button onClick={() => onDelete(game.id)} className="px-4 py-3 text-red-500 dark:text-red-400 font-bold hover:bg-red-50 dark:hover:bg-red-500/10 rounded-xl transition-all flex items-center gap-2">
                               <Trash2 className="w-4 h-4" /> Delete
-                          </button>
+                            </button>
+                          )}
                           <button onClick={() => onMoveClick(game)} className="px-4 py-3 text-indigo-600 dark:text-indigo-400 font-bold hover:bg-indigo-50 dark:hover:bg-indigo-500/10 rounded-xl transition-all flex items-center gap-2">
                               <FolderInput className="w-4 h-4" /> Move
                           </button>
