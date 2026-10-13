@@ -1,5 +1,5 @@
 
-const CACHE_NAME = 'pursuit-v17-dark-text-contrast'; // Refresh cached assets for manual game entry
+const CACHE_NAME = 'pursuit-v18-scrollable-updates'; // Refresh cached assets for manual game entry
 const urlsToCache = [
   '/',
   '/index.html',
