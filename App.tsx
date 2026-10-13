@@ -24,7 +24,7 @@ import PlayersModal from './components/PlayersModal';
 import GameCalendar from './components/GameCalendar';
 import LiveNightModal from './components/LiveNightModal';
 
-const APP_VERSION = "4.9.4";
+const APP_VERSION = "4.9.5";
 
 const APP_UPDATES = [
   "Add games manually by pasting into the editable Setup, Gameplay, and How to Win fields.",
@@ -38,6 +38,7 @@ const APP_UPDATES = [
   "Game instructions now display bold text and numbered lists correctly, including pasted Markdown with escaped punctuation.",
   "Improved game instruction readability in dark mode.",
   "Fixed dark mode text contrast with explicit Markdown text colors and refreshed cached assets.",
+  "The New Updates window now scrolls on small screens and keeps the Got it button accessible.",
 ];
 const GLOBAL_ID = "pursuit_global";
 
@@ -383,9 +384,9 @@ const App: React.FC = () => {
       
       <div className={`min-h-screen bg-[#F5F5F7] dark:bg-[#0A0A0C] transition-opacity duration-500 flex flex-col ${!showApp ? 'opacity-0' : 'opacity-100'}`}>
           {showUpdates && (
-          <div className="fixed inset-0 z-[180] bg-slate-950/55 backdrop-blur-xl flex items-center justify-center p-5 sm:p-6">
-              <div className="glass-card w-full max-w-md rounded-[2rem] overflow-hidden shadow-2xl animate-[soft-pop_.45s_cubic-bezier(.22,1,.36,1)_both]">
-                  <div className="relative px-7 pt-7 pb-5 bg-gradient-to-br from-orange-500/15 via-white/20 to-indigo-500/15 dark:from-orange-500/15 dark:via-white/5 dark:to-indigo-500/15 border-b border-black/5 dark:border-white/10">
+          <div className="fixed inset-0 z-[180] bg-slate-950/55 backdrop-blur-xl flex items-start sm:items-center justify-center p-3 sm:p-6 overflow-y-auto">
+              <div className="glass-card w-full max-w-md max-h-[calc(100dvh-1.5rem)] sm:max-h-[calc(100dvh-3rem)] rounded-[2rem] overflow-hidden shadow-2xl animate-[soft-pop_.45s_cubic-bezier(.22,1,.36,1)_both] flex flex-col">
+                  <div className="relative shrink-0 px-7 pt-7 pb-5 bg-gradient-to-br from-orange-500/15 via-white/20 to-indigo-500/15 dark:from-orange-500/15 dark:via-white/5 dark:to-indigo-500/15 border-b border-black/5 dark:border-white/10">
                       <div className="flex items-start justify-between gap-4">
                           <div>
                               <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-orange-500/10 text-orange-600 dark:text-orange-300 text-xs font-black uppercase tracking-wider border border-orange-500/15">
@@ -400,7 +401,7 @@ const App: React.FC = () => {
                           </div>
                       </div>
                   </div>
-                  <div className="px-7 py-6">
+                  <div className="px-7 py-6 flex-1 min-h-0 overflow-y-auto overscroll-contain">
                       <ul className="space-y-4">
                           {APP_UPDATES.map((update, index) => (
                               <li key={index} className="flex items-start gap-3 text-sm text-slate-700 dark:text-slate-300 leading-relaxed">
@@ -409,7 +410,9 @@ const App: React.FC = () => {
                               </li>
                           ))}
                       </ul>
-                      <button onClick={dismissUpdates} className="mt-7 w-full py-3.5 rounded-2xl bg-gradient-to-r from-orange-500 via-orange-600 to-red-600 text-white font-bold shadow-lg shadow-orange-500/20 hover:shadow-orange-500/30 hover:-translate-y-0.5 transition-all">
+                  </div>
+                  <div className="shrink-0 px-7 pt-3 pb-6 bg-white/80 dark:bg-[#1D1D1F]/90 border-t border-black/5 dark:border-white/10">
+                      <button onClick={dismissUpdates} className="w-full py-3.5 rounded-2xl bg-gradient-to-r from-orange-500 via-orange-600 to-red-600 text-white font-bold shadow-lg shadow-orange-500/20 hover:shadow-orange-500/30 hover:-translate-y-0.5 transition-all">
                           Got it
                       </button>
                   </div>
