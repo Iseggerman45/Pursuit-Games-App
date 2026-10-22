@@ -285,7 +285,10 @@ const App: React.FC = () => {
 
 
   const handleAddCalendarEvent = (event: GameCalendarEvent) => {
-      const newEvents = [...calendarEvents, event];
+      const exists = calendarEvents.some(existing => existing.id === event.id);
+      const newEvents = exists
+          ? calendarEvents.map(existing => existing.id === event.id ? event : existing)
+          : [...calendarEvents, event];
       setCalendarEvents(newEvents);
       triggerBroadcast(undefined, undefined, undefined, undefined, undefined, newEvents);
   };
