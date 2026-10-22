@@ -38,6 +38,7 @@ const GameDetailsView: React.FC<GameDetailsViewProps> = ({
   const setupRef = React.useRef<HTMLTextAreaElement>(null);
   const gameplayRef = React.useRef<HTMLTextAreaElement>(null);
   const winRef = React.useRef<HTMLTextAreaElement>(null);
+  const materialsRef = React.useRef<HTMLTextAreaElement>(null);
 
   const insertRulePrefix = (setter: React.Dispatch<React.SetStateAction<string>>, value: string, textareaRef: { current: HTMLTextAreaElement | null }, prefix: string) => {
       const textarea = textareaRef.current;
@@ -48,6 +49,24 @@ const GameDetailsView: React.FC<GameDetailsViewProps> = ({
       const lineBreak = before.length > 0 && !before.endsWith('\n') ? '\n' : '';
       const insertion = `${lineBreak}${prefix}`;
       setter(`${before}${insertion}${after}`);
+      window.setTimeout(() => {
+          if (!textarea) return;
+          textarea.focus();
+          const cursor = before.length + insertion.length;
+          textarea.setSelectionRange(cursor, cursor);
+      }, 0);
+  };
+
+  const insertMaterialsBullet = () => {
+      const textarea = materialsRef.current;
+      const value = editedGame?.materials || '';
+      const start = textarea?.selectionStart ?? value.length;
+      const end = textarea?.selectionEnd ?? value.length;
+      const before = value.slice(0, start);
+      const after = value.slice(end);
+      const lineBreak = before.length > 0 && !before.endsWith('\n') ? '\n' : '';
+      const insertion = `${lineBreak}- `;
+      setEditedGame(current => current ? { ...current, materials: `${before}${insertion}${after}` } : null);
       window.setTimeout(() => {
           if (!textarea) return;
           textarea.focus();
@@ -273,15 +292,22 @@ const GameDetailsView: React.FC<GameDetailsViewProps> = ({
                         <div className="bg-slate-50 dark:bg-white/5 rounded-3xl p-6 border border-slate-100 dark:border-white/5">
                             <h3 className="text-orange-600 dark:text-orange-400 font-bold uppercase tracking-widest text-xs mb-4 flex items-center gap-2"><Box className="w-3.5 h-3.5" /> Supplies</h3>
                             {isEditing ? (
-                                <textarea 
-                                    value={editedGame?.materials || ''} 
-                                    onChange={(e) => setEditedGame(p => p ? {...p, materials: e.target.value} : null)} 
-                                    className="w-full h-32 bg-white dark:bg-neutral-800 border border-slate-200 dark:border-white/10 rounded-xl p-3 text-sm focus:ring-2 focus:ring-orange-500/20 text-slate-800 dark:text-white resize-none" 
-                                    placeholder="Bullet points of required items..."
-                                />
+                                <>
+                                    <div className="flex flex-wrap items-center gap-1.5 mb-2">
+                                        <button type="button" onClick={insertMaterialsBullet} className="px-2.5 py-1 rounded-lg border border-slate-200 dark:border-white/10 bg-white dark:bg-neutral-800 hover:bg-slate-50 dark:hover:bg-neutral-700 text-xs font-semibold">• Add bullet</button>
+                                        <span className="text-[11px] text-slate-500 dark:text-slate-400">Add one supply per line.</span>
+                                    </div>
+                                    <textarea 
+                                        ref={materialsRef}
+                                        value={(editedGame?.materials || '').replace(/^\\s*[•●]\\s+/gm, '- ')} 
+                                        onChange={(e) => setEditedGame(p => p ? {...p, materials: e.target.value} : null)} 
+                                        className="w-full h-32 bg-white dark:bg-neutral-800 border border-slate-200 dark:border-white/10 rounded-xl p-3 text-sm focus:ring-2 focus:ring-orange-500/20 text-slate-800 dark:text-white resize-y" 
+                                        placeholder="- 4 cones&#10;- 2 dodgeballs"
+                                    />
+                                </>
                             ) : (
                                 <div className="text-slate-600 dark:text-slate-300 text-sm prose prose-sm dark:prose-invert">
-                                    <ReactMarkdown components={markdownComponents}>{game.materials || '_No supplies listed._'}</ReactMarkdown>
+                                    <ReactMarkdown components={markdownComponents}>{normalizeMarkdown((game.materials || '_No supplies listed._').replace(/^\\s*[•●]\\s+/gm, '- '))}</ReactMarkdown>
                                 </div>
                             )}
                         </div>
