@@ -1,5 +1,5 @@
 
-const CACHE_NAME = 'pursuit-v19-calendar-editing'; // Refresh cached assets for manual game entry
+const CACHE_NAME = 'pursuit-v20-latest-release-notes'; // Refresh cached assets for manual game entry
 const urlsToCache = [
   '/',
   '/index.html',
