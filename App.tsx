@@ -24,21 +24,12 @@ import PlayersModal from './components/PlayersModal';
 import GameCalendar from './components/GameCalendar';
 import LiveNightModal from './components/LiveNightModal';
 
-const APP_VERSION = "4.9.6";
+const APP_VERSION = "4.9.7";
 
 const APP_UPDATES = [
-  "Add games manually by pasting into the editable Setup, Gameplay, and How to Win fields.",
-  "Adding games no longer depends on AI generation or an API key.",
-  "Existing games are automatically upgraded when they load from Firebase.",
-  "Game editing now keeps the new structured data and legacy rules synchronized.",
-  "Improved Firebase game syncing and data normalization.",
-  "New Game Calendar lets you schedule games and view your plan by month or week.",
-  "Live Night walks through scheduled games, combines the night’s supply list, and collects ratings after each main game.",
-  "Start Live Night directly from the main screen using today’s lineup or the next scheduled night.",
-  "Game instructions now display bold text and numbered lists correctly, including pasted Markdown with escaped punctuation.",
-  "Improved game instruction readability in dark mode.",
-  "Fixed dark mode text contrast with explicit Markdown text colors and refreshed cached assets.",
-  "The New Updates window now scrolls on small screens and keeps the Got it button accessible.",
+  "You can now edit scheduled calendar events after creating them, including the main game, mini-games, date, time, and notes.",
+  "Editing a calendar event updates the existing entry instead of creating a duplicate.",
+  "Improved supplies editing in the Game Library with bullet formatting and cleaner supply lists.",
 ];
 const GLOBAL_ID = "pursuit_global";
 
