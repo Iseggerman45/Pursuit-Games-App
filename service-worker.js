@@ -1,5 +1,5 @@
 
-const CACHE_NAME = 'pursuit-v23-sequential-rule-numbering'; // Refresh cached assets for manual game entry
+const CACHE_NAME = 'pursuit-v24-tag-persistence'; // Refresh cached assets for manual game entry
 const urlsToCache = [
   '/',
   '/index.html',
