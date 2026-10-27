@@ -1,5 +1,5 @@
 
-const CACHE_NAME = 'pursuit-v21-rule-editor-bullets'; // Refresh cached assets for manual game entry
+const CACHE_NAME = 'pursuit-v22-rule-list-spacing'; // Refresh cached assets for manual game entry
 const urlsToCache = [
   '/',
   '/index.html',
