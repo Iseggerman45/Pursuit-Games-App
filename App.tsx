@@ -24,11 +24,10 @@ import PlayersModal from './components/PlayersModal';
 import GameCalendar from './components/GameCalendar';
 import LiveNightModal from './components/LiveNightModal';
 
-const APP_VERSION = "4.9.9";
+const APP_VERSION = "4.9.10";
 
 const APP_UPDATES = [
-  "Fixed automatic bullet and numbered-list continuation when you press Enter in game rules.",
-  "Corrected list indentation so new bullet points line up consistently without extra spacing.",
+  "The Number button now continues numbering from the highest number already in the rules, even when bullet points are between numbered items.",
 ];
 const GLOBAL_ID = "pursuit_global";
 
