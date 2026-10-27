@@ -24,10 +24,10 @@ import PlayersModal from './components/PlayersModal';
 import GameCalendar from './components/GameCalendar';
 import LiveNightModal from './components/LiveNightModal';
 
-const APP_VERSION = "4.9.13";
+const APP_VERSION = "4.9.14";
 
 const APP_UPDATES = [
-  "Create new tags directly while editing a game; new tags are saved to the shared tag list and added to that game.",
+  "Schedule optional backup small games in the calendar and reveal them during Live Night only if needed.",
 ];
 const GLOBAL_ID = "pursuit_global";
 
