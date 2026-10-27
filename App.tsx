@@ -24,12 +24,12 @@ import PlayersModal from './components/PlayersModal';
 import GameCalendar from './components/GameCalendar';
 import LiveNightModal from './components/LiveNightModal';
 
-const APP_VERSION = "4.9.7";
+const APP_VERSION = "4.9.8";
 
 const APP_UPDATES = [
-  "You can now edit scheduled calendar events after creating them, including the main game, mini-games, date, time, and notes.",
-  "Editing a calendar event updates the existing entry instead of creating a duplicate.",
-  "Improved supplies editing in the Game Library with bullet formatting and cleaner supply lists.",
+  "Game rules now show bullet symbols directly in the editor instead of Markdown dashes.",
+  "Press Enter after a bullet or numbered item to automatically continue the list.",
+  "Use Tab to indent a line as a sub-point, or choose the Sub-point button in the formatting toolbar.",
 ];
 const GLOBAL_ID = "pursuit_global";
 
