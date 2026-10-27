@@ -159,15 +159,13 @@ const GameDetailsView: React.FC<GameDetailsViewProps> = ({
 
   const handleSaveEdit = () => {
       if (editedGame) {
-          const combinedRules = `## Setup\n${editSetup}\n\n## Gameplay\n${editGameplay}\n\n## How to Win\n${editWin}`;
-          
           onUpdateGame({
               ...editedGame,
               setup: toStoredRuleMarkdown(editSetup.trim()),
               gameplay: toStoredRuleMarkdown(editGameplay.trim()),
               howToWin: toStoredRuleMarkdown(editWin.trim()),
               // Keep legacy field synchronized for backwards compatibility.
-              rules: `## Setup\\n${toStoredRuleMarkdown(editSetup.trim())}\\n\\n## Gameplay\\n${toStoredRuleMarkdown(editGameplay.trim())}\\n\\n## How to Win\\n${toStoredRuleMarkdown(editWin.trim())}`.trim(),
+              rules: `## Setup\n${toStoredRuleMarkdown(editSetup.trim())}\n\n## Gameplay\n${toStoredRuleMarkdown(editGameplay.trim())}\n\n## How to Win\n${toStoredRuleMarkdown(editWin.trim())}`.trim(),
           });
           setIsEditing(false);
           playClick();
