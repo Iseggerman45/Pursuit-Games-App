@@ -95,10 +95,10 @@ const GameDetailsView: React.FC<GameDetailsViewProps> = ({
               const match = item.match(/(\d+)\./);
               return match ? Math.max(highest, Number(match[1])) : highest;
           }, 0);
-          actualPrefix = \`\${highestNumber + 1}. \`;
+          actualPrefix = String(highestNumber + 1) + '. ';
       }
-      const insertion = \`\${lineBreak}\${actualPrefix}\`;
-      setter(\`\${before}\${insertion}\${after}\`);
+      const insertion = lineBreak + actualPrefix;
+      setter(before + insertion + after);
       window.setTimeout(() => {
           if (!textarea) return;
           textarea.focus();
