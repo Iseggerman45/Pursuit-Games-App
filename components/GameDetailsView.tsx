@@ -88,8 +88,17 @@ const GameDetailsView: React.FC<GameDetailsViewProps> = ({
       const before = value.slice(0, start);
       const after = value.slice(end);
       const lineBreak = before.length > 0 && !before.endsWith('\n') ? '\n' : '';
-      const insertion = `${lineBreak}${prefix}`;
-      setter(`${before}${insertion}${after}`);
+      let actualPrefix = prefix;
+      if (prefix === '1. ') {
+          const numberedItems = value.match(/^\s*\d+\.\s+/gm) || [];
+          const highestNumber = numberedItems.reduce((highest, item) => {
+              const match = item.match(/(\d+)\./);
+              return match ? Math.max(highest, Number(match[1])) : highest;
+          }, 0);
+          actualPrefix = \`\${highestNumber + 1}. \`;
+      }
+      const insertion = \`\${lineBreak}\${actualPrefix}\`;
+      setter(\`\${before}\${insertion}\${after}\`);
       window.setTimeout(() => {
           if (!textarea) return;
           textarea.focus();
