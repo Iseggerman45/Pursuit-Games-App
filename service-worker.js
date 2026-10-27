@@ -1,5 +1,5 @@
 
-const CACHE_NAME = 'pursuit-v25-tags-duration-filter'; // Refresh cached assets for manual game entry
+const CACHE_NAME = 'pursuit-v26-tag-duration-filter-modal'; // Refresh cached assets for manual game entry
 const urlsToCache = [
   '/',
   '/index.html',
