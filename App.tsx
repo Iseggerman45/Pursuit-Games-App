@@ -383,12 +383,13 @@ const App: React.FC = () => {
       if (query && !game.title?.toLowerCase().includes(query) && !(game.tags || []).some(tag => tag.toLowerCase().includes(query)) && !(game.duration || '').toLowerCase().includes(query)) return false;
       if (selectedTags.length > 0 && !selectedTags.every(tag => game.tags?.includes(tag))) return false;
       const durationText = (game.duration || '').toLowerCase();
-      const durationMatch = durationText.match(/\\d+(?:\\.\\d+)?/);
-      const minutes = durationMatch ? Number(durationMatch[0]) : null;
-      if (durationFilter === 'short' && (minutes === null || minutes > 10)) return false;
-      if (durationFilter === 'medium' && (minutes === null || minutes <= 10 || minutes > 20)) return false;
-      if (durationFilter === 'long' && (minutes === null || minutes <= 20)) return false;
-      if (durationFilter === 'unknown' && durationText.trim() && durationText !== 'not specified' && durationText !== 'n/a') return false;
+      const durationNumbers = durationText.match(/\\d+(?:\\.\\d+)?/g)?.map(Number) || [];
+      const minutes = durationNumbers.length ? Math.max(...durationNumbers) : null;
+      const hasDuration = minutes !== null && durationText !== 'not specified' && durationText !== 'n/a';
+      if (durationFilter === 'short' && (!hasDuration || minutes! > 10)) return false;
+      if (durationFilter === 'medium' && (!hasDuration || minutes! <= 10 || minutes! > 20)) return false;
+      if (durationFilter === 'long' && (!hasDuration || minutes! <= 20)) return false;
+      if (durationFilter === 'unknown' && hasDuration) return false;
       if (!isGlobalView) {
           if (activeFolderId) {
               if (game.folderId !== activeFolderId) return false;
@@ -604,7 +605,7 @@ const App: React.FC = () => {
                       </h2>
                   </div>
                   <div className="flex flex-wrap items-center gap-2">
-                      <button onClick={() => setIsFilterModalOpen(true)} className={`p-3 rounded-2xl border ${selectedTags.length > 0 ? 'bg-indigo-600 text-white' : 'bg-white dark:bg-white/5 text-slate-600 border-black/5 dark:border-white/5 shadow-sm'}`}><Filter className="w-4 h-4" /></button>
+                      <button onClick={() => setIsFilterModalOpen(true)} className={`p-3 rounded-2xl border ${selectedTags.length > 0 || durationFilter !== 'all' ? 'bg-indigo-600 text-white' : 'bg-white dark:bg-white/5 text-slate-600 border-black/5 dark:border-white/5 shadow-sm'}`}><Filter className="w-4 h-4" /></button>
                       <div className="p-1 bg-white/65 dark:bg-white/5 backdrop-blur-xl border border-white/70 dark:border-white/10 rounded-2xl flex shadow-sm">
                           <button onClick={() => { setIsGlobalView(false); setActiveFolderId(null); }} className={`px-4 py-2 rounded-xl text-xs font-bold transition-all ${!isGlobalView ? 'bg-slate-950 dark:bg-white text-white dark:text-black shadow-md' : 'text-slate-500'}`}>Folders</button>
                           <button onClick={() => { setIsGlobalView(true); setActiveFolderId(null); }} className={`px-4 py-2 rounded-xl text-xs font-bold transition-all ${isGlobalView ? 'bg-slate-950 dark:bg-white text-white dark:text-black shadow-md' : 'text-slate-500'}`}>List</button>
@@ -734,6 +735,7 @@ const App: React.FC = () => {
 
           <ProfileModal isOpen={isProfileModalOpen} onClose={() => setIsProfileModalOpen(false)} onSave={handleSaveProfile} initialUser={user} />
           <SettingsModal isOpen={isSettingsModalOpen} onClose={() => setIsSettingsModalOpen(false)} categories={[]} onCreateCategory={()=>{}} onDeleteCategory={()=>{}} tags={tags} onCreateTag={handleCreateTag} onDeleteTag={handleDeleteTag} rivalries={[]} onCreateRivalry={()=>{}} onDeleteRivalry={()=>{}} appVersion={APP_VERSION} gameCount={games.length} folderCount={folders.length} />
+          <FilterModal isOpen={isFilterModalOpen} onClose={() => setIsFilterModalOpen(false)} allTags={tags} selectedTags={selectedTags} onToggleTag={(tag) => setSelectedTags(prev => prev.includes(tag) ? prev.filter(t => t !== tag) : [...prev, tag])} onClear={() => { setSelectedTags([]); setDurationFilter('all'); }} durationFilter={durationFilter} onDurationChange={setDurationFilter} />
           <MoveToFolderModal isOpen={!!movingGame} game={movingGame} folders={folders} onClose={() => setMovingGame(null)} onMove={(gid, fid) => { const newGames = games.map(g => g.id === gid ? {...g, folderId: fid || undefined, folderIcon: fid ? (folders.find(f => f.id === fid)?.icon || 'folder') : undefined, lastUpdated: Date.now()} : g); setGames(newGames); setMovingGame(null); playPop(); triggerBroadcast(newGames); }} />
           <GameAIModal isOpen={!!aiGame} game={aiGame} onClose={() => setAiGame(null)} onUpdateRules={(id, rules) => { const newGames = games.map(g => g.id === id ? {...g, rules, lastUpdated: Date.now()} : g); setGames(newGames); triggerBroadcast(newGames); }} />
       </div>
