@@ -71,6 +71,7 @@ const GameCalendar: React.FC<GameCalendarProps> = ({ games, folders, settings, o
   const [selectedDate, setSelectedDate] = useState(todayKey());
   const [selectedGameId, setSelectedGameId] = useState('');
   const [selectedSubGameIds, setSelectedSubGameIds] = useState<string[]>([]);
+  const [selectedBackupSmallGameIds, setSelectedBackupSmallGameIds] = useState<string[]>([]);
   const [selectedTime, setSelectedTime] = useState('');
   const [notes, setNotes] = useState('');
   const [gameSearch, setGameSearch] = useState('');
@@ -140,6 +141,7 @@ const GameCalendar: React.FC<GameCalendarProps> = ({ games, folders, settings, o
     setSelectedDate(date);
     setSelectedGameId('');
     setSelectedSubGameIds([]);
+    setSelectedBackupSmallGameIds([]);
     setSelectedTime('');
     setNotes('');
     setGameSearch('');
@@ -152,6 +154,7 @@ const GameCalendar: React.FC<GameCalendarProps> = ({ games, folders, settings, o
     setSelectedDate(event.date);
     setSelectedGameId(event.gameId);
     setSelectedSubGameIds(event.subGameIds || []);
+    setSelectedBackupSmallGameIds(event.backupSmallGameIds || []);
     setSelectedTime(event.time || '');
     setNotes(event.notes || '');
     setGameSearch('');
@@ -171,6 +174,7 @@ const GameCalendar: React.FC<GameCalendarProps> = ({ games, folders, settings, o
       id: editingEventId || crypto.randomUUID(),
       gameId: selectedGameId,
       subGameIds: selectedSubGameIds.filter(id => id !== selectedGameId),
+      backupSmallGameIds: selectedBackupSmallGameIds.filter(id => id !== selectedGameId && !selectedSubGameIds.includes(id)),
       date: selectedDate,
       time: selectedTime || undefined,
       notes: notes.trim() || undefined,
@@ -344,6 +348,7 @@ const GameCalendar: React.FC<GameCalendarProps> = ({ games, folders, settings, o
                                 <div className="text-[10px] font-bold text-indigo-700 dark:text-indigo-300 truncate">{event.time ? formatTime(event.time) + ' · ' : ''}{game.title}</div>
                                 <div className="text-[9px] text-slate-400 truncate">{game.duration}</div>
                                 {!!event.subGameIds?.length && <div className="text-[9px] text-orange-600 dark:text-orange-400 truncate">+ {event.subGameIds.map(id => gameMap.get(id)?.title).filter(Boolean).join(", ")}</div>}
+                                {!!event.backupSmallGameIds?.length && <div className="text-[9px] text-amber-600 dark:text-amber-400 truncate">Backup: {event.backupSmallGameIds.map(id => gameMap.get(id)?.title).filter(Boolean).join(", ")}</div>}
                               </button>
                               <button onClick={() => openEdit(event)} className="px-2 text-slate-300 hover:text-indigo-500 transition-colors" aria-label={`Edit ${game.title} calendar entry`}><Edit2 className="w-3 h-3" /></button>
                               <button onClick={() => { if (confirm(`Remove ${game.title} from the calendar?`)) { playDelete(); onDeleteEvent(event.id); } }} className="px-2 text-slate-300 hover:text-red-500 hover:bg-red-500/5 transition-colors" aria-label={`Remove ${game.title} from calendar`}><Trash2 className="w-3 h-3" /></button>
@@ -385,6 +390,7 @@ const GameCalendar: React.FC<GameCalendarProps> = ({ games, folders, settings, o
                               <div className="mt-1 text-xs font-black text-slate-800 dark:text-white leading-snug">{game.title}</div>
                               <div className="mt-1 text-[10px] text-slate-400">{game.duration}</div>
                               {!!event.subGameIds?.length && <div className="mt-1 text-[10px] text-orange-600 dark:text-orange-400">Mini-games: {event.subGameIds.map(id => gameMap.get(id)?.title).filter(Boolean).join(", ")}</div>}
+                              {!!event.backupSmallGameIds?.length && <div className="mt-1 text-[10px] text-amber-600 dark:text-amber-400">Backup small game: {event.backupSmallGameIds.map(id => gameMap.get(id)?.title).filter(Boolean).join(", ")}</div>}
                               {event.notes && <div className="mt-2 text-[10px] text-slate-500 dark:text-slate-400 line-clamp-2">{event.notes}</div>}
                             </button>
                             <div className="mt-2 flex items-center gap-3"><button onClick={() => openEdit(event)} className="text-slate-400 hover:text-indigo-500 transition-colors inline-flex items-center gap-1 text-[10px] font-bold" aria-label={`Edit ${game.title} calendar entry`}><Edit2 className="w-3.5 h-3.5" /> Edit</button><button onClick={() => { if (confirm(`Remove ${game.title} from the calendar?`)) { playDelete(); onDeleteEvent(event.id); } }} className="mt-2 text-slate-300 hover:text-red-500 transition-colors" aria-label={`Remove ${game.title}`}><Trash2 className="w-3.5 h-3.5" /></button></div>
@@ -473,6 +479,20 @@ const GameCalendar: React.FC<GameCalendarProps> = ({ games, folders, settings, o
                     </div>
                     {games.filter(game => game.id !== selectedGameId && folders.some(folder => folder.name.trim().toLowerCase() === 'mini games' && folder.id === game.folderId)).length === 0 && <p className="mt-2 text-xs text-slate-400">Add games to the “Mini Games” folder to see them here.</p>}
                     {selectedSubGameIds.length > 0 && <p className="mt-1 text-xs text-orange-600 dark:text-orange-400">{selectedSubGameIds.length} mini-game{selectedSubGameIds.length === 1 ? '' : 's'} selected</p>}
+                  </div>
+                  <div>
+                    <label className="text-xs font-black uppercase tracking-wider text-slate-400">Backup Small Game <span className="font-normal normal-case">(optional)</span></label>
+                    <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">Keep a quick game ready in case fewer students show up. It stays hidden in Live Night until you reveal it.</p>
+                    <div className="mt-2 max-h-36 overflow-y-auto space-y-1.5">
+                      {games.filter(game => game.id !== selectedGameId && !selectedSubGameIds.includes(game.id) && folders.some(folder => folder.name.trim().toLowerCase() === 'mini games' && folder.id === game.folderId)).map(game => (
+                        <label key={game.id} className="flex items-center gap-3 px-3 py-2.5 rounded-xl border border-amber-200/60 dark:border-amber-400/10 bg-amber-50/50 dark:bg-amber-500/5 text-sm text-slate-700 dark:text-slate-200">
+                          <input type="checkbox" checked={selectedBackupSmallGameIds.includes(game.id)} onChange={e => setSelectedBackupSmallGameIds(prev => e.target.checked ? [...prev, game.id] : prev.filter(id => id !== game.id))} className="accent-amber-500" />
+                          <span>{game.title}</span>
+                        </label>
+                      ))}
+                    </div>
+                    {games.filter(game => game.id !== selectedGameId && !selectedSubGameIds.includes(game.id) && folders.some(folder => folder.name.trim().toLowerCase() === 'mini games' && folder.id === game.folderId)).length === 0 && <p className="mt-2 text-xs text-slate-400">Add small games to the “Mini Games” folder to see them here.</p>}
+                    {selectedBackupSmallGameIds.length > 0 && <p className="mt-1 text-xs text-amber-600 dark:text-amber-400">{selectedBackupSmallGameIds.length} backup game{selectedBackupSmallGameIds.length === 1 ? '' : 's'} selected</p>}
                   </div>
                   <div className="grid grid-cols-2 gap-3">
                     <div>
