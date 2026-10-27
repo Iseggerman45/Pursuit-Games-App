@@ -39,6 +39,7 @@ const GameDetailsView: React.FC<GameDetailsViewProps> = ({
   const [isEditing, setIsEditing] = useState(false);
   const [editedGame, setEditedGame] = useState<Game | null>(null);
   const [customDuration, setCustomDuration] = useState(15);
+  const [newTagName, setNewTagName] = useState('');
 
   const setupRef = React.useRef<HTMLTextAreaElement>(null);
   const gameplayRef = React.useRef<HTMLTextAreaElement>(null);
@@ -370,12 +371,35 @@ const GameDetailsView: React.FC<GameDetailsViewProps> = ({
                                 <div>
                                     <span className="block text-xs text-slate-500 dark:text-slate-400 mb-2">Tags</span>
                                     {isEditing ? (
-                                        <div className="flex flex-wrap gap-2">
-                                            {allTags.map(tag => {
-                                                const active = (editedGame?.tags || []).includes(tag);
-                                                return <button key={tag} type="button" onClick={() => setEditedGame(p => p ? {...p, tags: active ? (p.tags || []).filter(t => t !== tag) : [...(p.tags || []), tag]} : null)} className={`px-2.5 py-1 rounded-lg border text-[11px] font-semibold flex items-center gap-1.5 ${active ? 'bg-orange-500 border-orange-500 text-white' : 'bg-white dark:bg-neutral-800 border-slate-200 dark:border-white/10 text-slate-600 dark:text-slate-300'}`}><TagIcon tag={tag} className="w-3 h-3" />{tag}</button>;
-                                            })}
-                                            {allTags.length === 0 && <span className="text-xs text-slate-400">Add tags in Settings first.</span>}
+                                        <div className="space-y-3">
+                                            <div className="flex flex-wrap gap-2">
+                                                {allTags.map(tag => {
+                                                    const active = (editedGame?.tags || []).includes(tag);
+                                                    return <button key={tag} type="button" onClick={() => setEditedGame(p => p ? {...p, tags: active ? (p.tags || []).filter(t => t !== tag) : [...(p.tags || []), tag]} : null)} className={`px-2.5 py-1 rounded-lg border text-[11px] font-semibold flex items-center gap-1.5 ${active ? 'bg-orange-500 border-orange-500 text-white' : 'bg-white dark:bg-neutral-800 border-slate-200 dark:border-white/10 text-slate-600 dark:text-slate-300'}`}><TagIcon tag={tag} className="w-3 h-3" />{tag}</button>;
+                                                })}
+                                                {allTags.length === 0 && <span className="text-xs text-slate-400">Create your first tag below.</span>}
+                                            </div>
+                                            <form className="flex gap-2" onSubmit={(event) => {
+                                                event.preventDefault();
+                                                const cleanName = newTagName.trim();
+                                                if (!cleanName) return;
+                                                const existingTag = allTags.find(tag => tag.toLowerCase() === cleanName.toLowerCase());
+                                                const tagToAdd = existingTag || cleanName;
+                                                if (!existingTag) onCreateTag(cleanName);
+                                                setEditedGame(p => p ? {...p, tags: (p.tags || []).includes(tagToAdd) ? (p.tags || []) : [...(p.tags || []), tagToAdd]} : null);
+                                                setNewTagName('');
+                                            }}>
+                                                <input
+                                                    type="text"
+                                                    value={newTagName}
+                                                    onChange={(event) => setNewTagName(event.target.value)}
+                                                    className="min-w-0 flex-1 bg-white dark:bg-neutral-800 border border-slate-200 dark:border-white/10 rounded-lg px-3 py-2 text-xs text-slate-800 dark:text-white outline-none focus:ring-2 focus:ring-orange-500/20"
+                                                    placeholder="Create a new tag..."
+                                                    aria-label="New tag name"
+                                                    maxLength={40}
+                                                />
+                                                <button type="submit" disabled={!newTagName.trim()} className="shrink-0 px-3 py-2 rounded-lg bg-orange-500 hover:bg-orange-600 disabled:opacity-40 disabled:cursor-not-allowed text-white text-xs font-bold">Add tag</button>
+                                            </form>
                                         </div>
                                     ) : (
                                         <div className="flex flex-wrap gap-1.5">
