@@ -25,7 +25,12 @@ interface GameDetailsViewProps {
   hideDelete?: boolean;
 }
 
-const normalizeMarkdown = (value: string) => value.replace(/\\([\\`*_{}\[\]()#+.!>|~-])/g, '$1');
+const normalizeMarkdown = (value: string) => value
+  .replace(/^(\\s*)[•●]\\s+/gm, '$1- ')
+  .replace(/\\([\\`*_{}\[\]()#+.!>|~-])/g, '$1');
+
+const toRuleEditorText = (value: string) => value.replace(/^(\\s*)[-*+]\\s+/gm, '$1• ');
+const toStoredRuleMarkdown = (value: string) => value.replace(/^(\\s*)[•●]\\s+/gm, '$1- ');
 
 const GameDetailsView: React.FC<GameDetailsViewProps> = ({ 
     game, onClose, onRate, onLogWin, onOpenAI, onDelete, onUpdateGame, allTags, onCreateTag,
@@ -39,6 +44,40 @@ const GameDetailsView: React.FC<GameDetailsViewProps> = ({
   const gameplayRef = React.useRef<HTMLTextAreaElement>(null);
   const winRef = React.useRef<HTMLTextAreaElement>(null);
   const materialsRef = React.useRef<HTMLTextAreaElement>(null);
+
+  const handleRuleKeyDown = (event: React.KeyboardEvent<HTMLTextAreaElement>, value: string, setter: React.Dispatch<React.SetStateAction<string>>) => {
+      const textarea = event.currentTarget;
+      const start = textarea.selectionStart;
+      const end = textarea.selectionEnd;
+
+      if (event.key === 'Tab') {
+          event.preventDefault();
+          const insertion = '  ';
+          setter(value.slice(0, start) + insertion + value.slice(end));
+          window.setTimeout(() => {
+              textarea.focus();
+              textarea.setSelectionRange(start + insertion.length, start + insertion.length);
+          }, 0);
+          return;
+      }
+
+      if (event.key !== 'Enter') return;
+      const lineStart = value.lastIndexOf('\\n', start - 1) + 1;
+      const currentLine = value.slice(lineStart, start);
+      const bulletMatch = currentLine.match(/^(\\s*)[•●]\\s+/);
+      const numberMatch = currentLine.match(/^(\\s*)(\\d+)\\.\\s+/);
+      if (!bulletMatch && !numberMatch) return;
+
+      event.preventDefault();
+      const prefix = bulletMatch ? `${bulletMatch[1]}• ` : `${numberMatch![1]}${Number(numberMatch![2]) + 1}. `;
+      const nextValue = value.slice(0, start) + '\\n' + prefix + value.slice(end);
+      setter(nextValue);
+      window.setTimeout(() => {
+          textarea.focus();
+          const cursor = start + 1 + prefix.length;
+          textarea.setSelectionRange(cursor, cursor);
+      }, 0);
+  };
 
   const insertRulePrefix = (setter: React.Dispatch<React.SetStateAction<string>>, value: string, textareaRef: { current: HTMLTextAreaElement | null }, prefix: string) => {
       const textarea = textareaRef.current;
@@ -78,9 +117,9 @@ const GameDetailsView: React.FC<GameDetailsViewProps> = ({
   const RuleFormattingToolbar = ({ onInsert }: { onInsert: (prefix: string) => void }) => (
       <div className="flex flex-wrap items-center gap-1.5 mb-2" aria-label="Rule formatting">
           <span className="text-[11px] text-slate-500 dark:text-slate-400 mr-1">Add formatting:</span>
-          <button type="button" onClick={() => onInsert('- ')} className="px-2.5 py-1 rounded-lg border border-slate-200 dark:border-white/10 bg-white dark:bg-neutral-800 hover:bg-slate-50 dark:hover:bg-neutral-700 text-xs font-semibold">• Bullet</button>
+          <button type="button" onClick={() => onInsert('• ')} className="px-2.5 py-1 rounded-lg border border-slate-200 dark:border-white/10 bg-white dark:bg-neutral-800 hover:bg-slate-50 dark:hover:bg-neutral-700 text-xs font-semibold">• Bullet</button>
           <button type="button" onClick={() => onInsert('1. ')} className="px-2.5 py-1 rounded-lg border border-slate-200 dark:border-white/10 bg-white dark:bg-neutral-800 hover:bg-slate-50 dark:hover:bg-neutral-700 text-xs font-semibold">1. Number</button>
-          <button type="button" onClick={() => onInsert('  - ')} className="px-2.5 py-1 rounded-lg border border-slate-200 dark:border-white/10 bg-white dark:bg-neutral-800 hover:bg-slate-50 dark:hover:bg-neutral-700 text-xs font-semibold">↳ Sub-point</button>
+          <button type="button" onClick={() => onInsert('  • ')} className="px-2.5 py-1 rounded-lg border border-slate-200 dark:border-white/10 bg-white dark:bg-neutral-800 hover:bg-slate-50 dark:hover:bg-neutral-700 text-xs font-semibold">↳ Sub-point</button>
       </div>
   );
   
@@ -109,9 +148,9 @@ const GameDetailsView: React.FC<GameDetailsViewProps> = ({
   useEffect(() => {
       if (game && !isEditing) {
           const legacy = parseRules(game.rules);
-          setEditSetup(game.setup?.trim() || legacy.s);
-          setEditGameplay(game.gameplay?.trim() || legacy.g);
-          setEditWin(game.howToWin?.trim() || legacy.w);
+          setEditSetup(toRuleEditorText(game.setup?.trim() || legacy.s));
+          setEditGameplay(toRuleEditorText(game.gameplay?.trim() || legacy.g));
+          setEditWin(toRuleEditorText(game.howToWin?.trim() || legacy.w));
           setEditedGame(game);
       }
   }, [game, isEditing]);
@@ -124,11 +163,11 @@ const GameDetailsView: React.FC<GameDetailsViewProps> = ({
           
           onUpdateGame({
               ...editedGame,
-              setup: editSetup.trim(),
-              gameplay: editGameplay.trim(),
-              howToWin: editWin.trim(),
+              setup: toStoredRuleMarkdown(editSetup.trim()),
+              gameplay: toStoredRuleMarkdown(editGameplay.trim()),
+              howToWin: toStoredRuleMarkdown(editWin.trim()),
               // Keep legacy field synchronized for backwards compatibility.
-              rules: combinedRules.trim(),
+              rules: `## Setup\\n${toStoredRuleMarkdown(editSetup.trim())}\\n\\n## Gameplay\\n${toStoredRuleMarkdown(editGameplay.trim())}\\n\\n## How to Win\\n${toStoredRuleMarkdown(editWin.trim())}`.trim(),
           });
           setIsEditing(false);
           playClick();
@@ -207,7 +246,7 @@ const GameDetailsView: React.FC<GameDetailsViewProps> = ({
                                         <textarea 
                                             value={editSetup} 
                                             ref={setupRef} 
-                                            onChange={(e) => setEditSetup(e.target.value)} 
+                                            onChange={(e) => setEditSetup(e.target.value)} onKeyDown={(e) => handleRuleKeyDown(e, editSetup, setEditSetup)} 
                                             className="w-full h-32 bg-white dark:bg-neutral-800 border border-slate-200 dark:border-white/10 rounded-2xl p-4 text-sm focus:ring-2 focus:ring-blue-500/20 resize-none text-slate-800 dark:text-white" 
                                             placeholder="What happens before the game starts?" 
                                         />
@@ -221,7 +260,7 @@ const GameDetailsView: React.FC<GameDetailsViewProps> = ({
                                         <textarea 
                                             value={editGameplay} 
                                             ref={gameplayRef} 
-                                            onChange={(e) => setEditGameplay(e.target.value)} 
+                                            onChange={(e) => setEditGameplay(e.target.value)} onKeyDown={(e) => handleRuleKeyDown(e, editGameplay, setEditGameplay)} 
                                             className="w-full h-48 bg-white dark:bg-neutral-800 border border-slate-200 dark:border-white/10 rounded-2xl p-4 text-sm focus:ring-2 focus:ring-emerald-500/20 resize-none text-slate-800 dark:text-white" 
                                             placeholder="How do you actually play the game?" 
                                         />
@@ -235,7 +274,7 @@ const GameDetailsView: React.FC<GameDetailsViewProps> = ({
                                         <textarea 
                                             value={editWin} 
                                             ref={winRef} 
-                                            onChange={(e) => setEditWin(e.target.value)} 
+                                            onChange={(e) => setEditWin(e.target.value)} onKeyDown={(e) => handleRuleKeyDown(e, editWin, setEditWin)} 
                                             className="w-full h-24 bg-white dark:bg-neutral-800 border border-slate-200 dark:border-white/10 rounded-2xl p-4 text-sm focus:ring-2 focus:ring-orange-500/20 resize-none text-slate-800 dark:text-white" 
                                             placeholder="When does it end? If there is no winner, explain how to wrap it up." 
                                         />
