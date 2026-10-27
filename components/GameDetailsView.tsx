@@ -175,6 +175,7 @@ const GameDetailsView: React.FC<GameDetailsViewProps> = ({
               setup: toStoredRuleMarkdown(editSetup.trim()),
               gameplay: toStoredRuleMarkdown(editGameplay.trim()),
               howToWin: toStoredRuleMarkdown(editWin.trim()),
+              tags: editedGame.tags || [],
               // Keep legacy field synchronized for backwards compatibility.
               rules: `## Setup\n${toStoredRuleMarkdown(editSetup.trim())}\n\n## Gameplay\n${toStoredRuleMarkdown(editGameplay.trim())}\n\n## How to Win\n${toStoredRuleMarkdown(editWin.trim())}`.trim(),
           });
@@ -366,6 +367,22 @@ const GameDetailsView: React.FC<GameDetailsViewProps> = ({
                                 {isEditing ? 'Edit Details' : 'Game Stats'}
                             </h3>
                             <div className="space-y-4">
+                                <div>
+                                    <span className="block text-xs text-slate-500 dark:text-slate-400 mb-2">Tags</span>
+                                    {isEditing ? (
+                                        <div className="flex flex-wrap gap-2">
+                                            {allTags.map(tag => {
+                                                const active = (editedGame?.tags || []).includes(tag);
+                                                return <button key={tag} type="button" onClick={() => setEditedGame(p => p ? {...p, tags: active ? (p.tags || []).filter(t => t !== tag) : [...(p.tags || []), tag]} : null)} className={`px-2.5 py-1 rounded-lg border text-[11px] font-semibold flex items-center gap-1.5 ${active ? 'bg-orange-500 border-orange-500 text-white' : 'bg-white dark:bg-neutral-800 border-slate-200 dark:border-white/10 text-slate-600 dark:text-slate-300'}`}><TagIcon tag={tag} className="w-3 h-3" />{tag}</button>;
+                                            })}
+                                            {allTags.length === 0 && <span className="text-xs text-slate-400">Add tags in Settings first.</span>}
+                                        </div>
+                                    ) : (
+                                        <div className="flex flex-wrap gap-1.5">
+                                            {(game.tags || []).length ? game.tags!.map(tag => <span key={tag} className="px-2 py-1 rounded-lg bg-white dark:bg-white/5 border border-slate-200 dark:border-white/10 text-[11px]">{tag}</span>) : <span className="text-xs text-slate-400">No tags</span>}
+                                        </div>
+                                    )}
+                                </div>
                                 <div className="flex justify-between items-center">
                                     <span className="text-xs text-slate-500 dark:text-slate-400">Duration</span>
                                     {isEditing ? (
