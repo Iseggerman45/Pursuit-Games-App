@@ -10,10 +10,12 @@ interface FilterModalProps {
   selectedTags: string[];
   onToggleTag: (tag: string) => void;
   onClear: () => void;
+  durationFilter: string;
+  onDurationChange: (duration: string) => void;
 }
 
 const FilterModal: React.FC<FilterModalProps> = ({ 
-    isOpen, onClose, allTags, selectedTags, onToggleTag, onClear 
+    isOpen, onClose, allTags, selectedTags, onToggleTag, onClear, durationFilter, onDurationChange
 }) => {
   if (!isOpen) return null;
 
@@ -41,6 +43,18 @@ const FilterModal: React.FC<FilterModalProps> = ({
 
         {/* List */}
         <div className="flex-1 overflow-y-auto p-6 scrollbar-thin scrollbar-thumb-slate-200">
+            <h4 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">By Duration</h4>
+            <div className="flex flex-wrap gap-2 mb-6">
+                {[
+                  { value: 'all', label: 'Any length' },
+                  { value: 'short', label: '10 min or less' },
+                  { value: 'medium', label: '11–20 min' },
+                  { value: 'long', label: 'Over 20 min' },
+                  { value: 'unknown', label: 'Not specified' },
+                ].map(option => (
+                  <button key={option.value} onClick={() => onDurationChange(option.value)} className={`px-3 py-2 rounded-xl text-sm font-semibold border transition-all ${durationFilter === option.value ? 'bg-orange-600 border-orange-600 text-white' : 'bg-white border-slate-200 text-slate-600 hover:border-orange-300'}`}>{option.label}</button>
+                ))}
+            </div>
             <h4 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">By Tag</h4>
             <div className="flex flex-wrap gap-2">
                 {allTags.length === 0 ? (
