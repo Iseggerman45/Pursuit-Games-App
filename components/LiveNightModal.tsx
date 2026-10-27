@@ -1,6 +1,6 @@
 import React, { useMemo, useState } from 'react';
 import ReactMarkdown from 'react-markdown';
-import { Check, ClipboardList, Play, Star, X, ChevronRight, RotateCcw } from 'lucide-react';
+import { Check, ClipboardList, Play, Star, X, ChevronRight, RotateCcw, ShieldAlert } from 'lucide-react';
 import { Game, GameCalendarEvent } from '../types';
 import RatingModal from './RatingModal';
 
@@ -38,18 +38,36 @@ const liveMarkdownComponents = {
 
 const LiveNightModal: React.FC<LiveNightModalProps> = ({ date, games, events, onClose, onSaveRating }) => {
   const gameMap = useMemo(() => new Map(games.map(game => [game.id, game])), [games]);
-  const nightEvents = useMemo(() => events
-    .filter(event => event.date === date && gameMap.has(event.gameId))
-    .sort((a, b) => (a.time || '99:99').localeCompare(b.time || '99:99'))
-    .map(event => ({
-      event,
-      game: gameMap.get(event.gameId)!,
-      subGames: (event.subGameIds || []).map(id => gameMap.get(id)).filter((game): game is Game => Boolean(game))
-    })), [events, date, gameMap]);
-
   const [currentIndex, setCurrentIndex] = useState(0);
   const [checkedSupplies, setCheckedSupplies] = useState<string[]>([]);
   const [ratingGame, setRatingGame] = useState<Game | null>(null);
+  const [showBackupSmallGames, setShowBackupSmallGames] = useState(false);
+
+  const nightEvents = useMemo(() => {
+    const scheduledEvents = events
+      .filter(event => event.date === date && gameMap.has(event.gameId))
+      .sort((a, b) => (a.time || '99:99').localeCompare(b.time || '99:99'))
+      .map(event => ({
+        event,
+        game: gameMap.get(event.gameId)!,
+        subGames: (event.subGameIds || []).map(id => gameMap.get(id)).filter((game): game is Game => Boolean(game)),
+        isBackupSmallGame: false
+      }));
+    if (!showBackupSmallGames) return scheduledEvents;
+
+    const scheduledGameIds = new Set(scheduledEvents.flatMap(item => [item.game.id, ...item.subGames.map(game => game.id)]));
+    const backupEvents = events
+      .filter(event => event.date === date)
+      .flatMap(event => (event.backupSmallGameIds || [])
+        .filter(id => gameMap.has(id) && !scheduledGameIds.has(id))
+        .map(id => ({
+          event: { ...event, id: `${event.id}-backup-${id}`, gameId: id, time: undefined, notes: 'Backup small game' },
+          game: gameMap.get(id)!,
+          subGames: [] as Game[],
+          isBackupSmallGame: true
+        })));
+    return [...scheduledEvents, ...backupEvents];
+  }, [events, date, gameMap, showBackupSmallGames]);
 
   const supplies = useMemo(() => {
     const items: { name: string; games: string[] }[] = [];
@@ -115,7 +133,7 @@ const LiveNightModal: React.FC<LiveNightModalProps> = ({ date, games, events, on
                 <>
                   <div className="flex items-center justify-between gap-3 mb-5">
                     <div>
-                      <div className="text-xs font-black uppercase tracking-wider text-slate-400">Game {currentIndex + 1} of {nightEvents.length}</div>
+                      <div className="text-xs font-black uppercase tracking-wider text-slate-400">{current.isBackupSmallGame ? 'Backup Game' : `Game ${currentIndex + 1} of ${nightEvents.length}`}</div>
                       <div className="mt-2 h-1.5 w-40 max-w-full rounded-full bg-slate-100 dark:bg-white/10 overflow-hidden"><div className="h-full rounded-full bg-orange-500 transition-all" style={{ width: `${((currentIndex + 1) / nightEvents.length) * 100}%` }} /></div>
                     </div>
                     <div className="text-xs font-bold text-orange-600 dark:text-orange-400">{formatTime(current.event.time)}</div>
@@ -177,12 +195,26 @@ const LiveNightModal: React.FC<LiveNightModalProps> = ({ date, games, events, on
                   })}
                 </div>
               ) : <div className="mt-5 p-5 rounded-xl border border-dashed border-slate-200 dark:border-white/10 text-sm text-slate-400 text-center">No materials listed on tonight’s games yet.</div>}
+              {events.some(event => event.date === date && (event.backupSmallGameIds || []).some(id => gameMap.has(id))) && (
+                <div className="mt-5 rounded-2xl border border-amber-200/70 dark:border-amber-400/20 bg-amber-50/70 dark:bg-amber-500/5 p-4">
+                  <div className="flex items-start gap-2">
+                    <ShieldAlert className="w-4 h-4 mt-0.5 text-amber-600 dark:text-amber-400 shrink-0" />
+                    <div className="min-w-0">
+                      <h4 className="text-sm font-black text-amber-800 dark:text-amber-300">Backup Small Game</h4>
+                      <p className="mt-1 text-xs text-slate-600 dark:text-slate-400">{showBackupSmallGames ? 'Backup games are now added to the end of tonight’s lineup.' : 'If fewer students show up than expected, reveal a quick backup game.'}</p>
+                    </div>
+                  </div>
+                  {!showBackupSmallGames && <button onClick={() => setShowBackupSmallGames(true)} className="mt-3 w-full inline-flex items-center justify-center gap-2 px-3 py-2.5 rounded-xl bg-amber-500 hover:bg-amber-600 text-white text-xs font-black">
+                    <ShieldAlert className="w-3.5 h-3.5" /> Reveal Backup Small Game
+                  </button>}
+                </div>
+              )}
               <div className="mt-5 pt-4 border-t border-black/5 dark:border-white/10">
                 <h4 className="text-xs font-black uppercase tracking-wider text-slate-400 mb-2">Tonight’s Lineup</h4>
                 <div className="space-y-2">
                   {nightEvents.map((item, index) => <div key={item.event.id} className={`w-full flex items-start gap-2 text-left p-2 rounded-lg ${index === currentIndex ? 'bg-orange-500/10 text-orange-600 dark:text-orange-400' : index < currentIndex ? 'text-emerald-600 dark:text-emerald-400' : 'text-slate-500 dark:text-slate-400'}`}>
                     {index < currentIndex ? <Check className="w-4 h-4 mt-0.5 shrink-0" /> : <span className="w-4 h-4 mt-0.5 shrink-0 rounded-full border border-current text-[9px] flex items-center justify-center">{index + 1}</span>}
-                    <span className="min-w-0"><span className="block text-xs font-bold">{item.game.title}</span><span className="block text-[10px] opacity-70">{formatTime(item.event.time)}{item.subGames.length ? ` · ${item.subGames.length} mini-game(s)` : ''}</span></span>
+                    <span className="min-w-0"><span className="block text-xs font-bold">{item.game.title}</span><span className="block text-[10px] opacity-70">{item.isBackupSmallGame ? 'Backup small game' : `${formatTime(item.event.time)}${item.subGames.length ? ` · ${item.subGames.length} mini-game(s)` : ''}`}</span></span>
                     {index === currentIndex && <ChevronRight className="w-3.5 h-3.5 mt-0.5 ml-auto shrink-0 opacity-50" />}
                   </div>)}
                 </div>
