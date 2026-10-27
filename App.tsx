@@ -24,12 +24,11 @@ import PlayersModal from './components/PlayersModal';
 import GameCalendar from './components/GameCalendar';
 import LiveNightModal from './components/LiveNightModal';
 
-const APP_VERSION = "4.9.8";
+const APP_VERSION = "4.9.9";
 
 const APP_UPDATES = [
-  "Game rules now show bullet symbols directly in the editor instead of Markdown dashes.",
-  "Press Enter after a bullet or numbered item to automatically continue the list.",
-  "Use Tab to indent a line as a sub-point, or choose the Sub-point button in the formatting toolbar.",
+  "Fixed automatic bullet and numbered-list continuation when you press Enter in game rules.",
+  "Corrected list indentation so new bullet points line up consistently without extra spacing.",
 ];
 const GLOBAL_ID = "pursuit_global";
 
