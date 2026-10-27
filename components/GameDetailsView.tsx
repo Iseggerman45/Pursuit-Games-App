@@ -26,11 +26,11 @@ interface GameDetailsViewProps {
 }
 
 const normalizeMarkdown = (value: string) => value
-  .replace(/^(\\s*)[•●]\\s+/gm, '$1- ')
-  .replace(/\\([\\`*_{}\[\]()#+.!>|~-])/g, '$1');
+  .replace(/^(\s*)[•●]\s+/gm, '$1- ')
+  .replace(/\\([\\\`*_{}\[\]()#+.!>|~-])/g, '$1');
 
-const toRuleEditorText = (value: string) => value.replace(/^(\\s*)[-*+]\\s+/gm, '$1• ');
-const toStoredRuleMarkdown = (value: string) => value.replace(/^(\\s*)[•●]\\s+/gm, '$1- ');
+const toRuleEditorText = (value: string) => value.replace(/^(\s*)[-*+]\s+/gm, '$1• ');
+const toStoredRuleMarkdown = (value: string) => value.replace(/^(\s*)[•●]\s+/gm, '$1- ');
 
 const GameDetailsView: React.FC<GameDetailsViewProps> = ({ 
     game, onClose, onRate, onLogWin, onOpenAI, onDelete, onUpdateGame, allTags, onCreateTag,
@@ -69,7 +69,9 @@ const GameDetailsView: React.FC<GameDetailsViewProps> = ({
       if (!bulletMatch && !numberMatch) return;
 
       event.preventDefault();
-      const prefix = bulletMatch ? \`\${bulletMatch[1]}• \` : \`\${numberMatch![1]}\${Number(numberMatch![2]) + 1}. \`;
+      const prefix = bulletMatch
+          ? bulletMatch[1] + '• '
+          : numberMatch![1] + (Number(numberMatch![2]) + 1) + '. ';
       const nextValue = value.slice(0, start) + '\n' + prefix + value.slice(end);
       setter(nextValue);
       window.setTimeout(() => {
