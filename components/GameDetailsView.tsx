@@ -62,15 +62,15 @@ const GameDetailsView: React.FC<GameDetailsViewProps> = ({
       }
 
       if (event.key !== 'Enter') return;
-      const lineStart = value.lastIndexOf('\\n', start - 1) + 1;
+      const lineStart = value.lastIndexOf('\n', start - 1) + 1;
       const currentLine = value.slice(lineStart, start);
-      const bulletMatch = currentLine.match(/^(\\s*)[•●]\\s+/);
-      const numberMatch = currentLine.match(/^(\\s*)(\\d+)\\.\\s+/);
+      const bulletMatch = currentLine.match(/^(\s*)[•●]\s+/);
+      const numberMatch = currentLine.match(/^(\s*)(\d+)\.\s+/);
       if (!bulletMatch && !numberMatch) return;
 
       event.preventDefault();
-      const prefix = bulletMatch ? `${bulletMatch[1]}• ` : `${numberMatch![1]}${Number(numberMatch![2]) + 1}. `;
-      const nextValue = value.slice(0, start) + '\\n' + prefix + value.slice(end);
+      const prefix = bulletMatch ? \`\${bulletMatch[1]}• \` : \`\${numberMatch![1]}\${Number(numberMatch![2]) + 1}. \`;
+      const nextValue = value.slice(0, start) + '\n' + prefix + value.slice(end);
       setter(nextValue);
       window.setTimeout(() => {
           textarea.focus();
