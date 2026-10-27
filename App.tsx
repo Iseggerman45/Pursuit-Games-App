@@ -24,10 +24,11 @@ import PlayersModal from './components/PlayersModal';
 import GameCalendar from './components/GameCalendar';
 import LiveNightModal from './components/LiveNightModal';
 
-const APP_VERSION = "4.9.10";
+const APP_VERSION = "4.9.11";
 
 const APP_UPDATES = [
-  "The Number button now continues numbering from the highest number already in the rules, even when bullet points are between numbered items.",
+  "Fixed creating and saving new tags so they remain available in the tag manager and game forms.",
+  "Tag changes now save locally and sync to the shared library.",
 ];
 const GLOBAL_ID = "pursuit_global";
 
@@ -160,6 +161,7 @@ const App: React.FC = () => {
   useEffect(() => { localStorage.setItem('pursuit_results', safeStringify(results)); }, [results]);
   useEffect(() => { localStorage.setItem('pursuit_calendar_events', safeStringify(calendarEvents)); }, [calendarEvents]);
   useEffect(() => { localStorage.setItem('pursuit_calendar_settings', safeStringify(calendarSettings)); }, [calendarSettings]);
+  useEffect(() => { localStorage.setItem('pursuit_tags', safeStringify(tags)); }, [tags]);
   useEffect(() => { localStorage.setItem('pursuit_library_id', libraryId); }, [libraryId]);
   useEffect(() => { localStorage.setItem('pursuit_theme', isDarkMode ? 'dark' : 'light'); }, [isDarkMode]);
 
@@ -174,7 +176,7 @@ const App: React.FC = () => {
   }, [isDarkMode]);
 
   // --- SYNC ENGINE ---
-  const triggerBroadcast = useCallback(async (overrideGames?: Game[], overrideFolders?: Folder[], overrideMessages?: GroupMessage[], overrideResults?: GameResult[], overridePlayers?: Player[], overrideCalendarEvents?: GameCalendarEvent[], overrideCalendarSettings?: CalendarSettings) => {
+  const triggerBroadcast = useCallback(async (overrideGames?: Game[], overrideFolders?: Folder[], overrideMessages?: GroupMessage[], overrideResults?: GameResult[], overridePlayers?: Player[], overrideCalendarEvents?: GameCalendarEvent[], overrideCalendarSettings?: CalendarSettings, overrideTags?: string[]) => {
     if (!libraryId) return { success: false, error: 'No library ID' };
     setIsBroadcasting(true);
     try {
@@ -186,7 +188,7 @@ const App: React.FC = () => {
             results: overrideResults || results,
             players: overridePlayers || players,
             calendarEvents: overrideCalendarEvents || calendarEvents, calendarSettings: overrideCalendarSettings || calendarSettings,
-            tags, categories: []
+            tags: overrideTags || tags, categories: []
         }, AUTO_FIREBASE_CONFIG, libraryId);
         return { success: true };
     } catch (e: any) {
@@ -255,6 +257,22 @@ const App: React.FC = () => {
   }, [libraryId]);
 
   // --- HANDLERS ---
+  const handleCreateTag = (name: string) => {
+      const cleanName = name.trim();
+      if (!cleanName || tags.some(tag => tag.toLowerCase() === cleanName.toLowerCase())) return;
+      const newTags = [...tags, cleanName];
+      setTags(newTags);
+      localStorage.setItem('pursuit_tags', safeStringify(newTags));
+      triggerBroadcast(undefined, undefined, undefined, undefined, undefined, undefined, undefined, newTags);
+  };
+
+  const handleDeleteTag = (name: string) => {
+      const newTags = tags.filter(tag => tag !== name);
+      setTags(newTags);
+      localStorage.setItem('pursuit_tags', safeStringify(newTags));
+      triggerBroadcast(undefined, undefined, undefined, undefined, undefined, undefined, undefined, newTags);
+  };
+
   const handleSaveProfile = (profile: UserProfile) => {
       setUser(profile);
       localStorage.setItem('pursuit_user_profile', JSON.stringify(profile));
@@ -703,7 +721,7 @@ const App: React.FC = () => {
           {liveNightDate && <LiveNightModal date={liveNightDate} games={games} events={calendarEvents} onClose={() => setLiveNightDate(null)} onSaveRating={handleSaveRating} />}
 
           <ProfileModal isOpen={isProfileModalOpen} onClose={() => setIsProfileModalOpen(false)} onSave={handleSaveProfile} initialUser={user} />
-          <SettingsModal isOpen={isSettingsModalOpen} onClose={() => setIsSettingsModalOpen(false)} categories={[]} onCreateCategory={()=>{}} onDeleteCategory={()=>{}} tags={tags} onCreateTag={(t) => setTags(prev => [...prev, t])} onDeleteTag={(t) => setTags(prev => prev.filter(x => x !== t))} rivalries={[]} onCreateRivalry={()=>{}} onDeleteRivalry={()=>{}} appVersion={APP_VERSION} gameCount={games.length} folderCount={folders.length} />
+          <SettingsModal isOpen={isSettingsModalOpen} onClose={() => setIsSettingsModalOpen(false)} categories={[]} onCreateCategory={()=>{}} onDeleteCategory={()=>{}} tags={tags} onCreateTag={handleCreateTag} onDeleteTag={handleDeleteTag} rivalries={[]} onCreateRivalry={()=>{}} onDeleteRivalry={()=>{}} appVersion={APP_VERSION} gameCount={games.length} folderCount={folders.length} />
           <MoveToFolderModal isOpen={!!movingGame} game={movingGame} folders={folders} onClose={() => setMovingGame(null)} onMove={(gid, fid) => { const newGames = games.map(g => g.id === gid ? {...g, folderId: fid || undefined, folderIcon: fid ? (folders.find(f => f.id === fid)?.icon || 'folder') : undefined, lastUpdated: Date.now()} : g); setGames(newGames); setMovingGame(null); playPop(); triggerBroadcast(newGames); }} />
           <GameAIModal isOpen={!!aiGame} game={aiGame} onClose={() => setAiGame(null)} onUpdateRules={(id, rules) => { const newGames = games.map(g => g.id === id ? {...g, rules, lastUpdated: Date.now()} : g); setGames(newGames); triggerBroadcast(newGames); }} />
       </div>
