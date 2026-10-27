@@ -24,12 +24,10 @@ import PlayersModal from './components/PlayersModal';
 import GameCalendar from './components/GameCalendar';
 import LiveNightModal from './components/LiveNightModal';
 
-const APP_VERSION = "4.9.12";
+const APP_VERSION = "4.9.13";
 
 const APP_UPDATES = [
-  "Restore tag selection when editing games, and make tags searchable from the main search bar.",
-  "Add duration filtering alongside tag filters.",
-  "Keep locally saved tags when syncing with a shared library.",
+  "Create new tags directly while editing a game; new tags are saved to the shared tag list and added to that game.",
 ];
 const GLOBAL_ID = "pursuit_global";
 
