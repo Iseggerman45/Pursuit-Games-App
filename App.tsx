@@ -24,11 +24,12 @@ import PlayersModal from './components/PlayersModal';
 import GameCalendar from './components/GameCalendar';
 import LiveNightModal from './components/LiveNightModal';
 
-const APP_VERSION = "4.9.11";
+const APP_VERSION = "4.9.12";
 
 const APP_UPDATES = [
-  "Fixed creating and saving new tags so they remain available in the tag manager and game forms.",
-  "Tag changes now save locally and sync to the shared library.",
+  "Restore tag selection when editing games, and make tags searchable from the main search bar.",
+  "Add duration filtering alongside tag filters.",
+  "Keep locally saved tags when syncing with a shared library.",
 ];
 const GLOBAL_ID = "pursuit_global";
 
@@ -120,6 +121,7 @@ const App: React.FC = () => {
   const [showLauncher, setShowLauncher] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
+  const [durationFilter, setDurationFilter] = useState('all');
   
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isFolderModalOpen, setIsFolderModalOpen] = useState(false);
@@ -230,7 +232,9 @@ const App: React.FC = () => {
                     }));
                     setFolders(cloudFolders);
                 }
-                if (data.tags) setTags(data.tags);
+                if (Array.isArray(data.tags)) {
+                    setTags(prev => Array.from(new Set([...prev, ...data.tags!].filter(tag => typeof tag === 'string' && tag.trim()))));
+                }
                 if (Array.isArray(data.calendarEvents)) setCalendarEvents(data.calendarEvents);
                 if (data.calendarSettings) setCalendarSettings(data.calendarSettings as CalendarSettings);
             }
@@ -375,8 +379,16 @@ const App: React.FC = () => {
   const filteredGames = useMemo(() => {
     return games.filter(game => {
       if (!game || !game.id) return false;
-      if (searchTerm && !game.title?.toLowerCase().includes(searchTerm.toLowerCase())) return false;
+      const query = searchTerm.trim().toLowerCase();
+      if (query && !game.title?.toLowerCase().includes(query) && !(game.tags || []).some(tag => tag.toLowerCase().includes(query)) && !(game.duration || '').toLowerCase().includes(query)) return false;
       if (selectedTags.length > 0 && !selectedTags.every(tag => game.tags?.includes(tag))) return false;
+      const durationText = (game.duration || '').toLowerCase();
+      const durationMatch = durationText.match(/\\d+(?:\\.\\d+)?/);
+      const minutes = durationMatch ? Number(durationMatch[0]) : null;
+      if (durationFilter === 'short' && (minutes === null || minutes > 10)) return false;
+      if (durationFilter === 'medium' && (minutes === null || minutes <= 10 || minutes > 20)) return false;
+      if (durationFilter === 'long' && (minutes === null || minutes <= 20)) return false;
+      if (durationFilter === 'unknown' && durationText.trim() && durationText !== 'not specified' && durationText !== 'n/a') return false;
       if (!isGlobalView) {
           if (activeFolderId) {
               if (game.folderId !== activeFolderId) return false;
@@ -386,7 +398,7 @@ const App: React.FC = () => {
       }
       return true;
     }).sort((a,b) => (b.lastUpdated || 0) - (a.lastUpdated || 0));
-  }, [games, folders, searchTerm, selectedTags, activeFolderId, isGlobalView]);
+  }, [games, folders, searchTerm, selectedTags, durationFilter, activeFolderId, isGlobalView]);
 
   return (
     <>
@@ -661,7 +673,7 @@ const App: React.FC = () => {
 
           <LeaderboardModal isOpen={isLeaderboardModalOpen} onClose={() => setIsLeaderboardModalOpen(false)} results={results} user={user} players={players} rivalries={[]} />
 
-          <GameDetailsView game={selectedGame} hideDelete={selectedGameFromCalendar} onClose={() => { setSelectedGame(null); setSelectedGameFromCalendar(false); }} onRate={setRatingGame} onLogWin={setWinnerGame} onOpenAI={setAiGame} onDelete={handleDeleteGame} onUpdateGame={handleUpdateGame} allTags={tags} onCreateTag={()=>{}} activeTimer={null} onStartTimer={()=>{}} onStopTimer={()=>{}} onResetRating={()=>{}} onMoveClick={setMovingGame} libraryId={libraryId} />
+          <GameDetailsView game={selectedGame} hideDelete={selectedGameFromCalendar} onClose={() => { setSelectedGame(null); setSelectedGameFromCalendar(false); }} onRate={setRatingGame} onLogWin={setWinnerGame} onOpenAI={setAiGame} onDelete={handleDeleteGame} onUpdateGame={handleUpdateGame} allTags={tags} onCreateTag={handleCreateTag} activeTimer={null} onStartTimer={()=>{}} onStopTimer={()=>{}} onResetRating={()=>{}} onMoveClick={setMovingGame} libraryId={libraryId} />
 
           <SyncModal isOpen={isSyncModalOpen} onClose={() => setIsSyncModalOpen(false)} games={games} messages={messages} results={results} players={players} categories={[]} tags={tags} recentPlayers={[]} syncId={libraryId} firebaseConfig={AUTO_FIREBASE_CONFIG} onImport={() => {}} onStartLiveSync={() => {}} onJoinLiveSync={(id) => { setLibraryId(id); setIsSyncModalOpen(false); }} onConnectFirebase={() => {}} onDisconnectFirebase={() => {}} onDownloadCloud={() => window.location.reload()} onUpload={() => triggerBroadcast()} onHardReset={handleHardRefresh} isLoading={isLoading || isBroadcasting} appVersion={APP_VERSION} />
           
