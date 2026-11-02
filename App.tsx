@@ -24,11 +24,11 @@ import PlayersModal from './components/PlayersModal';
 import GameCalendar from './components/GameCalendar';
 import LiveNightModal from './components/LiveNightModal';
 
-const APP_VERSION = "4.9.18";
+const APP_VERSION = "4.9.19";
 
 const APP_UPDATES = [
-  "Fix youth night setup save reliability on mobile.",
-];
+  "Fix calendar settings save callback and simplify youth-night setup."
+]
 const GLOBAL_ID = "pursuit_global";
 
 const AUTO_FIREBASE_CONFIG: FirebaseConfig | null = {
