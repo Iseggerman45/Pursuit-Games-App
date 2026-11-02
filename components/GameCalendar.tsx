@@ -63,7 +63,7 @@ const formatTime = (time?: string) => {
   return `${displayHour}:${pad(minute)} ${suffix}`;
 };
 
-const GameCalendar: React.FC<GameCalendarProps> = ({ games, folders, settings, events, onAddEvent, onDeleteEvent, onOpenGame, onStartNight }) => {
+const GameCalendar: React.FC<GameCalendarProps> = ({ games, folders, settings, onSaveSettings, events, onAddEvent, onDeleteEvent, onOpenGame, onStartNight }) => {
   const [view, setView] = useState<ViewMode>('month');
   const [anchorDate, setAnchorDate] = useState(todayKey());
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -75,17 +75,13 @@ const GameCalendar: React.FC<GameCalendarProps> = ({ games, folders, settings, e
   const [selectedTime, setSelectedTime] = useState('');
   const [notes, setNotes] = useState('');
   const [gameSearch, setGameSearch] = useState('');
-  const [setupStep, setSetupStep] = useState<1 | 2>(1);
   const [selectedNights, setSelectedNights] = useState<number[]>([]);
-  const [nightGroups, setNightGroups] = useState<Record<number, 'Middle School' | 'High School'>>({});
   const [isEditingSchedule, setIsEditingSchedule] = useState(false);
   const [supplyListDate, setSupplyListDate] = useState<string | null>(null);
   const weekLabels = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
   const openCalendarSetup = () => {
     const current = settings.schedules || [];
     setSelectedNights(current.map(s => s.dayOfWeek));
-    setNightGroups(Object.fromEntries(current.map(s => [s.dayOfWeek, s.targetGroup])));
-    setSetupStep(1);
     setIsEditingSchedule(true);
   };
   const finishCalendarSetup = () => {
@@ -96,7 +92,7 @@ const GameCalendar: React.FC<GameCalendarProps> = ({ games, folders, settings, e
         .sort((a, b) => a - b)
         .map(dayOfWeek => ({
           dayOfWeek,
-          targetGroup: nightGroups[dayOfWeek] || 'Middle School'
+          targetGroup: 'Middle School'
         }))
     };
 
@@ -258,42 +254,19 @@ const GameCalendar: React.FC<GameCalendarProps> = ({ games, folders, settings, e
               <div className="text-xs font-black uppercase tracking-wider text-orange-600 dark:text-orange-400">Calendar Setup</div>
               {settings.configured && <button type="button" onClick={() => setIsEditingSchedule(false)} className="p-2 rounded-xl text-slate-500 hover:bg-slate-100 dark:hover:bg-white/10" aria-label="Close calendar setup"><X className="w-5 h-5" /></button>}
             </div>
-            {setupStep === 1 ? (
-              <>
-                <h2 className="mt-2 text-2xl sm:text-3xl font-black text-slate-900 dark:text-white">Which nights do you have youth group?</h2>
-                <p className="mt-2 text-sm text-slate-500 dark:text-slate-400">Select the nights you meet. The calendar will only show those days, so you can schedule games on your actual youth nights.</p>
-                <div className="mt-5 grid grid-cols-2 sm:grid-cols-4 gap-2">
-                  {weekLabels.map((day, index) => (
-                    <button key={day} type="button" onClick={() => setSelectedNights(prev => prev.includes(index) ? prev.filter(d => d !== index) : [...prev, index])} className={`min-h-12 px-3 py-3 rounded-xl text-sm font-bold border transition-all touch-manipulation ${selectedNights.includes(index) ? 'bg-orange-500 text-white border-orange-500 shadow-md' : 'bg-white/60 dark:bg-white/5 border-black/5 dark:border-white/10 text-slate-600 dark:text-slate-300'}`}>{day}</button>
-                  ))}
-                </div>
-                <div className="mt-5 flex flex-wrap items-center gap-3">
-                  <button type="button" disabled={!selectedNights.length} onClick={() => setSetupStep(2)} className="min-h-11 px-5 py-2.5 rounded-xl bg-slate-950 dark:bg-white text-white dark:text-black text-sm font-bold disabled:opacity-40">Continue</button>
-                  {settings.configured && <button type="button" onClick={() => setIsEditingSchedule(false)} className="min-h-11 px-4 py-2.5 rounded-xl text-sm font-bold text-slate-500 hover:bg-slate-100 dark:hover:bg-white/10">Cancel</button>}
-                </div>
-              </>
-            ) : (
-              <>
-                <h2 className="mt-2 text-2xl sm:text-3xl font-black text-slate-900 dark:text-white">Who meets on each night?</h2>
-                <p className="mt-2 text-sm text-slate-500 dark:text-slate-400">Choose the group for each night. This step helps keep the calendar organized.</p>
-                <div className="mt-5 space-y-2">
-                  {[...selectedNights].sort((a,b) => a-b).map(day => (
-                    <div key={day} className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-3 rounded-2xl bg-white/55 dark:bg-white/5 border border-black/5 dark:border-white/10">
-                      <span className="font-bold text-slate-800 dark:text-white">{weekLabels[day]}</span>
-                      <div className="flex gap-1 p-1 rounded-xl bg-slate-100 dark:bg-black/20 w-full sm:w-auto">
-                        {(['Middle School','High School'] as const).map(group => (
-                          <button key={group} type="button" onClick={() => setNightGroups(prev => ({...prev, [day]: group}))} className={`flex-1 sm:flex-none px-3 py-2.5 rounded-lg text-xs font-bold ${(nightGroups[day] || 'Middle School') === group ? 'bg-orange-500 text-white' : 'text-slate-500 dark:text-slate-400'}`}>{group}</button>
-                        ))}
-                      </div>
-                    </div>
-                  ))}
-                </div>
-                <div className="mt-5 flex flex-wrap gap-2">
-                  <button type="button" onClick={() => setSetupStep(1)} className="min-h-11 px-4 py-2.5 rounded-xl text-sm font-bold text-slate-500 hover:bg-slate-100 dark:hover:bg-white/10">Back</button>
-                  <button type="button" onClick={finishCalendarSetup} className="min-h-11 px-5 py-2.5 rounded-xl bg-gradient-to-r from-orange-500 to-red-600 text-white text-sm font-bold">Save Calendar</button>
-                </div>
-              </>
-            )}
+            <>
+              <h2 className="mt-2 text-2xl sm:text-3xl font-black text-slate-900 dark:text-white">Which nights do you have youth group?</h2>
+              <p className="mt-2 text-sm text-slate-500 dark:text-slate-400">Select the nights you meet. The calendar will only show those days, so you can schedule games on your actual youth nights.</p>
+              <div className="mt-5 grid grid-cols-2 sm:grid-cols-4 gap-2">
+                {weekLabels.map((day, index) => (
+                  <button key={day} type="button" onClick={() => setSelectedNights(prev => prev.includes(index) ? prev.filter(d => d !== index) : [...prev, index])} className={`min-h-12 px-3 py-3 rounded-xl text-sm font-bold border transition-all touch-manipulation ${selectedNights.includes(index) ? 'bg-orange-500 text-white border-orange-500 shadow-md' : 'bg-white/60 dark:bg-white/5 border-black/5 dark:border-white/10 text-slate-600 dark:text-slate-300'}`}>{day}</button>
+                ))}
+              </div>
+              <div className="mt-5 flex flex-wrap items-center gap-3">
+                <button type="button" disabled={!selectedNights.length} onClick={finishCalendarSetup} className="min-h-11 px-5 py-2.5 rounded-xl bg-gradient-to-r from-orange-500 to-red-600 text-white text-sm font-bold disabled:opacity-40">Save Calendar</button>
+                {settings.configured && <button type="button" onClick={() => setIsEditingSchedule(false)} className="min-h-11 px-4 py-2.5 rounded-xl text-sm font-bold text-slate-500 hover:bg-slate-100 dark:hover:bg-white/10">Cancel</button>}
+              </div>
+            </>
           </div>
         </div>
       ) : null}
