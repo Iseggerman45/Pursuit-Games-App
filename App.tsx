@@ -24,10 +24,10 @@ import PlayersModal from './components/PlayersModal';
 import GameCalendar from './components/GameCalendar';
 import LiveNightModal from './components/LiveNightModal';
 
-const APP_VERSION = "4.9.17";
+const APP_VERSION = "4.9.18";
 
 const APP_UPDATES = [
-  "Restore youth night selection with a mobile-friendly setup that closes after saving.",
+  "Fix youth night setup save reliability on mobile.",
 ];
 const GLOBAL_ID = "pursuit_global";
 
