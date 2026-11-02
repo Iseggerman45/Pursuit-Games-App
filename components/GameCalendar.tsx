@@ -420,7 +420,7 @@ const GameCalendar: React.FC<GameCalendarProps> = ({ games, folders, settings, o
 
       {supplyListDate && (
         <div className="fixed inset-0 z-[160] bg-slate-950/55 backdrop-blur-xl flex items-center justify-center p-4">
-          <div className="w-full max-w-lg glass-card rounded-[2rem] overflow-hidden shadow-2xl">
+          <div className="w-full max-w-lg max-h-[calc(100dvh-1rem)] sm:max-h-[calc(100dvh-2rem)] glass-card rounded-[2rem] overflow-hidden shadow-2xl flex flex-col my-auto">
             <div className="px-6 py-5 border-b border-black/5 dark:border-white/10 flex items-center justify-between">
               <div className="flex items-center gap-3"><div className="p-2.5 rounded-xl bg-orange-500/10 text-orange-600 dark:text-orange-400"><ClipboardList className="w-5 h-5" /></div><div><div className="text-xs font-black uppercase tracking-wider text-orange-600 dark:text-orange-400">Game Coordinator</div><h3 className="text-xl font-black text-slate-900 dark:text-white">Supply List</h3><p className="text-xs text-slate-400 mt-0.5">{shortDayLabel(supplyListDate)}</p></div></div>
               <button onClick={() => setSupplyListDate(null)} className="p-2 rounded-xl bg-slate-100 dark:bg-white/10 text-slate-500"><X className="w-5 h-5" /></button>
@@ -434,7 +434,7 @@ const GameCalendar: React.FC<GameCalendarProps> = ({ games, folders, settings, o
       )}
 
       {isModalOpen && (
-        <div className="fixed inset-0 z-[150] bg-slate-950/50 backdrop-blur-xl flex items-center justify-center p-4">
+        <div className="fixed inset-0 z-[150] bg-slate-950/50 backdrop-blur-xl flex items-start sm:items-center justify-center p-2 sm:p-4 overflow-y-auto overscroll-contain">
           <div className="w-full max-w-lg glass-card rounded-[2rem] overflow-hidden shadow-2xl">
             <div className="px-6 py-5 border-b border-black/5 dark:border-white/10 flex items-center justify-between">
               <div>
@@ -443,7 +443,7 @@ const GameCalendar: React.FC<GameCalendarProps> = ({ games, folders, settings, o
               </div>
               <button onClick={closeAdd} className="p-2 rounded-xl bg-slate-100 dark:bg-white/10 text-slate-500"><X className="w-5 h-5" /></button>
             </div>
-            <form onSubmit={saveEvent} className="p-6 space-y-5">
+            <form onSubmit={saveEvent} className="flex-1 min-h-0 overflow-y-auto overscroll-contain p-4 sm:p-6 space-y-5">
               {games.length === 0 ? (
                 <div className="rounded-2xl bg-orange-50 dark:bg-orange-500/10 border border-orange-200 dark:border-orange-400/20 p-4 text-sm text-orange-700 dark:text-orange-300">
                   Create a game first, then you can schedule it here.
@@ -510,7 +510,7 @@ const GameCalendar: React.FC<GameCalendarProps> = ({ games, folders, settings, o
                   </div>
                 </>
               )}
-              <div className="flex justify-end gap-2 pt-1">
+              <div className="sticky bottom-0 -mx-4 sm:-mx-6 -mb-4 sm:-mb-6 px-4 sm:px-6 py-4 mt-2 flex justify-end gap-2 bg-white/95 dark:bg-slate-900/95 backdrop-blur-xl border-t border-black/5 dark:border-white/10">
                 <button type="button" onClick={closeAdd} className="px-5 py-2.5 rounded-xl text-sm font-bold text-slate-500 hover:bg-slate-100 dark:hover:bg-white/10">Cancel</button>
                 <button type="submit" disabled={!selectedGameId || games.length === 0} className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-orange-500 to-red-600 text-white text-sm font-bold disabled:opacity-40 disabled:cursor-not-allowed">{editingEventId ? "Save Changes" : "Schedule Game"}</button>
               </div>
