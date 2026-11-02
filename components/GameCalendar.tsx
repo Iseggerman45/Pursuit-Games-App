@@ -63,7 +63,7 @@ const formatTime = (time?: string) => {
   return `${displayHour}:${pad(minute)} ${suffix}`;
 };
 
-const GameCalendar: React.FC<GameCalendarProps> = ({ games, folders, settings, onSaveSettings, events, onAddEvent, onDeleteEvent, onOpenGame, onStartNight }) => {
+const GameCalendar: React.FC<GameCalendarProps> = ({ games, folders, settings, events, onAddEvent, onDeleteEvent, onOpenGame, onStartNight }) => {
   const [view, setView] = useState<ViewMode>('month');
   const [anchorDate, setAnchorDate] = useState(todayKey());
   const [isModalOpen, setIsModalOpen] = useState(false);
