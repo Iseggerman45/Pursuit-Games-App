@@ -24,10 +24,10 @@ import PlayersModal from './components/PlayersModal';
 import GameCalendar from './components/GameCalendar';
 import LiveNightModal from './components/LiveNightModal';
 
-const APP_VERSION = "4.9.15";
+const APP_VERSION = "4.9.16";
 
 const APP_UPDATES = [
-  "Fix the calendar scheduling window so the full form and save controls remain reachable on shorter screens.",
+  "Temporarily remove the youth night setup menu and show all days in the game calendar.",
 ];
 const GLOBAL_ID = "pursuit_global";
 
