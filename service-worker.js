@@ -1,5 +1,5 @@
 
-const CACHE_NAME = 'pursuit-v29-calendar-modal-scroll'; // Refresh cached assets for manual game entry
+const CACHE_NAME = 'pursuit-v30-calendar-no-night-setup'; // Refresh cached assets for manual game entry
 const urlsToCache = [
   '/',
   '/index.html',
