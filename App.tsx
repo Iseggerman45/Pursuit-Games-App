@@ -24,10 +24,10 @@ import PlayersModal from './components/PlayersModal';
 import GameCalendar from './components/GameCalendar';
 import LiveNightModal from './components/LiveNightModal';
 
-const APP_VERSION = "4.9.16";
+const APP_VERSION = "4.9.17";
 
 const APP_UPDATES = [
-  "Temporarily remove the youth night setup menu and show all days in the game calendar.",
+  "Restore youth night selection with a mobile-friendly setup that closes after saving.",
 ];
 const GLOBAL_ID = "pursuit_global";
 
@@ -288,6 +288,8 @@ const App: React.FC = () => {
   };
 
   const handleSaveCalendarSettings = (settings: CalendarSettings) => {
+      // Save locally immediately so a mobile refresh or interrupted sync cannot lose the selected nights.
+      localStorage.setItem('pursuit_calendar_settings', safeStringify(settings));
       setCalendarSettings(settings);
       triggerBroadcast(undefined, undefined, undefined, undefined, undefined, undefined, settings);
   };
