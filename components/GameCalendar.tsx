@@ -89,11 +89,26 @@ const GameCalendar: React.FC<GameCalendarProps> = ({ games, folders, settings, e
     setIsEditingSchedule(true);
   };
   const finishCalendarSetup = () => {
-    if (!selectedNights.length) return;
-    const schedules: CalendarSchedule[] = [...selectedNights].sort((a,b) => a-b).map(dayOfWeek => ({ dayOfWeek, targetGroup: nightGroups[dayOfWeek] || 'Middle School' }));
-    onSaveSettings({ configured: true, schedules });
-    setIsEditingSchedule(false);
-    playPop();
+    if (selectedNights.length === 0) return;
+    const nextSettings: CalendarSettings = {
+      configured: true,
+      schedules: [...selectedNights]
+        .sort((a, b) => a - b)
+        .map(dayOfWeek => ({
+          dayOfWeek,
+          targetGroup: nightGroups[dayOfWeek] || 'Middle School'
+        }))
+    };
+
+    // Persist in this component before asking the parent to sync with the cloud.
+    // This keeps the selection even if the cloud library is temporarily unavailable.
+    try {
+      localStorage.setItem('pursuit_calendar_settings', JSON.stringify(nextSettings));
+      onSaveSettings(nextSettings);
+      setIsEditingSchedule(false);
+    } catch (error) {
+      console.error('Unable to save youth night settings:', error);
+    }
   };
   const scheduledDaySet = useMemo(() => new Set(settings.configured && settings.schedules?.length ? settings.schedules.map(s => s.dayOfWeek) : [0,1,2,3,4,5,6]), [settings.configured, settings.schedules]);
   const scheduleForDay = (dayOfWeek: number) => settings.schedules?.find(s => s.dayOfWeek === dayOfWeek);
