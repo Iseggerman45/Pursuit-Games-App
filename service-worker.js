@@ -1,5 +1,5 @@
 
-const CACHE_NAME = 'pursuit-v36-rollback-redeploy'; // Refresh cached assets for manual game entry
+const CACHE_NAME = 'pursuit-v37-calendar-modal-viewport'; // Refresh cached assets for manual game entry
 const urlsToCache = [
   '/',
   '/index.html',
