@@ -421,16 +421,16 @@ const GameCalendar: React.FC<GameCalendarProps> = ({ games, folders, settings, o
       )}
 
       {isModalOpen && (
-        <div className="fixed inset-0 z-[150] bg-slate-950/50 backdrop-blur-xl flex items-start sm:items-center justify-center p-2 sm:p-4 overflow-y-auto overscroll-contain">
-          <div className="w-full max-w-lg glass-card rounded-[2rem] overflow-hidden shadow-2xl">
-            <div className="px-6 py-5 border-b border-black/5 dark:border-white/10 flex items-center justify-between">
+        <div className="fixed inset-0 z-[150] bg-slate-950/50 backdrop-blur-xl flex items-center justify-center p-2 sm:p-4 overflow-hidden">
+          <div className="w-full max-w-2xl h-[min(92dvh,900px)] max-h-[calc(100dvh-1rem)] min-h-0 glass-card rounded-[2rem] overflow-hidden shadow-2xl flex flex-col">
+            <div className="shrink-0 px-4 sm:px-6 py-4 sm:py-5 border-b border-black/5 dark:border-white/10 flex items-center justify-between gap-3">
               <div>
                 <div className="text-xs font-black uppercase tracking-wider text-orange-600 dark:text-orange-400">{editingEventId ? "Edit scheduled game" : "Schedule a game"}</div>
                 <h3 className="text-2xl font-black text-slate-900 dark:text-white mt-1">{shortDayLabel(selectedDate)}</h3>
               </div>
               <button onClick={closeAdd} className="p-2 rounded-xl bg-slate-100 dark:bg-white/10 text-slate-500"><X className="w-5 h-5" /></button>
             </div>
-            <form onSubmit={saveEvent} className="flex-1 min-h-0 overflow-y-auto overscroll-contain p-4 sm:p-6 space-y-5">
+            <form onSubmit={saveEvent} className="flex-1 min-h-0 overflow-y-auto overscroll-contain p-4 sm:p-6 space-y-4 sm:space-y-5">
               {games.length === 0 ? (
                 <div className="rounded-2xl bg-orange-50 dark:bg-orange-500/10 border border-orange-200 dark:border-orange-400/20 p-4 text-sm text-orange-700 dark:text-orange-300">
                   Create a game first, then you can schedule it here.
