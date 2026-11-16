@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from 'react';
-import { CalendarDays, ChevronLeft, ChevronRight, Plus, Trash2, X, StickyNote, Search, CalendarPlus, ClipboardList, Copy, Printer, Play, Edit2 } from 'lucide-react';
+import { CalendarDays, ChevronLeft, ChevronRight, Plus, Trash2, X, StickyNote, Search, CalendarPlus, ClipboardList, Copy, Printer, Play, Edit2, Check } from 'lucide-react';
 import { Game, Folder, GameCalendarEvent, CalendarSettings, CalendarSchedule } from '../types';
 import { playClick, playPop, playDelete } from '../services/sound';
 
@@ -70,6 +70,7 @@ const GameCalendar: React.FC<GameCalendarProps> = ({ games, folders, settings, o
   const [editingEventId, setEditingEventId] = useState<string | null>(null);
   const [selectedDate, setSelectedDate] = useState(todayKey());
   const [selectedGameId, setSelectedGameId] = useState('');
+  const [selectedGameIds, setSelectedGameIds] = useState<string[]>([]);
   const [selectedSubGameIds, setSelectedSubGameIds] = useState<string[]>([]);
   const [selectedBackupSmallGameIds, setSelectedBackupSmallGameIds] = useState<string[]>([]);
   const [selectedTime, setSelectedTime] = useState('');
@@ -144,6 +145,7 @@ const GameCalendar: React.FC<GameCalendarProps> = ({ games, folders, settings, o
     setEditingEventId(null);
     setSelectedDate(date);
     setSelectedGameId('');
+    setSelectedGameIds([]);
     setSelectedSubGameIds([]);
     setSelectedBackupSmallGameIds([]);
     setSelectedTime('');
@@ -157,6 +159,7 @@ const GameCalendar: React.FC<GameCalendarProps> = ({ games, folders, settings, o
     setEditingEventId(event.id);
     setSelectedDate(event.date);
     setSelectedGameId(event.gameId);
+    setSelectedGameIds([event.gameId]);
     setSelectedSubGameIds(event.subGameIds || []);
     setSelectedBackupSmallGameIds(event.backupSmallGameIds || []);
     setSelectedTime(event.time || '');
@@ -168,24 +171,30 @@ const GameCalendar: React.FC<GameCalendarProps> = ({ games, folders, settings, o
   const closeAdd = () => {
     setIsModalOpen(false);
     setEditingEventId(null);
+    setSelectedGameIds([]);
     setGameSearch('');
   };
 
   const saveEvent = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!selectedGameId) return;
-    const event: GameCalendarEvent = {
-      id: editingEventId || crypto.randomUUID(),
-      gameId: selectedGameId,
-      subGameIds: selectedSubGameIds.filter(id => id !== selectedGameId),
-      backupSmallGameIds: selectedBackupSmallGameIds.filter(id => id !== selectedGameId && !selectedSubGameIds.includes(id)),
-      date: selectedDate,
-      time: selectedTime || undefined,
-      notes: notes.trim() || undefined,
-      createdAt: events.find(item => item.id === editingEventId)?.createdAt || Date.now(),
-      updatedAt: Date.now()
-    };
-    onAddEvent(event);
+    const gameIds = editingEventId ? [selectedGameId] : selectedGameIds;
+    if (!gameIds.length) return;
+    const now = Date.now();
+    gameIds.forEach(gameId => {
+      const existing = editingEventId ? events.find(item => item.id === editingEventId) : undefined;
+      const event: GameCalendarEvent = {
+        id: existing?.id || crypto.randomUUID(),
+        gameId,
+        subGameIds: selectedSubGameIds.filter(id => id !== gameId),
+        backupSmallGameIds: selectedBackupSmallGameIds.filter(id => id !== gameId && !selectedSubGameIds.includes(id)),
+        date: selectedDate,
+        time: selectedTime || undefined,
+        notes: notes.trim() || undefined,
+        createdAt: existing?.createdAt || now,
+        updatedAt: now
+      };
+      onAddEvent(event);
+    });
     playPop();
     closeAdd();
   };
@@ -443,15 +452,30 @@ const GameCalendar: React.FC<GameCalendarProps> = ({ games, folders, settings, o
                       <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
                       <input value={gameSearch} onChange={e => setGameSearch(e.target.value)} placeholder="Search games..." className="w-full pl-10 pr-4 py-3 rounded-xl bg-slate-100 dark:bg-white/5 border-none text-sm dark:text-white focus:ring-2 focus:ring-orange-500/20" />
                     </div>
-                    <div className="mt-2 max-h-44 overflow-y-auto space-y-1.5">
-                      {filteredGames.slice(0, 12).map(game => (
-                        <button key={game.id} type="button" onClick={() => { setSelectedGameId(game.id); setSelectedSubGameIds(prev => prev.filter(id => id !== game.id)); playClick(); }} className={`w-full text-left px-3.5 py-3 rounded-xl border transition-all ${selectedGameId === game.id ? 'bg-orange-500 text-white border-orange-500' : 'bg-white/50 dark:bg-white/5 border-black/5 dark:border-white/10 text-slate-700 dark:text-slate-200 hover:border-orange-300'}`}>
-                          <div className="text-sm font-bold truncate">{game.title}</div>
-                          <div className={`text-[10px] mt-0.5 ${selectedGameId === game.id ? 'text-orange-100' : 'text-slate-400'}`}>{game.duration} · {game.minPlayers} players minimum</div>
-                        </button>
-                      ))}
-                      {filteredGames.length === 0 && <div className="text-sm text-slate-400 py-4 text-center">No games found.</div>}
+                    {!editingEventId && <p className="mt-2 text-xs text-slate-500 dark:text-slate-400">Choose as many games as you want. They’ll be added as separate games for this night.</p>}
+                    <div className="mt-2 max-h-64 overflow-y-auto grid grid-cols-1 sm:grid-cols-2 gap-2 pr-1">
+                      {filteredGames.map(game => {
+                        const isSelected = editingEventId ? selectedGameId === game.id : selectedGameIds.includes(game.id);
+                        return (
+                          <button key={game.id} type="button" onClick={() => {
+                            if (editingEventId) {
+                              setSelectedGameId(game.id);
+                              setSelectedSubGameIds(prev => prev.filter(id => id !== game.id));
+                            } else {
+                              setSelectedGameIds(prev => prev.includes(game.id) ? prev.filter(id => id !== game.id) : [...prev, game.id]);
+                              setSelectedSubGameIds(prev => prev.filter(id => id !== game.id));
+                            }
+                            playClick();
+                          }} className={`relative min-h-[76px] w-full text-left px-3.5 py-3 pr-10 rounded-2xl border-2 transition-all duration-200 ${isSelected ? 'bg-emerald-500/10 border-emerald-500 shadow-sm shadow-emerald-500/10' : 'bg-white/50 dark:bg-white/5 border-black/5 dark:border-white/10 text-slate-700 dark:text-slate-200 hover:border-orange-300'}`}>
+                            <div className={`text-sm font-bold truncate ${isSelected ? 'text-emerald-700 dark:text-emerald-300' : 'text-slate-800 dark:text-slate-100'}`}>{game.title}</div>
+                            <div className="text-[10px] mt-1 text-slate-400">{game.duration} · {game.minPlayers} players minimum</div>
+                            <span className={`absolute right-3 top-1/2 -translate-y-1/2 w-6 h-6 rounded-full flex items-center justify-center transition-all ${isSelected ? 'bg-emerald-500 text-white scale-100' : 'bg-slate-100 dark:bg-white/10 text-transparent scale-90'}`}><Check className="w-4 h-4" /></span>
+                          </button>
+                        );
+                      })}
+                      {filteredGames.length === 0 && <div className="col-span-full text-sm text-slate-400 py-4 text-center">No games found.</div>}
                     </div>
+                    {!editingEventId && selectedGameIds.length > 0 && <div className="mt-2 flex items-center justify-between rounded-xl bg-emerald-500/10 border border-emerald-500/20 px-3 py-2"><span className="text-sm font-bold text-emerald-700 dark:text-emerald-300">{selectedGameIds.length} game{selectedGameIds.length === 1 ? '' : 's'} selected</span><button type="button" onClick={() => setSelectedGameIds([])} className="text-xs font-bold text-slate-500 hover:text-red-500">Clear</button></div>}
                   </div>
                   <div>
                     <label className="text-xs font-black uppercase tracking-wider text-slate-400">Mini-games / Sub-games <span className="font-normal normal-case">(optional)</span></label>
@@ -499,7 +523,7 @@ const GameCalendar: React.FC<GameCalendarProps> = ({ games, folders, settings, o
               )}
               <div className="sticky bottom-0 -mx-4 sm:-mx-6 -mb-4 sm:-mb-6 px-4 sm:px-6 py-4 mt-2 flex justify-end gap-2 bg-white/95 dark:bg-slate-900/95 backdrop-blur-xl border-t border-black/5 dark:border-white/10">
                 <button type="button" onClick={closeAdd} className="px-5 py-2.5 rounded-xl text-sm font-bold text-slate-500 hover:bg-slate-100 dark:hover:bg-white/10">Cancel</button>
-                <button type="submit" disabled={!selectedGameId || games.length === 0} className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-orange-500 to-red-600 text-white text-sm font-bold disabled:opacity-40 disabled:cursor-not-allowed">{editingEventId ? "Save Changes" : "Schedule Game"}</button>
+                <button type="submit" disabled={(editingEventId ? !selectedGameId : selectedGameIds.length === 0) || games.length === 0} className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-orange-500 to-red-600 text-white text-sm font-bold disabled:opacity-40 disabled:cursor-not-allowed">{editingEventId ? "Save Changes" : selectedGameIds.length > 0 ? `Add ${selectedGameIds.length} Games` : "Add Games"}</button>
               </div>
             </form>
           </div>
