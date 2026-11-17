@@ -101,8 +101,8 @@ const LiveNightModal: React.FC<LiveNightModalProps> = ({ date, games, events, on
 
   return (
     <>
-      <div className="fixed inset-0 z-[60] bg-slate-950/70 backdrop-blur-xl flex items-center justify-center p-3 sm:p-6">
-        <div className="w-full max-w-6xl max-h-[94vh] glass-card rounded-[2rem] overflow-hidden shadow-2xl border border-white/20 flex flex-col">
+      <div className="fixed inset-0 z-[60] bg-slate-950/70 backdrop-blur-xl flex items-start sm:items-center justify-center p-2 sm:p-6 overflow-y-auto">
+        <div className="w-full max-w-6xl max-h-[calc(100dvh-1rem)] sm:max-h-[calc(100dvh-3rem)] min-h-0 glass-card rounded-[2rem] overflow-hidden shadow-2xl border border-white/20 flex flex-col">
           <header className="px-5 sm:px-7 py-4 border-b border-black/5 dark:border-white/10 flex items-center justify-between gap-3">
             <div className="flex items-center gap-3 min-w-0">
               <div className="p-3 rounded-2xl bg-gradient-to-br from-orange-500 to-red-600 text-white"><Play className="w-5 h-5" /></div>
@@ -114,7 +114,7 @@ const LiveNightModal: React.FC<LiveNightModalProps> = ({ date, games, events, on
             <button onClick={() => { if (confirm('End this Live Night? Your checked supplies and current progress will be cleared.')) onClose(); }} className="p-2 rounded-xl bg-slate-100 dark:bg-white/10 text-slate-500 hover:text-red-500" aria-label="End Live Night"><X className="w-5 h-5" /></button>
           </header>
 
-          <div className="grid grid-cols-1 lg:grid-cols-[minmax(0,1.5fr)_minmax(280px,0.8fr)] min-h-0 flex-1 overflow-y-auto">
+          <div className="grid grid-cols-1 lg:grid-cols-[minmax(0,1.5fr)_minmax(280px,0.8fr)] min-h-0 flex-1 overflow-y-auto overscroll-contain">
             <section className="p-5 sm:p-7">
               {nightEvents.length === 0 ? (
                 <div className="py-14 text-center">
