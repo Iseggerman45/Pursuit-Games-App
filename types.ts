@@ -105,6 +105,7 @@ export interface GameCalendarEvent {
   notes?: string;
   createdAt: number;
   updatedAt?: number;
+  order?: number; // Display and Live Night sequence within the same date
 }
 
 export interface GameResult {
