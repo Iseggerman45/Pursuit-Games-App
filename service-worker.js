@@ -1,5 +1,5 @@
 
-const CACHE_NAME = 'pursuit-v40-calendar-game-order'; // Refresh cached assets for manual game entry
+const CACHE_NAME = 'pursuit-v41-picker-card-drag-order'; // Refresh cached assets for manual game entry
 const urlsToCache = [
   '/',
   '/index.html',
