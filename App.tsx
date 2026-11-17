@@ -464,7 +464,7 @@ const App: React.FC = () => {
           )}
 
           <nav className="sticky top-0 z-40 bg-white/65 dark:bg-slate-950/65 backdrop-blur-2xl border-b border-white/70 dark:border-white/10 shadow-sm p-4 sm:px-8">
-              <div className="max-w-7xl mx-auto flex items-center justify-between gap-4">
+              <div className="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-3 sm:gap-4">
                   <div className="flex items-center gap-4">
                       <div className="flex items-center gap-3 cursor-pointer" onClick={() => { setActiveFolderId(null); setIsGlobalView(false); setShowCalendar(false); setShowLauncher(true); }}>
                           <div className="relative p-2.5 bg-gradient-to-br from-orange-500 via-orange-600 to-red-600 rounded-xl shadow-lg shadow-orange-500/25 rotate-3 overflow-visible">
@@ -484,11 +484,11 @@ const App: React.FC = () => {
                           <h1 className="text-xl font-black text-[#1D1D1F] dark:text-white tracking-tighter uppercase hidden sm:block">Pursuit</h1>
                       </div>
                   </div>
-                  {!showCalendar && <div className="flex-1 max-w-md relative">
+                  {!showCalendar && <div className="order-3 sm:order-none basis-full sm:basis-auto flex-1 min-w-0 max-w-md relative">
                       <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
                       <input type="text" value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} placeholder="Search everything..." className="w-full pl-12 pr-4 py-3 bg-slate-100 dark:bg-white/5 border-none rounded-2xl text-sm focus:ring-2 focus:ring-indigo-500/25 focus:bg-white dark:focus:bg-white/10 dark:text-white transition-all shadow-inner" />
                   </div>}
-                  <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-1 sm:gap-2 shrink-0">
                       <button onClick={() => setIsDarkMode(!isDarkMode)} className="p-2.5 bg-slate-50 dark:bg-white/5 text-slate-500 dark:text-slate-400 rounded-2xl">
                           {isDarkMode ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
                       </button>
@@ -505,14 +505,14 @@ const App: React.FC = () => {
               </div>
           </nav>
 
-          <main className="relative flex-1 overflow-hidden p-6 sm:p-12 pt-8 w-full">
+          <main className="relative flex-1 overflow-visible p-3 sm:p-8 lg:p-12 pt-5 sm:pt-8 w-full min-w-0">
               <div className="color-orb blue w-[30rem] h-[30rem] -top-40 -left-40" />
               <div className="color-orb violet w-[34rem] h-[34rem] top-[20%] -right-56" />
               <div className="color-orb cyan w-[26rem] h-[26rem] bottom-[-8rem] left-[30%]" />
               <div className="color-orb orange w-[24rem] h-[24rem] top-[55%] left-[5%]" />
               <div className="color-orb red w-[20rem] h-[20rem] bottom-[5%] right-[12%]" />
               {showLauncher ? (
-                  <div className="relative z-10 max-w-6xl mx-auto w-full min-h-[calc(100vh-10rem)] flex items-center justify-center">
+                  <div className="relative z-10 max-w-6xl mx-auto w-full min-h-[calc(100dvh-9rem)] py-5 flex items-center justify-center">
                       <div className="w-full">
                           <div className="text-center mb-10 sm:mb-14">
                               <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-orange-500/10 text-orange-600 dark:text-orange-300 text-xs font-black uppercase tracking-wider border border-orange-500/15">
@@ -606,7 +606,7 @@ const App: React.FC = () => {
                               <ArrowLeft className="w-4 h-4" /> Back to Folders
                           </button>
                       )}
-                      <h2 className="text-4xl sm:text-5xl font-black gradient-text tracking-tight flex items-baseline gap-4">
+                      <h2 className="text-3xl sm:text-5xl font-black gradient-text tracking-tight flex flex-wrap items-baseline gap-x-3 gap-y-1 break-words">
                           {isGlobalView ? 'All Games' : (activeFolderId ? (folders.find(f => f.id === activeFolderId)?.name || 'Folder') : 'Playbook')}
                           <span className="text-lg font-bold text-slate-300 dark:text-slate-600">{filteredGames.length} Items</span>
                       </h2>
