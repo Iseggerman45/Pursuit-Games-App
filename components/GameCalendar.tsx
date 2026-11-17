@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from 'react';
-import { CalendarDays, ChevronLeft, ChevronRight, Plus, Trash2, X, StickyNote, Search, CalendarPlus, ClipboardList, Copy, Printer, Play, Edit2, Check, Folder as FolderIcon, FolderOpen } from 'lucide-react';
+import { CalendarDays, ChevronLeft, ChevronRight, Plus, Trash2, X, StickyNote, Search, CalendarPlus, ClipboardList, Copy, Printer, Play, Edit2, Check, Folder as FolderIcon, FolderOpen, GripVertical, ArrowUp, ArrowDown } from 'lucide-react';
 import { Game, Folder, GameCalendarEvent, CalendarSettings, CalendarSchedule } from '../types';
 import { playClick, playPop, playDelete } from '../services/sound';
 
@@ -71,6 +71,7 @@ const GameCalendar: React.FC<GameCalendarProps> = ({ games, folders, settings, o
   const [selectedDate, setSelectedDate] = useState(todayKey());
   const [selectedGameId, setSelectedGameId] = useState('');
   const [selectedGameIds, setSelectedGameIds] = useState<string[]>([]);
+  const [draggedGameId, setDraggedGameId] = useState<string | null>(null);
   const [selectedSubGameIds, setSelectedSubGameIds] = useState<string[]>([]);
   const [selectedBackupSmallGameIds, setSelectedBackupSmallGameIds] = useState<string[]>([]);
   const [selectedTime, setSelectedTime] = useState('');
@@ -118,6 +119,7 @@ const GameCalendar: React.FC<GameCalendarProps> = ({ games, folders, settings, o
       .filter(event => gameMap.has(event.gameId))
       .sort((a, b) => {
         if (a.date !== b.date) return a.date.localeCompare(b.date);
+        if (a.order !== undefined || b.order !== undefined) return (a.order ?? Number.MAX_SAFE_INTEGER) - (b.order ?? Number.MAX_SAFE_INTEGER);
         return (a.time || '99:99').localeCompare(b.time || '99:99');
       });
   }, [events, gameMap]);
@@ -194,7 +196,8 @@ const GameCalendar: React.FC<GameCalendarProps> = ({ games, folders, settings, o
         time: selectedTime || undefined,
         notes: notes.trim() || undefined,
         createdAt: existing?.createdAt || now,
-        updatedAt: now
+        updatedAt: now,
+        order: editingEventId ? existing?.order : gameIds.indexOf(gameId)
       };
       onAddEvent(event);
     });
@@ -500,7 +503,49 @@ const GameCalendar: React.FC<GameCalendarProps> = ({ games, folders, settings, o
                       })}
                       {filteredGames.length === 0 && <div className="col-span-full text-sm text-slate-400 py-4 text-center">No games found.</div>}
                     </div>
-                    {!editingEventId && selectedGameIds.length > 0 && <div className="mt-2 flex items-center justify-between rounded-xl bg-emerald-500/10 border border-emerald-500/20 px-3 py-2"><span className="text-sm font-bold text-emerald-700 dark:text-emerald-300">{selectedGameIds.length} game{selectedGameIds.length === 1 ? '' : 's'} selected</span><button type="button" onClick={() => setSelectedGameIds([])} className="text-xs font-bold text-slate-500 hover:text-red-500">Clear</button></div>}
+                    {!editingEventId && selectedGameIds.length > 0 && (
+                      <div className="mt-3 rounded-2xl bg-indigo-500/5 border border-indigo-500/15 p-3">
+                        <div className="flex items-center justify-between gap-2 mb-2">
+                          <div><div className="text-sm font-black text-slate-800 dark:text-white">Live Night order</div><p className="text-[10px] text-slate-500 dark:text-slate-400">Drag games to set the order you want to play them.</p></div>
+                          <button type="button" onClick={() => setSelectedGameIds([])} className="text-xs font-bold text-slate-500 hover:text-red-500">Clear</button>
+                        </div>
+                        <div className="space-y-1.5">
+                          {selectedGameIds.map((id, index) => {
+                            const game = gameMap.get(id);
+                            if (!game) return null;
+                            const moveGame = (to: number) => setSelectedGameIds(prev => {
+                              if (to < 0 || to >= prev.length) return prev;
+                              const next = [...prev];
+                              const [moved] = next.splice(index, 1);
+                              next.splice(to, 0, moved);
+                              return next;
+                            });
+                            return (
+                              <div key={id} draggable onDragStart={() => setDraggedGameId(id)} onDragOver={e => e.preventDefault()} onDrop={() => {
+                                if (!draggedGameId || draggedGameId === id) return;
+                                setSelectedGameIds(prev => {
+                                  const next = [...prev];
+                                  const from = next.indexOf(draggedGameId);
+                                  const to = next.indexOf(id);
+                                  if (from < 0 || to < 0) return prev;
+                                  const [moved] = next.splice(from, 1);
+                                  next.splice(to, 0, moved);
+                                  return next;
+                                });
+                                setDraggedGameId(null);
+                              }} onDragEnd={() => setDraggedGameId(null)} className={`flex items-center gap-2 rounded-xl border px-2.5 py-2 bg-white/70 dark:bg-white/5 border-black/5 dark:border-white/10 ${draggedGameId === id ? 'opacity-40' : ''}`}>
+                                <GripVertical className="w-4 h-4 shrink-0 text-slate-400 cursor-grab" />
+                                <span className="w-5 text-[10px] font-black text-indigo-500">{index + 1}</span>
+                                <span className="min-w-0 flex-1 text-xs font-bold text-slate-800 dark:text-slate-100 truncate">{game.title}</span>
+                                <button type="button" disabled={index === 0} onClick={() => moveGame(index - 1)} className="p-1 rounded-lg text-slate-400 hover:text-indigo-500 disabled:opacity-25" aria-label={`Move ${game.title} up`}><ArrowUp className="w-3.5 h-3.5" /></button>
+                                <button type="button" disabled={index === selectedGameIds.length - 1} onClick={() => moveGame(index + 1)} className="p-1 rounded-lg text-slate-400 hover:text-indigo-500 disabled:opacity-25" aria-label={`Move ${game.title} down`}><ArrowDown className="w-3.5 h-3.5" /></button>
+                                <button type="button" onClick={() => setSelectedGameIds(prev => prev.filter(gameId => gameId !== id))} className="p-1 rounded-lg text-slate-400 hover:text-red-500" aria-label={`Remove ${game.title}`}><X className="w-3.5 h-3.5" /></button>
+                              </div>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    )}
                   </div>
                   <div>
                     <label className="text-xs font-black uppercase tracking-wider text-slate-400">Mini-games / Sub-games <span className="font-normal normal-case">(optional)</span></label>
