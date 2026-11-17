@@ -125,9 +125,9 @@ const AddGameModal: React.FC<AddGameModalProps> = ({ isOpen, onClose, onCreate, 
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+    <div className="fixed inset-0 z-50 flex items-start sm:items-center justify-center p-2 sm:p-4 overflow-y-auto">
       <div className="absolute inset-0 bg-black/30 backdrop-blur-sm" onClick={isLoading ? undefined : onClose} />
-      <div className="relative bg-white/95 backdrop-blur-2xl rounded-[2rem] shadow-2xl w-full max-w-3xl overflow-hidden flex flex-col max-h-[92vh] border border-white/60">
+      <div className="relative bg-white/95 backdrop-blur-2xl rounded-[2rem] shadow-2xl w-full max-w-3xl overflow-hidden flex flex-col max-h-[calc(100dvh-1rem)] sm:max-h-[calc(100dvh-2rem)] min-h-0 border border-white/60">
         <div className="p-6 border-b border-black/5 flex justify-between items-center bg-white/70">
           <div>
             <h2 className="text-xl font-bold text-[#1D1D1F] flex items-center gap-2"><BookOpen className="w-5 h-5 text-orange-600" /> Add Game Manually</h2>
@@ -141,7 +141,7 @@ const AddGameModal: React.FC<AddGameModalProps> = ({ isOpen, onClose, onCreate, 
           <button onClick={onClose} disabled={isLoading} className="p-2 bg-black/5 hover:bg-black/10 rounded-full text-slate-600 disabled:opacity-50"><X className="w-5 h-5" /></button>
         </div>
 
-        <div className="overflow-y-auto p-6">
+        <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain p-4 sm:p-6">
           <form id="manual-game-form" onSubmit={handleSubmit} className="space-y-6">
             {formError && <div role="alert" className="rounded-xl border border-red-200 bg-red-50 p-3 text-sm text-red-700">{formError}</div>}
             <div>
