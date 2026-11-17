@@ -1,5 +1,5 @@
 
-const CACHE_NAME = 'pursuit-v43-calendar-batch-reorder'; // Refresh cached assets for manual game entry
+const CACHE_NAME = 'pursuit-v44-responsive-layout-pass'; // Refresh cached assets for manual game entry
 const urlsToCache = [
   '/',
   '/index.html',
