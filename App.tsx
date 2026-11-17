@@ -304,6 +304,13 @@ const App: React.FC = () => {
       triggerBroadcast(undefined, undefined, undefined, undefined, undefined, newEvents);
   };
 
+  const handleReorderCalendarEvents = (reorderedDayEvents: GameCalendarEvent[]) => {
+      const reorderedById = new Map(reorderedDayEvents.map(event => [event.id, event]));
+      const newEvents = calendarEvents.map(event => reorderedById.get(event.id) || event);
+      setCalendarEvents(newEvents);
+      triggerBroadcast(undefined, undefined, undefined, undefined, undefined, newEvents);
+  };
+
   const handleDeleteCalendarEvent = (id: string) => {
       const newEvents = calendarEvents.filter(event => event.id !== id);
       setCalendarEvents(newEvents);
@@ -590,7 +597,7 @@ const App: React.FC = () => {
                       </div>
                   </div>
               ) : showCalendar ? (
-                  <GameCalendar games={games} folders={folders} events={calendarEvents} settings={calendarSettings} onSaveSettings={handleSaveCalendarSettings} onAddEvent={handleAddCalendarEvent} onDeleteEvent={handleDeleteCalendarEvent} onOpenGame={(game) => { setShowCalendar(false); setShowLauncher(false); setSelectedGameFromCalendar(true); setSelectedGame(game); }} onStartNight={(date) => setLiveNightDate(date)} />
+                  <GameCalendar games={games} folders={folders} events={calendarEvents} settings={calendarSettings} onSaveSettings={handleSaveCalendarSettings} onAddEvent={handleAddCalendarEvent} onReorderEvents={handleReorderCalendarEvents} onDeleteEvent={handleDeleteCalendarEvent} onOpenGame={(game) => { setShowCalendar(false); setShowLauncher(false); setSelectedGameFromCalendar(true); setSelectedGame(game); }} onStartNight={(date) => setLiveNightDate(date)} />
               ) : <div className="relative z-10 max-w-7xl mx-auto w-full">
               <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-12">
                    <div>
