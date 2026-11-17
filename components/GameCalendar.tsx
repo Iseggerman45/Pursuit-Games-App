@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from 'react';
-import { CalendarDays, ChevronLeft, ChevronRight, Plus, Trash2, X, StickyNote, Search, CalendarPlus, ClipboardList, Copy, Printer, Play, Edit2, Check, Folder as FolderIcon, FolderOpen } from 'lucide-react';
+import { CalendarDays, ChevronLeft, ChevronRight, Plus, Trash2, X, StickyNote, Search, CalendarPlus, ClipboardList, Copy, Printer, Play, Edit2, Check, Folder as FolderIcon, FolderOpen, GripVertical } from 'lucide-react';
 import { Game, Folder, GameCalendarEvent, CalendarSettings, CalendarSchedule } from '../types';
 import { playClick, playPop, playDelete } from '../services/sound';
 
@@ -72,6 +72,7 @@ const GameCalendar: React.FC<GameCalendarProps> = ({ games, folders, settings, o
   const [selectedGameId, setSelectedGameId] = useState('');
   const [selectedGameIds, setSelectedGameIds] = useState<string[]>([]);
   const [draggedGameId, setDraggedGameId] = useState<string | null>(null);
+  const [draggedEventId, setDraggedEventId] = useState<string | null>(null);
   const [selectedSubGameIds, setSelectedSubGameIds] = useState<string[]>([]);
   const [selectedBackupSmallGameIds, setSelectedBackupSmallGameIds] = useState<string[]>([]);
   const [selectedTime, setSelectedTime] = useState('');
@@ -142,6 +143,22 @@ const GameCalendar: React.FC<GameCalendarProps> = ({ games, folders, settings, o
 
   const eventsForDate = (date: string) =>
     visibleEvents.filter(event => event.date === date);
+
+  // Reorder already-scheduled cards for one calendar date. Persist the new
+  // sequence on each event so the calendar and Live Night share the same order.
+  const reorderDayEvents = (date: string, draggedId: string, targetId: string) => {
+    if (!draggedId || draggedId === targetId) return;
+    const dayEvents = eventsForDate(date);
+    const from = dayEvents.findIndex(event => event.id === draggedId);
+    const to = dayEvents.findIndex(event => event.id === targetId);
+    if (from < 0 || to < 0) return;
+    const reordered = [...dayEvents];
+    const [moved] = reordered.splice(from, 1);
+    reordered.splice(to, 0, moved);
+    const now = Date.now();
+    reordered.forEach((event, index) => onAddEvent({ ...event, order: index, updatedAt: now }));
+    setDraggedEventId(null);
+  };
 
   const openAdd = (date = anchorDate) => {
     playClick();
@@ -357,8 +374,8 @@ const GameCalendar: React.FC<GameCalendarProps> = ({ games, folders, settings, o
                           const game = gameMap.get(event.gameId);
                           if (!game) return null;
                           return (
-                            <div key={event.id} className="flex items-stretch gap-1 rounded-xl bg-gradient-to-r from-indigo-500/10 to-orange-500/10 dark:from-indigo-500/15 dark:to-orange-500/10 border border-indigo-200/60 dark:border-indigo-400/10 hover:border-indigo-400/50 transition-colors overflow-hidden">
-                              <button onClick={() => onOpenGame(game)} className="min-w-0 flex-1 text-left px-2.5 py-2">
+                            <div key={event.id} draggable onDragStart={e => { setDraggedEventId(event.id); e.dataTransfer.effectAllowed = 'move'; e.dataTransfer.setData('text/plain', event.id); }} onDragOver={e => { if (draggedEventId) { e.preventDefault(); e.dataTransfer.dropEffect = 'move'; } }} onDrop={e => { e.preventDefault(); reorderDayEvents(date, draggedEventId || e.dataTransfer.getData('text/plain'), event.id); }} onDragEnd={() => setDraggedEventId(null)} className={`flex items-stretch gap-1 rounded-xl bg-gradient-to-r from-indigo-500/10 to-orange-500/10 dark:from-indigo-500/15 dark:to-orange-500/10 border border-indigo-200/60 dark:border-indigo-400/10 hover:border-indigo-400/50 transition-colors overflow-hidden cursor-grab active:cursor-grabbing ${draggedEventId === event.id ? 'opacity-40' : ''}`}>
+                              <button onClick={() => onOpenGame(game)} className="min-w-0 flex-1 text-left px-2.5 py-2"><GripVertical className="inline w-3 h-3 mr-1 text-slate-400" />
                                 <div className="text-[10px] font-bold text-indigo-700 dark:text-indigo-300 truncate">{event.time ? formatTime(event.time) + ' · ' : ''}{game.title}</div>
                                 <div className="text-[9px] text-slate-400 truncate">{game.duration}</div>
                                 {!!event.subGameIds?.length && <div className="text-[9px] text-orange-600 dark:text-orange-400 truncate">+ {event.subGameIds.map(id => gameMap.get(id)?.title).filter(Boolean).join(", ")}</div>}
@@ -398,9 +415,9 @@ const GameCalendar: React.FC<GameCalendarProps> = ({ games, folders, settings, o
                         const game = gameMap.get(event.gameId);
                         if (!game) return null;
                         return (
-                          <div key={event.id} className="group rounded-2xl p-3 bg-white/70 dark:bg-white/5 border border-white/80 dark:border-white/10 shadow-sm">
+                          <div key={event.id} draggable onDragStart={e => { setDraggedEventId(event.id); e.dataTransfer.effectAllowed = 'move'; e.dataTransfer.setData('text/plain', event.id); }} onDragOver={e => { if (draggedEventId) { e.preventDefault(); e.dataTransfer.dropEffect = 'move'; } }} onDrop={e => { e.preventDefault(); reorderDayEvents(date, draggedEventId || e.dataTransfer.getData('text/plain'), event.id); }} onDragEnd={() => setDraggedEventId(null)} className={`group rounded-2xl p-3 bg-white/70 dark:bg-white/5 border border-white/80 dark:border-white/10 shadow-sm cursor-grab active:cursor-grabbing ${draggedEventId === event.id ? 'opacity-40' : ''}`}>
                             <button onClick={() => onOpenGame(game)} className="w-full text-left">
-                              <div className="text-[10px] font-bold text-orange-600 dark:text-orange-400">{formatTime(event.time)}</div>
+                              <div className="flex items-center gap-1 text-[10px] font-bold text-orange-600 dark:text-orange-400"><GripVertical className="w-3 h-3 text-slate-400" />{formatTime(event.time)}</div>
                               <div className="mt-1 text-xs font-black text-slate-800 dark:text-white leading-snug">{game.title}</div>
                               <div className="mt-1 text-[10px] text-slate-400">{game.duration}</div>
                               {!!event.subGameIds?.length && <div className="mt-1 text-[10px] text-orange-600 dark:text-orange-400">Mini-games: {event.subGameIds.map(id => gameMap.get(id)?.title).filter(Boolean).join(", ")}</div>}
