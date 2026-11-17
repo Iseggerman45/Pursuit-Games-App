@@ -199,9 +199,9 @@ const GameDetailsView: React.FC<GameDetailsViewProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-[60] flex items-center justify-center p-4">
+    <div className="fixed inset-0 z-[60] flex items-start sm:items-center justify-center p-2 sm:p-4 overflow-y-auto">
         <div className="absolute inset-0 bg-black/40 backdrop-blur-md" onClick={onClose} />
-        <div className="relative w-full max-w-5xl max-h-[95vh] bg-white dark:bg-[#1D1D1F] text-[#1D1D1F] dark:text-white rounded-[2.5rem] shadow-2xl overflow-hidden flex flex-col border border-white/50 dark:border-white/10 animate-in zoom-in-95 duration-300">
+        <div className="relative w-full max-w-5xl max-h-[calc(100dvh-1rem)] sm:max-h-[calc(100dvh-2rem)] min-h-0 bg-white dark:bg-[#1D1D1F] text-[#1D1D1F] dark:text-white rounded-[2.5rem] shadow-2xl overflow-hidden flex flex-col border border-white/50 dark:border-white/10 animate-in zoom-in-95 duration-300">
             {/* Header */}
             <div className="p-8 pb-6 border-b border-black/5 dark:border-white/10 bg-slate-50 dark:bg-white/5">
                 <div className="absolute top-6 right-6 flex items-center gap-2 z-50">
@@ -229,7 +229,7 @@ const GameDetailsView: React.FC<GameDetailsViewProps> = ({
                     <div className="lg:col-span-8 space-y-8">
                         {/* Diagram Container */}
                         <div className="bg-white dark:bg-black/20 rounded-3xl border border-slate-100 dark:border-white/5 overflow-hidden shadow-sm flex flex-col items-center justify-center">
-                            <div className="w-full aspect-[16/10] min-h-[400px] flex flex-col">
+                            <div className="w-full aspect-[16/10] min-h-[220px] sm:min-h-[320px] lg:min-h-[400px] flex flex-col">
                                 <DiagramEditor 
                                     initialImageUrl={game.diagramUrl} 
                                     initialAnnotations={game.diagramData} 
