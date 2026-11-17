@@ -49,9 +49,9 @@ const SyncModal: React.FC<SyncModalProps> = ({
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-[80] flex items-center justify-center p-4">
+    <div className="fixed inset-0 z-[80] flex items-start sm:items-center justify-center p-2 sm:p-4 overflow-y-auto">
       <div className="absolute inset-0 bg-black/30 backdrop-blur-md" onClick={onClose} />
-      <div className="relative bg-white/95 dark:bg-neutral-900/95 backdrop-blur-2xl rounded-[2.5rem] shadow-2xl w-full max-w-md overflow-hidden flex flex-col max-h-[90vh]">
+      <div className="relative bg-white/95 dark:bg-neutral-900/95 backdrop-blur-2xl rounded-[2.5rem] shadow-2xl w-full max-w-md overflow-hidden flex flex-col max-h-[calc(100dvh-1rem)] sm:max-h-[calc(100dvh-2rem)] min-h-0">
         <div className="p-6 border-b border-black/5 dark:border-white/10 flex justify-between items-center">
             <div className="flex items-center gap-3">
                 <div className="p-2 bg-indigo-50 dark:bg-white/10 rounded-xl text-indigo-600"><CloudLightning className="w-5 h-5" /></div>
