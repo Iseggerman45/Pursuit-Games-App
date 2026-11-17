@@ -10,6 +10,7 @@ interface GameCalendarProps {
   onSaveSettings: (settings: CalendarSettings) => void;
   events: GameCalendarEvent[];
   onAddEvent: (event: GameCalendarEvent) => void;
+  onReorderEvents: (events: GameCalendarEvent[]) => void;
   onDeleteEvent: (id: string) => void;
   onOpenGame: (game: Game) => void;
   onStartNight: (date: string) => void;
@@ -63,7 +64,7 @@ const formatTime = (time?: string) => {
   return `${displayHour}:${pad(minute)} ${suffix}`;
 };
 
-const GameCalendar: React.FC<GameCalendarProps> = ({ games, folders, settings, onSaveSettings, events, onAddEvent, onDeleteEvent, onOpenGame, onStartNight }) => {
+const GameCalendar: React.FC<GameCalendarProps> = ({ games, folders, settings, onSaveSettings, events, onAddEvent, onReorderEvents, onDeleteEvent, onOpenGame, onStartNight }) => {
   const [view, setView] = useState<ViewMode>('month');
   const [anchorDate, setAnchorDate] = useState(todayKey());
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -156,7 +157,7 @@ const GameCalendar: React.FC<GameCalendarProps> = ({ games, folders, settings, o
     const [moved] = reordered.splice(from, 1);
     reordered.splice(to, 0, moved);
     const now = Date.now();
-    reordered.forEach((event, index) => onAddEvent({ ...event, order: index, updatedAt: now }));
+    onReorderEvents(reordered.map((event, index) => ({ ...event, order: index, updatedAt: now })));
     setDraggedEventId(null);
   };
 
