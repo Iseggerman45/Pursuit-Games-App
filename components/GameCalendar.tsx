@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from 'react';
-import { CalendarDays, ChevronLeft, ChevronRight, Plus, Trash2, X, StickyNote, Search, CalendarPlus, ClipboardList, Copy, Printer, Play, Edit2, Check } from 'lucide-react';
+import { CalendarDays, ChevronLeft, ChevronRight, Plus, Trash2, X, StickyNote, Search, CalendarPlus, ClipboardList, Copy, Printer, Play, Edit2, Check, Folder as FolderIcon, FolderOpen } from 'lucide-react';
 import { Game, Folder, GameCalendarEvent, CalendarSettings, CalendarSchedule } from '../types';
 import { playClick, playPop, playDelete } from '../services/sound';
 
@@ -76,6 +76,7 @@ const GameCalendar: React.FC<GameCalendarProps> = ({ games, folders, settings, o
   const [selectedTime, setSelectedTime] = useState('');
   const [notes, setNotes] = useState('');
   const [gameSearch, setGameSearch] = useState('');
+  const [pickerFolderId, setPickerFolderId] = useState('all');
   const [selectedNights, setSelectedNights] = useState<number[]>([]);
   const [isEditingSchedule, setIsEditingSchedule] = useState(false);
   const [supplyListDate, setSupplyListDate] = useState<string | null>(null);
@@ -151,6 +152,7 @@ const GameCalendar: React.FC<GameCalendarProps> = ({ games, folders, settings, o
     setSelectedTime('');
     setNotes('');
     setGameSearch('');
+    setPickerFolderId('all');
     setIsModalOpen(true);
   };
 
@@ -165,6 +167,7 @@ const GameCalendar: React.FC<GameCalendarProps> = ({ games, folders, settings, o
     setSelectedTime(event.time || '');
     setNotes(event.notes || '');
     setGameSearch('');
+    setPickerFolderId('all');
     setIsModalOpen(true);
   };
 
@@ -246,9 +249,12 @@ const GameCalendar: React.FC<GameCalendarProps> = ({ games, folders, settings, o
 
   const filteredGames = useMemo(() => {
     const term = gameSearch.trim().toLowerCase();
-    if (!term) return games;
-    return games.filter(game => game.title.toLowerCase().includes(term));
-  }, [games, gameSearch]);
+    return games.filter(game => {
+      const matchesFolder = pickerFolderId === 'all' || (pickerFolderId === 'unfiled' ? !game.folderId : game.folderId === pickerFolderId);
+      const matchesSearch = !term || game.title.toLowerCase().includes(term);
+      return matchesFolder && matchesSearch;
+    });
+  }, [games, gameSearch, pickerFolderId]);
 
   const title = view === 'month'
     ? monthLabel(anchorDate)
@@ -451,6 +457,25 @@ const GameCalendar: React.FC<GameCalendarProps> = ({ games, folders, settings, o
                     <div className="relative mt-2">
                       <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
                       <input value={gameSearch} onChange={e => setGameSearch(e.target.value)} placeholder="Search games..." className="w-full pl-10 pr-4 py-3 rounded-xl bg-slate-100 dark:bg-white/5 border-none text-sm dark:text-white focus:ring-2 focus:ring-orange-500/20" />
+                    </div>
+                    <div className="mt-3 -mx-1 px-1 overflow-x-auto">
+                      <div className="flex min-w-max gap-2 pb-1">
+                        <button type="button" onClick={() => setPickerFolderId('all')} className={`inline-flex items-center gap-2 px-3 py-2 rounded-xl border text-xs font-bold transition-all ${pickerFolderId === 'all' ? 'bg-orange-500 text-white border-orange-500 shadow-sm' : 'bg-white/60 dark:bg-white/5 border-black/5 dark:border-white/10 text-slate-600 dark:text-slate-300'}`}>
+                          <FolderOpen className="w-4 h-4" /> All Games <span className="opacity-70">{games.length}</span>
+                        </button>
+                        {folders.map(folder => {
+                          const count = games.filter(game => game.folderId === folder.id).length;
+                          const active = pickerFolderId === folder.id;
+                          return (
+                            <button key={folder.id} type="button" onClick={() => setPickerFolderId(folder.id)} className={`inline-flex items-center gap-2 px-3 py-2 rounded-xl border text-xs font-bold transition-all ${active ? 'bg-orange-500 text-white border-orange-500 shadow-sm' : 'bg-white/60 dark:bg-white/5 border-black/5 dark:border-white/10 text-slate-600 dark:text-slate-300'}`}>
+                              <FolderIcon className="w-4 h-4" /> {folder.name} <span className="opacity-70">{count}</span>
+                            </button>
+                          );
+                        })}
+                        <button type="button" onClick={() => setPickerFolderId('unfiled')} className={`inline-flex items-center gap-2 px-3 py-2 rounded-xl border text-xs font-bold transition-all ${pickerFolderId === 'unfiled' ? 'bg-orange-500 text-white border-orange-500 shadow-sm' : 'bg-white/60 dark:bg-white/5 border-black/5 dark:border-white/10 text-slate-600 dark:text-slate-300'}`}>
+                          <FolderIcon className="w-4 h-4" /> Unfiled <span className="opacity-70">{games.filter(game => !game.folderId).length}</span>
+                        </button>
+                      </div>
                     </div>
                     {!editingEventId && <p className="mt-2 text-xs text-slate-500 dark:text-slate-400">Choose as many games as you want. They’ll be added as separate games for this night.</p>}
                     <div className="mt-2 max-h-64 overflow-y-auto grid grid-cols-1 sm:grid-cols-2 gap-2 pr-1">
