@@ -19,13 +19,13 @@ const UpdateModal: React.FC<UpdateModalProps> = ({ isOpen, onClose, version, not
   };
 
   return (
-    <div className="fixed inset-0 z-[150] flex items-center justify-center p-4">
+    <div className="fixed inset-0 z-[150] flex items-start sm:items-center justify-center p-2 sm:p-4 overflow-y-auto">
       <div 
         className="absolute inset-0 bg-black/60 backdrop-blur-md animate-in fade-in duration-500"
         onClick={handleClose}
       />
       
-      <div className="relative bg-white dark:bg-[#1D1D1F] rounded-[2.5rem] shadow-2xl w-full max-w-sm overflow-hidden animate-in zoom-in-95 slide-in-from-bottom-10 duration-500 border border-white/20 ring-1 ring-white/10">
+      <div className="relative bg-white dark:bg-[#1D1D1F] rounded-[2.5rem] shadow-2xl w-full max-w-sm max-h-[calc(100dvh-1rem)] overflow-y-auto overflow-x-hidden animate-in zoom-in-95 slide-in-from-bottom-10 duration-500 border border-white/20 ring-1 ring-white/10">
         
         {/* Decorative Header Background */}
         <div className="absolute top-0 left-0 right-0 h-32 bg-gradient-to-br from-orange-400 to-red-600 opacity-20 dark:opacity-30" />
