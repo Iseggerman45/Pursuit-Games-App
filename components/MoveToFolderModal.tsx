@@ -21,13 +21,13 @@ const MoveToFolderModal: React.FC<MoveToFolderModalProps> = ({ isOpen, game, fol
   };
 
   return (
-    <div className="fixed inset-0 z-[80] flex items-center justify-center p-4">
+    <div className="fixed inset-0 z-[80] flex items-start sm:items-center justify-center p-2 sm:p-4 overflow-y-auto">
       <div 
         className="absolute inset-0 bg-black/30 backdrop-blur-md animate-in fade-in duration-300"
         onClick={onClose}
       />
       
-      <div className="relative bg-white/90 dark:bg-neutral-900/90 backdrop-blur-2xl rounded-[2rem] shadow-2xl w-full max-w-sm overflow-hidden animate-in zoom-in-95 slide-in-from-bottom-5 duration-300 border border-white/50 dark:border-white/10 ring-1 ring-black/5 flex flex-col max-h-[70vh]">
+      <div className="relative bg-white/90 dark:bg-neutral-900/90 backdrop-blur-2xl rounded-[2rem] shadow-2xl w-full max-w-sm overflow-hidden animate-in zoom-in-95 slide-in-from-bottom-5 duration-300 border border-white/50 dark:border-white/10 ring-1 ring-black/5 flex flex-col max-h-[calc(100dvh-1rem)]">
         
         <div className="p-6 border-b border-black/5 dark:border-white/10 flex justify-between items-center">
             <div>
