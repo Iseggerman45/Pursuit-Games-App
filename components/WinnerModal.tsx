@@ -66,10 +66,10 @@ const WinnerModal: React.FC<WinnerModalProps> = ({ isOpen, onClose, game, player
   ).sort((a,b) => a.name.localeCompare(b.name));
 
   return (
-    <div className="fixed inset-0 z-[70] flex items-center justify-center p-4">
+    <div className="fixed inset-0 z-[70] flex items-start sm:items-center justify-center p-2 sm:p-4 overflow-y-auto">
       <div className="absolute inset-0 bg-black/40 backdrop-blur-md animate-in fade-in duration-300" onClick={onClose} />
       
-      <div className="relative bg-white/95 dark:bg-[#1D1D1F]/95 backdrop-blur-2xl rounded-[2.5rem] shadow-2xl w-full max-w-lg overflow-hidden animate-in zoom-in-95 slide-in-from-bottom-5 duration-300 border border-white/50 dark:border-white/10 ring-1 ring-black/5 flex flex-col max-h-[85vh]">
+      <div className="relative bg-white/95 dark:bg-[#1D1D1F]/95 backdrop-blur-2xl rounded-[2.5rem] shadow-2xl w-full max-w-lg overflow-hidden animate-in zoom-in-95 slide-in-from-bottom-5 duration-300 border border-white/50 dark:border-white/10 ring-1 ring-black/5 flex flex-col max-h-[calc(100dvh-1rem)] sm:max-h-[calc(100dvh-2rem)] min-h-0">
         
         {/* Header */}
         <div className="p-6 border-b border-black/5 dark:border-white/10 bg-slate-50 dark:bg-white/5 flex justify-between items-center">
