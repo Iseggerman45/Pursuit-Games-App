@@ -291,7 +291,7 @@ const GameCalendar: React.FC<GameCalendarProps> = ({ games, folders, settings, o
     : weekDays.length ? `${shortDayLabel(weekDays[0])} – ${shortDayLabel(weekDays[weekDays.length - 1])}` : 'Your Youth Nights';
 
   return (
-    <section className="relative z-10 max-w-7xl mx-auto w-full">
+    <section className="relative z-10 max-w-7xl mx-auto w-full min-w-0 pb-[max(1rem,env(safe-area-inset-bottom))]">
       {!settings.configured || isEditingSchedule ? (
         <div className="mb-7 glass-card rounded-[2rem] p-5 sm:p-8 border border-orange-200/60 dark:border-orange-400/10 bg-gradient-to-br from-orange-500/10 via-white/20 to-indigo-500/10 dark:from-orange-500/10 dark:via-white/[0.03] dark:to-indigo-500/10">
           <div className="max-w-2xl mx-auto">
@@ -451,7 +451,7 @@ const GameCalendar: React.FC<GameCalendarProps> = ({ games, folders, settings, o
       )}
 
       {supplyListDate && (
-        <div className="fixed inset-0 z-[160] bg-slate-950/55 backdrop-blur-xl flex items-center justify-center p-4">
+        <div className="fixed inset-0 z-[160] bg-slate-950/55 backdrop-blur-xl flex items-start sm:items-center justify-center p-2 sm:p-4 overflow-y-auto">
           <div className="w-full max-w-lg max-h-[calc(100dvh-1rem)] sm:max-h-[calc(100dvh-2rem)] glass-card rounded-[2rem] overflow-hidden shadow-2xl flex flex-col my-auto">
             <div className="px-6 py-5 border-b border-black/5 dark:border-white/10 flex items-center justify-between">
               <div className="flex items-center gap-3"><div className="p-2.5 rounded-xl bg-orange-500/10 text-orange-600 dark:text-orange-400"><ClipboardList className="w-5 h-5" /></div><div><div className="text-xs font-black uppercase tracking-wider text-orange-600 dark:text-orange-400">Game Coordinator</div><h3 className="text-xl font-black text-slate-900 dark:text-white">Supply List</h3><p className="text-xs text-slate-400 mt-0.5">{shortDayLabel(supplyListDate)}</p></div></div>
@@ -466,8 +466,8 @@ const GameCalendar: React.FC<GameCalendarProps> = ({ games, folders, settings, o
       )}
 
       {isModalOpen && (
-        <div className="fixed inset-0 z-[150] bg-slate-950/50 backdrop-blur-xl flex items-center justify-center p-2 sm:p-4 overflow-hidden">
-          <div className="w-full max-w-2xl h-[min(92dvh,900px)] max-h-[calc(100dvh-1rem)] min-h-0 glass-card rounded-[2rem] overflow-hidden shadow-2xl flex flex-col">
+        <div className="fixed inset-0 z-[150] bg-slate-950/50 backdrop-blur-xl flex items-start sm:items-center justify-center p-2 sm:p-4 overflow-y-auto">
+          <div className="w-full max-w-2xl h-[min(92dvh,900px)] max-h-[calc(100dvh-1rem)] sm:max-h-[calc(100dvh-2rem)] min-h-0 glass-card rounded-[2rem] overflow-hidden shadow-2xl flex flex-col">
             <div className="shrink-0 px-4 sm:px-6 py-4 sm:py-5 border-b border-black/5 dark:border-white/10 flex items-center justify-between gap-3">
               <div>
                 <div className="text-xs font-black uppercase tracking-wider text-orange-600 dark:text-orange-400">{editingEventId ? "Edit scheduled game" : "Schedule a game"}</div>
