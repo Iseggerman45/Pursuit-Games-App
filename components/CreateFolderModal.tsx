@@ -29,13 +29,13 @@ const CreateFolderModal: React.FC<CreateFolderModalProps> = ({ isOpen, onClose, 
   };
 
   return (
-    <div className="fixed inset-0 z-[80] flex items-center justify-center p-4">
+    <div className="fixed inset-0 z-[80] flex items-start sm:items-center justify-center p-2 sm:p-4 overflow-y-auto">
       <div 
         className="absolute inset-0 bg-black/30 backdrop-blur-sm animate-in fade-in duration-300"
         onClick={onClose}
       />
       
-      <div className="relative bg-white/90 dark:bg-neutral-900/90 backdrop-blur-2xl rounded-[2rem] shadow-2xl w-full max-w-sm overflow-hidden animate-in zoom-in-95 slide-in-from-bottom-5 duration-300 border border-white/50 ring-1 ring-black/5">
+      <div className="relative bg-white/90 dark:bg-neutral-900/90 backdrop-blur-2xl rounded-[2rem] shadow-2xl w-full max-w-sm max-h-[calc(100dvh-1rem)] overflow-y-auto overflow-x-hidden animate-in zoom-in-95 slide-in-from-bottom-5 duration-300 border border-white/50 ring-1 ring-black/5">
         <div className="p-6">
           <div className="flex justify-between items-center mb-6">
              <div className="flex items-center gap-3">
