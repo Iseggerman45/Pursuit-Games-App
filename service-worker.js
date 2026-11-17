@@ -1,5 +1,5 @@
 
-const CACHE_NAME = 'pursuit-v38-calendar-game-picker'; // Refresh cached assets for manual game entry
+const CACHE_NAME = 'pursuit-v39-calendar-folder-picker'; // Refresh cached assets for manual game entry
 const urlsToCache = [
   '/',
   '/index.html',
