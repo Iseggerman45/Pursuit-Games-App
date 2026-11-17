@@ -1,5 +1,5 @@
 
-const CACHE_NAME = 'pursuit-v42-scheduled-game-drag-order'; // Refresh cached assets for manual game entry
+const CACHE_NAME = 'pursuit-v43-calendar-batch-reorder'; // Refresh cached assets for manual game entry
 const urlsToCache = [
   '/',
   '/index.html',
